@@ -20,16 +20,6 @@ class NativeDatabaseConnection(private val dbManager:NativeDatabaseManager, inte
         return statement
     }
 
-    override fun <R> withStatement(sql: String, proc: (Statement) -> R): R {
-        val statement = createStatement(sql)
-        try{
-            return proc(statement)
-        }
-        finally {
-            statement.finalize()
-        }
-    }
-
     override fun beginTransaction() {
         transaction.value = Transaction(false).freeze()
         withStatement("BEGIN;"){it.execute()}
@@ -48,17 +38,6 @@ class NativeDatabaseConnection(private val dbManager:NativeDatabaseManager, inte
             withStatement(if(trans.successful){"COMMIT;"}else{"ROLLBACK;"}){it.execute()}
         } finally {
             transaction.value = null
-        }
-    }
-
-    override fun <R> withTransaction(proc: (DatabaseConnection) -> R): R {
-        beginTransaction()
-        try{
-            val result = proc(this)
-            setTransactionSuccessful()
-            return result
-        }finally {
-            endTransaction()
         }
     }
 

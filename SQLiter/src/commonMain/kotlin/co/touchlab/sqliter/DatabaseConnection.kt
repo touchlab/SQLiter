@@ -2,10 +2,29 @@ package co.touchlab.sqliter
 
 interface DatabaseConnection{
     fun createStatement(sql:String):Statement
-    fun <R> withStatement(sql:String, proc:(Statement)->R):R
     fun beginTransaction()
     fun setTransactionSuccessful()
     fun endTransaction()
-    fun <R> withTransaction(proc:(DatabaseConnection)->R):R
     fun close()
+}
+
+fun <R> DatabaseConnection.withStatement(sql: String, proc: (Statement) -> R): R {
+    val statement = createStatement(sql)
+    try{
+        return proc(statement)
+    }
+    finally {
+        statement.finalize()
+    }
+}
+
+fun <R> DatabaseConnection.withTransaction(proc: (DatabaseConnection) -> R): R {
+    beginTransaction()
+    try{
+        val result = proc(this)
+        setTransactionSuccessful()
+        return result
+    }finally {
+        endTransaction()
+    }
 }

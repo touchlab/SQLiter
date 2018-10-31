@@ -14,6 +14,34 @@ interface Cursor {
     fun columnName(index: Int): String
 }
 
+fun Cursor.getStringOrNull(index: Int): String?{
+    return if(isNull(index))
+        null
+    else
+        getString(index)
+}
+
+fun Cursor.getLongOrNull(index: Int): Long?{
+    return if(isNull(index))
+        null
+    else
+        getLong(index)
+}
+
+fun Cursor.getBytesOrNull(index: Int): ByteArray?{
+    return if(isNull(index))
+        null
+    else
+        getBytes(index)
+}
+
+fun Cursor.getDoubleOrNull(index: Int): Double?{
+    return if(isNull(index))
+        null
+    else
+        getDouble(index)
+}
+
 val Cursor.columnNames: Array<String>
     get() = Array(columnCount) {
         columnName(it)
