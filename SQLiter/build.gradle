@@ -1,0 +1,81 @@
+plugins {
+    id 'kotlin-multiplatform' version '1.3.0'
+}
+repositories {
+    maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
+    mavenCentral()
+    if(project.hasProperty('j2objcMavenDeploy')) {
+            maven {
+                url project.property('j2objcMavenDeploy')
+            }
+        }
+}
+group 'com.example'
+version '0.0.1'
+
+apply plugin: 'maven-publish'
+
+kotlin {
+    targets {
+        
+//        fromPreset(presets.jvm, 'jvm')
+        
+        // This preset is for iPhone emulator
+        // Switch here to presets.iosArm64 to build library for iPhone device
+        /*fromPreset(presets.iosX64, 'ios') {
+            compilations.main.outputKinds('FRAMEWORK')
+        }*/
+
+        fromPreset(presets.macosX64, 'ios'){
+            compilations.each {
+                it.extraOpts("-linker-options", "-lsqlite3")
+            }
+            compilations.test {
+                it.extraOpts("-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc")
+            }
+        }
+
+        /*fromPreset(presets.iosX64, 'iosX64'){
+            compilations.each {
+                it.extraOpts("-linker-options", "-lsqlite3")
+            }
+        }*/
+    }
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation "co.touchlab.stately:stately:0.3.1-k1.3.0-a2"
+                implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0'
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-test-common'
+                implementation 'org.jetbrains.kotlin:kotlin-test-annotations-common'
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-test'
+                implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+            }
+        }
+        iosMain {
+            dependencies {
+                implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.0'
+            }
+        }
+        iosTest {
+        }
+    }
+}
+
+configurations {
+    compileClasspath
+}
