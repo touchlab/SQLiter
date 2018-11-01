@@ -13,8 +13,6 @@ class NativeDatabaseConnection(
     internal val meNode:AtomicReference<AbstractSharedLinkedList.Node<NativeDatabaseConnection>?> = AtomicReference(null)
     internal val transaction = AtomicReference<Transaction?>(null)
 
-    internal val suspendWorker = Worker.start()
-
     data class Transaction(val successful:Boolean)
 
     override fun createStatement(sql: String): Statement {
@@ -53,13 +51,10 @@ class NativeDatabaseConnection(
     }
 
     override fun close() {
-        suspendWorker.requestTermination()
-
         val node = meNode.value
         if(node != null && !node.isRemoved)
             node.remove()
         nativeClose(connectionPtr)
-
     }
 
     @SymbolName("Android_Database_SQLiteConnection_nativePrepareStatement")

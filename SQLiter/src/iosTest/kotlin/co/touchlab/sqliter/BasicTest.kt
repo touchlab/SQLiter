@@ -41,7 +41,7 @@ class BasicTest{
             }
             statement.finalize()
         }
-
+/*
         connection.withStatement("SELECT * FROM test") {
             runBlocking {
                 val cursor = it.query()
@@ -51,7 +51,7 @@ class BasicTest{
 
                 println("Query timeWorkerSuspend: $timeNonSuspend")
             }
-        }
+        }*/
 
         connection.withStatement("SELECT * FROM test") {
             val cursor = it.query()
