@@ -1,3 +1,21 @@
+buildscript {
+    repositories {
+        jcenter()
+        google()
+        gradlePluginPortal()
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev/" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
+        maven {
+            url  "https://dl.bintray.com/jetbrains/kotlin-native-dependencies"
+        }
+    }
+
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$BINTRAY_VERSION"
+    }
+}
+
+
 plugins {
     id 'kotlin-multiplatform' version '1.3.0'
 }
@@ -26,12 +44,42 @@ kotlin {
             compilations.main.outputKinds('FRAMEWORK')
         }*/
 
+        /*fromPreset(presets.macosX64, 'macos')
+        fromPreset(presets.iosX64, 'iosX64')
+        fromPreset(presets.iosArm32, 'iosArm32')
+        fromPreset(presets.iosArm64, 'iosArm64')
+        
         fromPreset(presets.macosX64, 'ios'){
             compilations.each {
                 it.extraOpts("-linker-options", "-lsqlite3")
             }
             compilations.test {
                 it.extraOpts("-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc")
+            }
+        }*/
+
+        fromPreset(presets.macosX64, 'macos'){
+            compilations.each {
+                it.extraOpts("-linker-options", "-lsqlite3")
+            }
+            compilations.test {
+                it.extraOpts("-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc")
+            }
+        }
+
+        fromPreset(presets.iosX64, 'iosX64'){
+            compilations.each {
+                it.extraOpts("-linker-options", "-lsqlite3")
+            }
+        }
+        fromPreset(presets.iosArm64, 'iosArm64'){
+            compilations.each {
+                it.extraOpts("-linker-options", "-lsqlite3")
+            }
+        }
+        fromPreset(presets.iosArm32, 'iosArm32'){
+            compilations.each {
+                it.extraOpts("-linker-options", "-lsqlite3")
             }
         }
 
@@ -66,12 +114,28 @@ kotlin {
                 implementation 'org.jetbrains.kotlin:kotlin-test-junit'
             }
         }
-        iosMain {
+
+        nativeCommonMain {
+            dependencies {
+                implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.0'
+            }
+        }
+        nativeCommonTest { }
+
+        /*iosMain {
             dependencies {
                 implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.0'
             }
         }
         iosTest {
+        }*/
+
+        configure([iosX64Main, iosArm32Main, iosArm64Main, macosMain]) {
+            dependsOn nativeCommonMain
+        }
+
+        configure([iosX64Test, iosArm32Test, iosArm64Test, macosTest]) {
+            dependsOn nativeCommonTest
         }
     }
 }
@@ -79,3 +143,30 @@ kotlin {
 configurations {
     compileClasspath
 }
+
+void mergeCppOutput(String archFolder, String archZip){
+    ant.zip(
+            update: "true",
+            destfile: "${project.buildDir}/classes/kotlin/$archFolder/main/sqliter.klib"
+    ) {
+        zipfileset(
+                dir: "${project.projectDir}/../KotlinCpp/bcdist/$archZip",
+                prefix: "targets/$archZip/native"
+        ) {
+            include(name: '**.bc')
+        }
+    }
+}
+
+task mergeCppAll(dependsOn:build) {
+    doLast {
+        mergeCppOutput("iosArm32", "ios_arm32")
+        mergeCppOutput("iosArm64", "ios_arm64")
+        mergeCppOutput("iosX64", "ios_x64")
+        mergeCppOutput("macos", "macos_x64")
+    }
+}
+
+apply from: 'gradle/configpublish.gradle'
+
+tasks.findByName("publish").dependsOn("mergeCppAll")
