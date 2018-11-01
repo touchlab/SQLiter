@@ -951,7 +951,7 @@ void Android_Database_SQLiteConnection_nativeResetCancel(KRef thiz,
     nativeResetCancel(connectionPtr, cancelable) ;
 }
 
-KBoolean SQLiter_SQLiteConnection_nativeStep(KRef thiz, KLong connectionPtr, KLong statementPtr)
+KBoolean SQLiter_SQLiteConnection_nativeStep(KLong connectionPtr, KLong statementPtr)
 {
     auto connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -984,39 +984,39 @@ KBoolean SQLiter_SQLiteConnection_nativeStep(KRef thiz, KLong connectionPtr, KLo
     return false;
 }
 
-KBoolean SQLiter_SQLiteConnection_nativeColumnIsNull(KRef thiz, KLong statementPtr, KInt columnIndex)
+KBoolean SQLiter_SQLiteConnection_nativeColumnIsNull(KLong statementPtr, KInt columnIndex)
 {
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     int type = sqlite3_column_type(statement, columnIndex);
     return type == SQLITE_NULL;
 }
 
-KLong SQLiter_SQLiteConnection_nativeColumnGetLong(KRef thiz, KLong statementPtr, KInt columnIndex)
+KLong SQLiter_SQLiteConnection_nativeColumnGetLong(KLong statementPtr, KInt columnIndex)
 {
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     return sqlite3_column_int64(statement, columnIndex);
 }
 
-KDouble SQLiter_SQLiteConnection_nativeColumnGetDouble(KRef thiz, KLong statementPtr, KInt columnIndex)
+KDouble SQLiter_SQLiteConnection_nativeColumnGetDouble(KLong statementPtr, KInt columnIndex)
 {
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     return sqlite3_column_double(statement, columnIndex);
 }
 
-KInt SQLiter_SQLiteConnection_nativeColumnCount(KRef thiz, KLong statementPtr)
+KInt SQLiter_SQLiteConnection_nativeColumnCount(KLong statementPtr)
 {
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     return sqlite3_column_count(statement);
 }
 
-OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnName, KRef thiz, KLong statementPtr, KInt columnIndex) {
+OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnName, KLong statementPtr, KInt columnIndex) {
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     auto colName = sqlite3_column_name(statement, columnIndex);
 
     RETURN_RESULT_OF(CreateStringFromUtf8, colName, strlen(colName));
 }
 
-OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnGetString, KRef thiz, KLong statementPtr, KInt columnIndex) {
+OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnGetString, KLong statementPtr, KInt columnIndex) {
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     int colSize = sqlite3_column_bytes(statement, columnIndex);
 
@@ -1029,7 +1029,7 @@ OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnGetString, KRef thiz, KLong stat
     RETURN_RESULT_OF(CreateStringFromUtf8, reinterpret_cast<const char*>(sqlite3_column_text(statement, columnIndex)), colSize);
 }
 
-OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnGetBlob, KRef thiz, KLong statementPtr, KInt columnIndex) {
+OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnGetBlob, KLong statementPtr, KInt columnIndex) {
 
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     int colSize = sqlite3_column_bytes(statement, columnIndex);

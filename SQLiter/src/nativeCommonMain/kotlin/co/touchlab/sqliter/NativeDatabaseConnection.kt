@@ -57,9 +57,36 @@ class NativeDatabaseConnection(
         nativeClose(connectionPtr)
     }
 
+    fun migrateIfNeeded(migration:DatabaseMigration, version: Int){
+        val initialVersion = getVersion()
+        if(initialVersion == 0){
+            migration.onCreate(this)
+        }else{
+            migration.onUpgrade(this, initialVersion, version)
+        }
+
+        setVersion(version)
+    }
+
     @SymbolName("Android_Database_SQLiteConnection_nativePrepareStatement")
     private external fun nativePrepareStatement(connectionPtr:Long, sql:String):Long
 
     @SymbolName("Android_Database_SQLiteConnection_nativeClose")
     private external fun nativeClose(connectionPtr:Long)
+}
+
+/**
+ * Gets the database version.
+ *
+ * @return the database version
+ */
+fun NativeDatabaseConnection.getVersion():Int = longForQuery("PRAGMA user_version;").toInt()
+
+/**
+ * Sets the database version.
+ *
+ * @param version the new database version
+ */
+fun NativeDatabaseConnection.setVersion(version:Int) {
+    withStatement("PRAGMA user_version = $version"){it.execute()}
 }

@@ -28,3 +28,9 @@ fun <R> DatabaseConnection.withTransaction(proc: (DatabaseConnection) -> R): R {
         endTransaction()
     }
 }
+
+fun DatabaseConnection.longForQuery(sql:String):Long = withStatement(sql){
+    val query = it.query()
+    query.next()
+    return@withStatement query.getLong(0)
+}

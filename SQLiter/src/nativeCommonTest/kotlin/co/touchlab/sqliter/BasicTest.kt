@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class BasicTest{
-    val CREATE_IF_NECESSARY = 0x10000000;     // update native code if changing
+    val CREATE_IF_NECESSARY = 0x10000000
 
     @Test
     fun pathTest(){
@@ -24,18 +24,32 @@ class BasicTest{
             deleteDatabase(databasePath)
         }catch (e:Exception){}
 
-        val dbManager = NativeDatabaseManager(databasePath.path)
+        val dbManager = NativeDatabaseManager(databasePath.path,
+            object : DatabaseMigration{
+                override fun onCreate(db: DatabaseConnection) {
+                    db.withStatement("CREATE TABLE test (num INTEGER NOT NULL, " +
+                            "str TEXT NOT NULL, " +
+                            "anotherStr TEXT NOT NULL," +
+                            "rrr TEST NOT NULL)"){
+                        it.execute()
+                    }
+                }
+
+                override fun onUpgrade(db: DatabaseConnection, oldVersion: Int, newVersion: Int) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+            }
+            ,
+        1)
         val connection = dbManager.createConnection(CREATE_IF_NECESSARY)
 
-        connection.withStatement("CREATE TABLE test (num INTEGER NOT NULL, str TEXT NOT NULL)"){
-            it.execute()
-        }
-
         connection.withTransaction {
-            val statement = it.createStatement("INSERT INTO test VALUES (?, ?)")
-            for(i in 0 until 10_000) {
+            val statement = it.createStatement("INSERT INTO test VALUES (?, ?, ?, ?)")
+            for(i in 0 until 100_000) {
                 statement.bindLong(1, i.toLong())
                 statement.bindString(2, "Hilo $i")
+                statement.bindString(3, "asdf jfasdf $i fflkajsdf $i")
+                statement.bindString(4, "WWWWW QWER jfasdf $i fflkajsdf $i")
                 statement.executeInsert()
                 statement.reset()
             }
@@ -111,7 +125,8 @@ class BasicTest{
 
         opList.forEach { it() }
      */
-    suspend fun timeCursor(cursor:Cursor,  proc:suspend (Cursor)->Boolean):Long{
+
+    /*suspend fun timeCursor(cursor:Cursor,  proc:suspend (Cursor)->Boolean):Long{
         val start = getTimeMillis()
         var rowCount = 0
         while (proc(cursor)) {
@@ -124,7 +139,7 @@ class BasicTest{
         assertEquals(2, names.size)
 
         return getTimeMillis() - start
-    }
+    }*/
 
     inline fun timeCursorBlocking(cursor:Cursor,  proc:(Cursor)->Boolean):Long{
         val start = getTimeMillis()
@@ -133,10 +148,12 @@ class BasicTest{
             rowCount++
             assertTrue(cursor.getLong(0) > -1)
             assertTrue(cursor.getString(1).isNotEmpty())
+            assertTrue(cursor.getString(2).isNotEmpty())
+            assertTrue(cursor.getString(3).isNotEmpty())
         }
 
         val names = cursor.columnNames
-        assertEquals(2, names.size)
+        assertEquals(4, names.size)
 
         return getTimeMillis() - start
     }
