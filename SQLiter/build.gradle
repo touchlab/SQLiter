@@ -58,6 +58,8 @@ kotlin {
             }
         }*/
 
+//                fromPreset(presets.macosX64, 'nativeCommon')
+        
         fromPreset(presets.macosX64, 'macos'){
             compilations.each {
                 it.extraOpts("-linker-options", "-lsqlite3")
@@ -118,6 +120,7 @@ kotlin {
         nativeCommonMain {
             dependencies {
                 implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.0'
+                implementation 'com.squareup.sqldelight:sqldelight-runtime:1.0.0-SNAPSHOT'
             }
         }
         nativeCommonTest { }
