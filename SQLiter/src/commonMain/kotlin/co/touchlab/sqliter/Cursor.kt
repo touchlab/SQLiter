@@ -5,6 +5,7 @@ package co.touchlab.sqliter
  */
 interface Cursor {
     fun next(): Boolean
+    suspend fun nextSuspend():Boolean
     fun isNull(index: Int): Boolean
     fun getString(index: Int): String
     fun getLong(index: Int): Long

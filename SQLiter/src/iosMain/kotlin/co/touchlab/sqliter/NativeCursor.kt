@@ -1,8 +1,12 @@
 package co.touchlab.sqliter
 
+import kotlinx.coroutines.delay
 import platform.posix.usleep
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.native.concurrent.FutureState
+import kotlin.native.concurrent.TransferMode
+import kotlin.native.concurrent.freeze
 
 class NativeCursor(private val statement: NativeStatement):Cursor {
 
@@ -12,7 +16,36 @@ class NativeCursor(private val statement: NativeStatement):Cursor {
         it.resume(nativeStep(statement.connection.connectionPtr, statement.statementPtr))
     }*/
 
+    val pair = Pair(statement.connection.connectionPtr, statement.statementPtr).freeze()
     override fun next(): Boolean = nativeStep(statement.connection.connectionPtr, statement.statementPtr)
+
+    override suspend fun nextSuspend(): Boolean = nativeStep(statement.connection.connectionPtr, statement.statementPtr)
+    /*override suspend fun nextSuspend(): Boolean {
+        val conn = statement.connection.connectionPtr
+        val stmt = statement.statementPtr
+        val future = statement.connection.suspendWorker.execute(TransferMode.UNSAFE,
+
+            {*//*Pair(conn, stmt).freeze()*//*pair}) {
+            nativeStep(it.first, it.second)
+//            nativeStepUgh(null, conn, stmt)
+        }
+
+        var retryCount = 0
+
+        while (future.state != FutureState.COMPUTED && future.state != FutureState.CANCELLED){
+            if(future.state == FutureState.INVALID)
+                throw IllegalStateException("Future invalid?")
+
+            retryCount++
+
+            if(retryCount > 20)
+                delay(20)
+            else if(retryCount > 5)
+                delay(5)
+        }
+
+        return future.state == FutureState.COMPUTED && future.result
+    }*/
 
 //    override suspend fun nextNonSuspend(): Boolean = nativeStep(statement.connection.connectionPtr, statement.statementPtr)
 
@@ -51,7 +84,6 @@ class NativeCursor(private val statement: NativeStatement):Cursor {
 
     @SymbolName("SQLiter_SQLiteConnection_nativeColumnName")
     private external fun nativeColumnName(statementPtr:Long, index: Int):String
-
-    @SymbolName("SQLiter_SQLiteConnection_nativeStep")
-    private external fun nativeStep(connectionPtr:Long, statementPtr:Long):Boolean
 }
+@SymbolName("SQLiter_SQLiteConnection_nativeStep")
+internal external fun nativeStep(connectionPtr:Long, statementPtr:Long):Boolean

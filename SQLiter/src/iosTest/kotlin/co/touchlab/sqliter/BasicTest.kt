@@ -33,13 +33,24 @@ class BasicTest{
 
         connection.withTransaction {
             val statement = it.createStatement("INSERT INTO test VALUES (?, ?)")
-            for(i in 0 until 100_000) {
+            for(i in 0 until 10_000) {
                 statement.bindLong(1, i.toLong())
                 statement.bindString(2, "Hilo $i")
                 statement.executeInsert()
                 statement.reset()
             }
             statement.finalize()
+        }
+
+        connection.withStatement("SELECT * FROM test") {
+            runBlocking {
+                val cursor = it.query()
+                val timeNonSuspend = timeCursor(cursor) {
+                    it.nextSuspend()
+                }
+
+                println("Query timeWorkerSuspend: $timeNonSuspend")
+            }
         }
 
         connection.withStatement("SELECT * FROM test") {
