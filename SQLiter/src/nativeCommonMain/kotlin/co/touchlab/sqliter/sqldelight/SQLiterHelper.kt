@@ -30,7 +30,6 @@ class SQLiterConnection(private val databaseConnection: DatabaseConnection,
     }
 
     override fun prepareStatement(sql: String, type: SqlPreparedStatement.Type, parameters: Int): SqlPreparedStatement {
-        println("SQL: $sql")
         return SQLiterStatement(databaseConnection.createStatement(sql), type)
     }
 
@@ -74,11 +73,9 @@ class SQLiterStatement(private val statement: Statement, private val type: SqlPr
         when (type) {
 
             SqlPreparedStatement.Type.INSERT -> {
-                println("calling Insert")
                 statement.executeInsert()
             }
             SqlPreparedStatement.Type.UPDATE, SqlPreparedStatement.Type.DELETE -> {
-                println("calling Update/Delete")
                 statement.executeUpdateDelete().toLong()
             }
             SqlPreparedStatement.Type.EXEC -> {
