@@ -2,12 +2,24 @@ package co.touchlab.sqliter
 
 class NativeStatement(internal val connection: NativeDatabaseConnection, internal val statementPtr:Long):Statement {
     override fun execute() {
-        nativeExecute(connection.connectionPtr, statementPtr)
+        try {
+            nativeExecute(connection.connectionPtr, statementPtr)
+        } finally {
+            reset()
+        }
     }
 
-    override fun executeInsert():Long = nativeExecuteForLastInsertedRowId(connection.connectionPtr, statementPtr)
+    override fun executeInsert():Long = try {
+        nativeExecuteForLastInsertedRowId(connection.connectionPtr, statementPtr)
+    } finally {
+        reset()
+    }
 
-    override fun executeUpdateDelete():Int = nativeExecuteForChangedRowCount(connection.connectionPtr, statementPtr)
+    override fun executeUpdateDelete():Int = try {
+        nativeExecuteForChangedRowCount(connection.connectionPtr, statementPtr)
+    } finally {
+        reset()
+    }
 
     override fun query(): Cursor = NativeCursor(this)
 

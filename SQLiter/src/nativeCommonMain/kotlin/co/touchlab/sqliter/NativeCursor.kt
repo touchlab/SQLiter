@@ -12,8 +12,9 @@ class NativeCursor(private val statement: NativeStatement):Cursor {
         get() = nativeColumnCount(statement.statementPtr)
 
     override fun columnName(index: Int): String = nativeColumnName(statement.statementPtr, index)
-
-
+    override fun close() {
+        statement.reset()
+    }
 }
 
 @SymbolName("SQLiter_SQLiteConnection_nativeColumnIsNull")

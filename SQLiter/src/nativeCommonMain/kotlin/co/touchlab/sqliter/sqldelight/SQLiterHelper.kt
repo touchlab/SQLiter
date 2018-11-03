@@ -1,40 +1,41 @@
 package co.touchlab.sqliter.sqldelight
 
 import co.touchlab.sqliter.*
+import co.touchlab.stately.concurrency.ThreadLocalRef
 import com.squareup.sqldelight.Transacter
-import com.squareup.sqldelight.db.SqlCursor
-import com.squareup.sqldelight.db.SqlDatabase
-import com.squareup.sqldelight.db.SqlDatabaseConnection
-import com.squareup.sqldelight.db.SqlPreparedStatement
-import kotlin.native.concurrent.AtomicReference
+import com.squareup.sqldelight.db.*
 
-class SQLiterHelper(private val databaseManager: DatabaseManager): SqlDatabase {
+class SQLiterHelper(private val databaseManager: DatabaseManager) : SqlDatabase {
     val CREATE_IF_NECESSARY = 0x10000000
+    private val transactions = ThreadLocalRef<SQLiterConnection.Transaction>()
 
     override fun close() {
         databaseManager.close()
     }
 
     override fun getConnection(): SqlDatabaseConnection =
-        SQLiterConnection(databaseManager.createConnection(CREATE_IF_NECESSARY))
+        SQLiterConnection(databaseManager.createConnection(CREATE_IF_NECESSARY), transactions)
 }
 
-class SQLiterConnection(private val databaseConnection: DatabaseConnection): SqlDatabaseConnection{
-    private val trans:AtomicReference<Transacter.Transaction?> = AtomicReference(null)
+class SQLiterConnection(private val databaseConnection: DatabaseConnection,
+                        private val transactions: ThreadLocalRef<Transaction> = ThreadLocalRef()) : SqlDatabaseConnection {
 
-    override fun currentTransaction(): Transacter.Transaction? = trans.value
+    override fun currentTransaction(): Transacter.Transaction? = transactions.value
 
     override fun newTransaction(): Transacter.Transaction {
-        val transaction = Transaction(trans.value)
-        trans.value = transaction
+        databaseConnection.beginTransaction()
+        val transaction = Transaction(transactions.value)
+        transactions.value = transaction
         return transaction
     }
 
-    override fun prepareStatement(sql: String, type: SqlPreparedStatement.Type, parameters: Int): SqlPreparedStatement =
-        SQLiterStatement(databaseConnection.createStatement(sql))
+    override fun prepareStatement(sql: String, type: SqlPreparedStatement.Type, parameters: Int): SqlPreparedStatement {
+        println("SQL: $sql")
+        return SQLiterStatement(databaseConnection.createStatement(sql), type)
+    }
 
     inner class Transaction(
-        override val enclosingTransaction: Transacter.Transaction?
+        override val enclosingTransaction: SQLiterConnection.Transaction?
     ) : Transacter.Transaction() {
         override fun endTransaction(successful: Boolean) {
             if (enclosingTransaction == null) {
@@ -45,12 +46,13 @@ class SQLiterConnection(private val databaseConnection: DatabaseConnection): Sql
                     databaseConnection.endTransaction()
                 }
             }
-            trans.value = enclosingTransaction
+            transactions.value = enclosingTransaction
         }
     }
 }
 
-class SQLiterStatement(private val statement: Statement):SqlPreparedStatement{
+class SQLiterStatement(private val statement: Statement, private val type: SqlPreparedStatement.Type) :
+    SqlPreparedStatement {
 
     override fun bindBytes(index: Int, bytes: ByteArray?) {
         statement.bindBlob(index, bytes)
@@ -68,19 +70,32 @@ class SQLiterStatement(private val statement: Statement):SqlPreparedStatement{
         statement.bindString(index, string)
     }
 
-    override fun execute() {
-        statement.execute()
-    }
+    override fun execute() =
+        when (type) {
 
-    override fun executeQuery(): SqlCursor = SQLiterCursor(statement)
+            SqlPreparedStatement.Type.INSERT -> {
+                println("calling Insert")
+                statement.executeInsert()
+            }
+            SqlPreparedStatement.Type.UPDATE, SqlPreparedStatement.Type.DELETE -> {
+                println("calling Update/Delete")
+                statement.executeUpdateDelete().toLong()
+            }
+            SqlPreparedStatement.Type.EXEC -> {
+                statement.execute()
+                1
+            }
+            SqlPreparedStatement.Type.SELECT -> throw AssertionError()
+        }
 
+    override fun executeQuery(): SqlResultSet = SQLiterCursor(statement)
 }
 
-class SQLiterCursor(private val statement: Statement):SqlCursor{
+class SQLiterCursor(private val statement: Statement) : SqlResultSet {
     private val cursor = statement.query()
 
     override fun close() {
-        statement.finalize()
+        cursor.close()
     }
 
     override fun getBytes(index: Int): ByteArray? = cursor.getBytesOrNull(index)

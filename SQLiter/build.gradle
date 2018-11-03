@@ -94,7 +94,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation "co.touchlab.stately:stately:0.3.1-k1.3.0-a2"
+                implementation "co.touchlab.stately:stately:0.3.5-k1.3.0-a1"
                 implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0'
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
             }
@@ -120,7 +120,7 @@ kotlin {
         nativeCommonMain {
             dependencies {
                 implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.0'
-                implementation 'com.squareup.sqldelight:sqldelight-runtime:1.0.0-SNAPSHOT'
+                implementation 'com.squareup.sqldelight:sqldelightruntimeios:1.0.0-k1.3.0-a1'
             }
         }
         nativeCommonTest { }

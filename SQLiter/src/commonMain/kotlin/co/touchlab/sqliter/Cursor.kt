@@ -12,6 +12,7 @@ interface Cursor {
     fun getDouble(index: Int): Double
     val columnCount: Int
     fun columnName(index: Int): String
+    fun close()
 }
 
 fun Cursor.getStringOrNull(index: Int): String?{
