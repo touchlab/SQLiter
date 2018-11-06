@@ -1,9 +1,9 @@
-package co.touchlab.sqliter
+package co.touchlab.sqliter.internal
 
 import platform.Foundation.*
 import platform.posix.*
 
-class File(dirPath:String?=null, name:String){
+internal class File(dirPath:String?=null, name:String){
 
     val path:String
 
@@ -517,7 +517,7 @@ class File(dirPath:String?=null, name:String){
     }
 }
 
-interface FilenameFilter {
+internal interface FilenameFilter {
     /**
      * Indicates if a specific filename matches this filter.
      *
@@ -532,7 +532,7 @@ interface FilenameFilter {
     fun accept(dir:File, filename:String):Boolean
 }
 
-interface FileFilter {
+internal interface FileFilter {
     /**
      * Indicating whether a specific file should be included in a pathname list.
      *

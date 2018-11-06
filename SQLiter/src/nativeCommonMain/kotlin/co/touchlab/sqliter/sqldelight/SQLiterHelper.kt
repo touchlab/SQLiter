@@ -1,12 +1,14 @@
 package co.touchlab.sqliter.sqldelight
 
 import co.touchlab.sqliter.*
+import co.touchlab.stately.collections.frozenHashMap
+import co.touchlab.stately.collections.frozenLinkedList
 import co.touchlab.stately.concurrency.ThreadLocalRef
 import com.squareup.sqldelight.Transacter
 import com.squareup.sqldelight.db.*
+import kotlin.native.concurrent.freeze
 
 class SQLiterHelper(private val databaseManager: DatabaseManager) : SqlDatabase {
-    val CREATE_IF_NECESSARY = 0x10000000
     private val transactions = ThreadLocalRef<SQLiterConnection.Transaction>()
 
     override fun close() {
@@ -14,11 +16,13 @@ class SQLiterHelper(private val databaseManager: DatabaseManager) : SqlDatabase 
     }
 
     override fun getConnection(): SqlDatabaseConnection =
-        SQLiterConnection(databaseManager.createConnection(CREATE_IF_NECESSARY), transactions)
+        SQLiterConnection(databaseManager.createConnection(), transactions)
 }
 
-class SQLiterConnection(private val databaseConnection: DatabaseConnection,
-                        private val transactions: ThreadLocalRef<Transaction> = ThreadLocalRef()) : SqlDatabaseConnection {
+class SQLiterConnection(
+    private val databaseConnection: DatabaseConnection,
+    private val transactions: ThreadLocalRef<Transaction> = ThreadLocalRef()
+) : SqlDatabaseConnection {
 
     override fun currentTransaction(): Transacter.Transaction? = transactions.value
 
@@ -52,25 +56,34 @@ class SQLiterConnection(private val databaseConnection: DatabaseConnection,
 
 class SQLiterStatement(private val statement: Statement, private val type: SqlPreparedStatement.Type) :
     SqlPreparedStatement {
+    private val binds = frozenHashMap<Int, (Statement) -> Unit>()
 
     override fun bindBytes(index: Int, bytes: ByteArray?) {
-        statement.bindBlob(index, bytes)
+        bytes.freeze()
+        binds.put(index) { it.bindBlob(index, bytes) }
     }
 
     override fun bindDouble(index: Int, double: Double?) {
-        statement.bindDouble(index, double)
+        binds.put(index) { it.bindDouble(index, double) }
     }
 
     override fun bindLong(index: Int, long: Long?) {
-        statement.bindLong(index, long)
+        binds.put(index) { it.bindLong(index, long) }
     }
 
     override fun bindString(index: Int, string: String?) {
-        statement.bindString(index, string)
+        binds.put(index) { it.bindString(index, string) }
     }
 
-    override fun execute() =
-        when (type) {
+    private fun bindTo() {
+        for (bind in binds.values.iterator()) {
+            bind(statement)
+        }
+    }
+
+    override fun execute(): Long {
+        bindTo()
+        return when (type) {
 
             SqlPreparedStatement.Type.INSERT -> {
                 statement.executeInsert()
@@ -84,8 +97,12 @@ class SQLiterStatement(private val statement: Statement, private val type: SqlPr
             }
             SqlPreparedStatement.Type.SELECT -> throw AssertionError()
         }
+    }
 
-    override fun executeQuery(): SqlResultSet = SQLiterCursor(statement)
+    override fun executeQuery(): SqlResultSet {
+        bindTo()
+        return SQLiterCursor(statement)
+    }
 }
 
 class SQLiterCursor(private val statement: Statement) : SqlResultSet {

@@ -1,11 +1,18 @@
 package co.touchlab.sqliter
 
 interface DatabaseManager{
-    fun createConnection(openFlags:Int):DatabaseConnection
+    fun createConnection():DatabaseConnection
     fun close()
 }
 
-interface DatabaseMigration{
-    abstract fun onCreate(db: DatabaseConnection)
-    abstract fun onUpgrade(db: DatabaseConnection, oldVersion: Int, newVersion: Int)
+expect fun createDatabaseManager(configuration: DatabaseConfiguration):DatabaseManager
+expect fun deleteDatabase(name:String)
+
+fun <R> DatabaseManager.withConnection(block:(DatabaseConnection) -> R):R{
+    val connection = createConnection()
+    try {
+        return block(connection)
+    }finally {
+        connection.close()
+    }
 }

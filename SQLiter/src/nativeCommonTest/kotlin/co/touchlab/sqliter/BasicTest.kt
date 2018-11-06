@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class BasicTest{
-    val CREATE_IF_NECESSARY = 0x10000000
+
 
     @Test
     fun pathTest(){
@@ -18,43 +18,21 @@ class BasicTest{
 
     @Test
     fun createTable(){
-        val databasePath = getDatabasePath("testdb")
+        basicTestDb {manager ->
+            val connection = manager.createConnection()
 
-        try {
-            deleteDatabase(databasePath)
-        }catch (e:Exception){}
-
-        val dbManager = NativeDatabaseManager(databasePath.path,
-            object : DatabaseMigration{
-                override fun onCreate(db: DatabaseConnection) {
-                    db.withStatement("CREATE TABLE test (num INTEGER NOT NULL, " +
-                            "str TEXT NOT NULL, " +
-                            "anotherStr TEXT NOT NULL," +
-                            "rrr TEST NOT NULL)"){
-                        it.execute()
-                    }
+            connection.withTransaction {
+                val statement = it.createStatement("INSERT INTO test VALUES (?, ?, ?, ?)")
+                for(i in 0 until 100_000) {
+                    statement.bindLong(1, i.toLong())
+                    statement.bindString(2, "Hilo $i")
+                    statement.bindString(3, "asdf jfasdf $i fflkajsdf $i")
+                    statement.bindString(4, "WWWWW QWER jfasdf $i fflkajsdf $i")
+                    statement.executeInsert()
+                    statement.reset()
                 }
-
-                override fun onUpgrade(db: DatabaseConnection, oldVersion: Int, newVersion: Int) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                }
+                statement.finalize()
             }
-            ,
-        1)
-        val connection = dbManager.createConnection(CREATE_IF_NECESSARY)
-
-        connection.withTransaction {
-            val statement = it.createStatement("INSERT INTO test VALUES (?, ?, ?, ?)")
-            for(i in 0 until 100_000) {
-                statement.bindLong(1, i.toLong())
-                statement.bindString(2, "Hilo $i")
-                statement.bindString(3, "asdf jfasdf $i fflkajsdf $i")
-                statement.bindString(4, "WWWWW QWER jfasdf $i fflkajsdf $i")
-                statement.executeInsert()
-                statement.reset()
-            }
-            statement.finalize()
-        }
 /*
         connection.withStatement("SELECT * FROM test") {
             runBlocking {
@@ -67,18 +45,18 @@ class BasicTest{
             }
         }*/
 
-        connection.withStatement("SELECT * FROM test") {
-            val cursor = it.query()
-            val timeBlocking = timeCursorBlocking(cursor) {
-                it.next()
+            connection.withStatement("SELECT * FROM test") {
+                val cursor = it.query()
+                val timeBlocking = timeCursorBlocking(cursor) {
+                    it.next()
+                }
+
+                println("Query timeBlocking: $timeBlocking")
             }
 
-            println("Query timeBlocking: $timeBlocking")
+            connection.close()
+
         }
-
-        connection.close()
-
-        deleteDatabase(databasePath)
     }
 
     /*

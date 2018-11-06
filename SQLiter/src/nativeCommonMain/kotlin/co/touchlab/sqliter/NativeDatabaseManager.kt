@@ -2,26 +2,40 @@ package co.touchlab.sqliter
 
 import co.touchlab.stately.collections.AbstractSharedLinkedList
 import co.touchlab.stately.collections.frozenLinkedList
+import platform.Foundation.NSLock
 
 class NativeDatabaseManager(private val path:String,
-                            private val migration:DatabaseMigration,
-                            private val version:Int
+                            private val configuration: DatabaseConfiguration
                             ):DatabaseManager{
+    val lock = NSLock()
+
+    companion object {
+        val CREATE_IF_NECESSARY = 0x10000000
+    }
+
     private val connectionList = frozenLinkedList<NativeDatabaseConnection>(stableIterator = true) as AbstractSharedLinkedList<NativeDatabaseConnection>
 
-    override fun createConnection(openFlags: Int): DatabaseConnection {
+    override fun createConnection(): DatabaseConnection {
+        lock.lock()
+
         val conn = NativeDatabaseConnection(this, nativeOpen(
             path,
-            openFlags,
+            CREATE_IF_NECESSARY,
             "asdf",
             false,
             false,
             -1,
-            -1
+            -1,
+            configuration.busyTimeout
         ))
 
-        if(connectionList.size == 0){
-            conn.migrateIfNeeded(migration, version)
+        try {
+            if(connectionList.size == 0){
+                conn.updateJournalMode(configuration.journalMode)
+                conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.version)
+            }
+        }finally {
+            lock.unlock()
         }
 
         val node = connectionList.addNode(conn)
@@ -37,5 +51,5 @@ class NativeDatabaseManager(private val path:String,
     @SymbolName("Android_Database_SQLiteConnection_nativeOpen")
     private external fun nativeOpen(path:String, openFlags:Int, label:String,
                                     enableTrace:Boolean, enableProfile:Boolean,
-                                    lookasideSlotSize:Int, lookasideSlotCount:Int):Long
+                                    lookasideSlotSize:Int, lookasideSlotCount:Int, busyTimeout:Int):Long
 }

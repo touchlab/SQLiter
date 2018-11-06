@@ -34,3 +34,22 @@ fun DatabaseConnection.longForQuery(sql:String):Long = withStatement(sql){
     query.next()
     return@withStatement query.getLong(0)
 }
+
+fun DatabaseConnection.stringForQuery(sql:String):String = withStatement(sql){
+    val query = it.query()
+    query.next()
+    return@withStatement query.getString(0)
+}
+
+
+
+val DatabaseConnection.journalMode: JournalMode
+    get() = JournalMode.forString(stringForQuery("PRAGMA journal_mode"))
+
+fun DatabaseConnection.updateJournalMode(value: JournalMode):JournalMode{
+    return if(journalMode != value) {
+        JournalMode.forString(stringForQuery("PRAGMA journal_mode=${value.name}").toUpperCase())
+    }else{
+        value
+    }
+}
