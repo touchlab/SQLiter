@@ -41,8 +41,6 @@ fun DatabaseConnection.stringForQuery(sql:String):String = withStatement(sql){
     return@withStatement query.getString(0)
 }
 
-
-
 val DatabaseConnection.journalMode: JournalMode
     get() = JournalMode.forString(stringForQuery("PRAGMA journal_mode"))
 
