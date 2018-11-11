@@ -5,7 +5,7 @@ interface Statement{
     fun executeInsert():Long
     fun executeUpdateDelete():Int
     fun query():Cursor
-    fun finalize()
+    fun finalizeStatement()
     fun reset()
     fun bindNull(index:Int)
     fun bindLong(index:Int, value:Long)

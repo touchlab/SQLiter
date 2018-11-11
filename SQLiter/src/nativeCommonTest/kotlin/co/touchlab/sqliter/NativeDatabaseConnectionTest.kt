@@ -16,12 +16,12 @@ class NativeDatabaseConnectionTest {
         deleteDatabase("testdb")
     }
 
-    @Test
+//    @Test
     fun multithreadedActivityWAL() {
         multithreadedActivity(JournalMode.WAL)
     }
 
-    @Test
+//    @Test
     fun multithreadedActivityDELETE() {
         multithreadedActivity(JournalMode.DELETE)
     }

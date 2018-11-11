@@ -21,6 +21,8 @@ class BasicTest{
         basicTestDb {manager ->
             val connection = manager.createConnection()
 
+            val start = getTimeMillis()
+
             connection.withTransaction {
                 val statement = it.createStatement("INSERT INTO test VALUES (?, ?, ?, ?)")
                 for(i in 0 until 100_000) {
@@ -31,19 +33,8 @@ class BasicTest{
                     statement.executeInsert()
                     statement.reset()
                 }
-                statement.finalize()
+                statement.finalizeStatement()
             }
-/*
-        connection.withStatement("SELECT * FROM test") {
-            runBlocking {
-                val cursor = it.query()
-                val timeNonSuspend = timeCursor(cursor) {
-                    it.nextSuspend()
-                }
-
-                println("Query timeWorkerSuspend: $timeNonSuspend")
-            }
-        }*/
 
             connection.withStatement("SELECT * FROM test") {
                 val cursor = it.query()
@@ -54,6 +45,7 @@ class BasicTest{
                 println("Query timeBlocking: $timeBlocking")
             }
 
+            println("Full run time ${getTimeMillis() - start}")
             connection.close()
 
         }

@@ -14,7 +14,7 @@ fun <R> DatabaseConnection.withStatement(sql: String, proc: (Statement) -> R): R
         return proc(statement)
     }
     finally {
-        statement.finalize()
+        statement.finalizeStatement()
     }
 }
 

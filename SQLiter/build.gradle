@@ -36,7 +36,7 @@ apply plugin: 'maven-publish'
 kotlin {
     targets {
         
-//        fromPreset(presets.jvm, 'jvm')
+        fromPreset(presets.jvm, 'jvm')
         
         // This preset is for iPhone emulator
         // Switch here to presets.iosArm64 to build library for iPhone device
@@ -120,7 +120,7 @@ kotlin {
         nativeCommonMain {
             dependencies {
                 implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.0'
-                implementation 'com.squareup.sqldelight:sqldelightruntimeios:1.0.0-k1.3.0-a1'
+                implementation 'com.squareup.sqldelight:sqldelightruntimeios:1.0.0-k1.3.0-a3'
             }
         }
         nativeCommonTest { }

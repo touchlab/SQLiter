@@ -30,7 +30,7 @@ class NativeStatementTest {
                 statement.executeInsert()
                 statement.reset()
             }
-            statement.finalize()
+            statement.finalizeStatement()
 
             connection.withStatement("select str from test") {
                 val query = it.query()
@@ -57,7 +57,7 @@ class NativeStatementTest {
                 statement.executeInsert()
                 statement.reset()
             }
-            statement.finalize()
+            statement.finalizeStatement()
 
             connection.withStatement("update test set str = ?") {
                 it.bindString(1, "asdf")

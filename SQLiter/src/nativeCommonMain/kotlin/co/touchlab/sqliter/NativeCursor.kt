@@ -1,13 +1,17 @@
 package co.touchlab.sqliter
 
 class NativeCursor(private val statement: NativeStatement) : Cursor {
-    override fun next(): Boolean = nativeStep(statement.connection.connectionPtr, statement.statementPtr)
-    override fun isNull(index: Int): Boolean = nativeIsNull(statement.statementPtr, index)
-    override fun getString(index: Int): String = nativeColumnGetString(statement.statementPtr, index)
-    override fun getLong(index: Int): Long = nativeColumnGetLong(statement.statementPtr, index)
-    override fun getBytes(index: Int): ByteArray = nativeColumnGetBlob(statement.statementPtr, index)
-    override fun getDouble(index: Int): Double = nativeColumnGetDouble(statement.statementPtr, index)
-    override fun getType(index: Int): FieldType = FieldType.forCode(nativeColumnType(statement.statementPtr, index))
+    private var nextCalled = false
+    override fun next(): Boolean {
+        nextCalled = true
+        return nativeStep(statement.connection.connectionPtr, statement.statementPtr)
+    }
+    override fun isNull(index: Int): Boolean = checkNextCalled{nativeIsNull(statement.statementPtr, index)}
+    override fun getString(index: Int): String = checkNextCalled{nativeColumnGetString(statement.statementPtr, index)}
+    override fun getLong(index: Int): Long = checkNextCalled{nativeColumnGetLong(statement.statementPtr, index)}
+    override fun getBytes(index: Int): ByteArray = checkNextCalled{nativeColumnGetBlob(statement.statementPtr, index)}
+    override fun getDouble(index: Int): Double = checkNextCalled{nativeColumnGetDouble(statement.statementPtr, index)}
+    override fun getType(index: Int): FieldType = checkNextCalled{FieldType.forCode(nativeColumnType(statement.statementPtr, index))}
     override val columnCount: Int
         get() = nativeColumnCount(statement.statementPtr)
 
@@ -22,6 +26,13 @@ class NativeCursor(private val statement: NativeStatement) : Cursor {
             map.put(columnName(i), i)
         }
         map
+    }
+
+    private inline fun <R> checkNextCalled(block:()->R):R{
+        if(!nextCalled){
+            throw IllegalStateException("next() must be called before first result")
+        }
+        return block()
     }
 }
 

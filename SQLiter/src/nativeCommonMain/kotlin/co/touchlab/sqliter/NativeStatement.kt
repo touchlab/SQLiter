@@ -23,7 +23,7 @@ class NativeStatement(internal val connection: NativeDatabaseConnection, interna
 
     override fun query(): Cursor = NativeCursor(this)
 
-    override fun finalize() {
+    override fun finalizeStatement() {
         nativeFinalizeStatement(connection.connectionPtr, statementPtr)
     }
 

@@ -7,13 +7,13 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 
-actual fun createDatabaseManager(configuration: DatabaseConfiguration): DatabaseManager {
+fun createDatabaseManager(configuration: DatabaseConfiguration): DatabaseManager {
     val databasePath = getDatabasePath(configuration.name)
     val manager = NativeDatabaseManager(databasePath.path, configuration)
     return manager
 }
 
-actual fun deleteDatabase(name: String) {
+fun deleteDatabase(name: String) {
     deleteDatabase(getDatabasePath(name))
 }
 

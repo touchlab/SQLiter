@@ -2,54 +2,66 @@ package co.touchlab.sqliter.sqldelight
 
 import co.touchlab.sqliter.*
 import co.touchlab.stately.collections.frozenHashMap
-import co.touchlab.stately.collections.frozenLinkedList
-import co.touchlab.stately.concurrency.ThreadLocalRef
+import co.touchlab.stately.concurrency.QuickLock
+import co.touchlab.stately.concurrency.withLock
 import com.squareup.sqldelight.Transacter
 import com.squareup.sqldelight.db.*
+import kotlin.native.concurrent.AtomicReference
 import kotlin.native.concurrent.freeze
 
 class SQLiterHelper(private val databaseManager: DatabaseManager) : SqlDatabase {
-    private val transactions = ThreadLocalRef<SQLiterConnection.Transaction>()
 
     override fun close() {
         databaseManager.close()
     }
 
     override fun getConnection(): SqlDatabaseConnection =
-        SQLiterConnection(databaseManager.createConnection(), transactions)
+        SQLiterConnection(databaseManager.createConnection())
 }
 
+/**
+ * For simplicity with the current API, the connection can be shared between threads. In theory, however,
+ * in a "Saner Concurrency" context, we'd be better off if connections were tied to threads.
+ *
+ * SQLite cannot nest transactions, so there should be no situation where we have an enclosing transaction.
+ * Transactions are isolated to connections, though, so if you're looking to have multiple transactions,
+ * create multiple connections. This won't help a lot from a performance perspective because only one
+ * connection can write at one time.
+ */
 class SQLiterConnection(
-    private val databaseConnection: DatabaseConnection,
-    private val transactions: ThreadLocalRef<Transaction> = ThreadLocalRef()
+    private val databaseConnection: DatabaseConnection
 ) : SqlDatabaseConnection {
+    private val transaction: AtomicReference<Transaction?> = AtomicReference(null)
+    private val transLock = QuickLock()
 
-    override fun currentTransaction(): Transacter.Transaction? = transactions.value
+    override fun currentTransaction(): Transacter.Transaction? = transaction.value
 
-    override fun newTransaction(): Transacter.Transaction {
-        databaseConnection.beginTransaction()
-        val transaction = Transaction(transactions.value)
-        transactions.value = transaction
-        return transaction
-    }
+    override fun newTransaction(): Transacter.Transaction =
+        transLock.withLock {
+            if (transaction.value != null)
+                throw IllegalStateException("Transaction already active")
+            databaseConnection.beginTransaction()
+            val trans = Transaction()
+            transaction.value = trans
+            return trans
+        }
 
     override fun prepareStatement(sql: String, type: SqlPreparedStatement.Type, parameters: Int): SqlPreparedStatement {
         return SQLiterStatement(databaseConnection.createStatement(sql), type)
     }
 
-    inner class Transaction(
-        override val enclosingTransaction: SQLiterConnection.Transaction?
-    ) : Transacter.Transaction() {
-        override fun endTransaction(successful: Boolean) {
-            if (enclosingTransaction == null) {
-                if (successful) {
-                    databaseConnection.setTransactionSuccessful()
-                    databaseConnection.endTransaction()
-                } else {
-                    databaseConnection.endTransaction()
-                }
+    inner class Transaction : Transacter.Transaction() {
+        override val enclosingTransaction: Transacter.Transaction? = null
+
+        override fun endTransaction(successful: Boolean) = transLock.withLock {
+            if (successful) {
+                databaseConnection.setTransactionSuccessful()
+                databaseConnection.endTransaction()
+            } else {
+                databaseConnection.endTransaction()
             }
-            transactions.value = enclosingTransaction
+
+            transaction.value = null
         }
     }
 }
@@ -105,7 +117,7 @@ class SQLiterStatement(private val statement: Statement, private val type: SqlPr
     }
 }
 
-class SQLiterCursor(private val statement: Statement) : SqlResultSet {
+class SQLiterCursor(statement: Statement) : SqlResultSet {
     private val cursor = statement.query()
 
     override fun close() {
