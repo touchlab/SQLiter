@@ -51,3 +51,10 @@ fun DatabaseConnection.updateJournalMode(value: JournalMode):JournalMode{
         value
     }
 }
+
+val DatabaseConnection.walAutocheckpoint:Long
+get() = longForQuery("PRAGMA wal_autocheckpoint")
+
+fun DatabaseConnection.updateWalAutocheckpoint(value: Long):Long{
+    return longForQuery("PRAGMA wal_autocheckpoint=${value}")
+}

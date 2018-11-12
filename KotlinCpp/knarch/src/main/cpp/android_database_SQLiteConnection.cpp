@@ -43,30 +43,6 @@
 
 namespace android {
 
-/* Busy timeout in milliseconds.
- * If another connection (possibly in another process) has the database locked for
- * longer than this amount of time then SQLite will generate a SQLITE_BUSY error.
- * The SQLITE_BUSY error is then raised as a SQLiteDatabaseLockedException.
- *
- * In ordinary usage, busy timeouts are quite rare.  Most databases only ever
- * have a single open connection at a time unless they are using WAL.  When using
- * WAL, a timeout could occur if one connection is busy performing an auto-checkpoint
- * operation.  The busy timeout needs to be long enough to tolerate slow I/O write
- * operations but not so long as to cause the application to hang indefinitely if
- * there is a problem acquiring a database lock.
- */
-static const int BUSY_TIMEOUT_MS = 2500;
-
-/*static struct {
-    jfieldID name;
-    jfieldID numArgs;
-    jmethodID dispatchCallback;
-} gSQLiteCustomFunctionClassInfo;*/
-
-/*static struct {
-    jclass clazz;
-} gStringClassInfo;*/
-
 struct SQLiteConnection {
     // Open flags.
     // Must be kept in sync with the constants defined in SQLiteDatabase.java.
@@ -116,10 +92,22 @@ static int sqliteProgressHandlerCallback(void* data) {
     return connection->canceled;
 }
 
-
+/* 'timeout' is busy timeout in millis
+ *
+ * If another connection (possibly in another process) has the database locked for
+ * longer than this amount of time then SQLite will generate a SQLITE_BUSY error.
+ * The SQLITE_BUSY error is then raised as a SQLiteDatabaseLockedException.
+ *
+ * In ordinary usage, busy timeouts are quite rare.  Most databases only ever
+ * have a single open connection at a time unless they are using WAL.  When using
+ * WAL, a timeout could occur if one connection is busy performing an auto-checkpoint
+ * operation.  The busy timeout needs to be long enough to tolerate slow I/O write
+ * operations but not so long as to cause the application to hang indefinitely if
+ * there is a problem acquiring a database lock.
+ */
 static KLong nativeOpen(KString pathStr, KInt openFlags,
         KString labelStr, KBoolean enableTrace, KBoolean enableProfile, KInt lookasideSz,
-        KInt lookasideCnt) {
+        KInt lookasideCnt, KInt timeout) {
 
     RuntimeAssert(pathStr->type_info() == theStringTypeInfo, "Must use a string");
     RuntimeAssert(labelStr->type_info() == theStringTypeInfo, "Must use a string");
@@ -162,7 +150,7 @@ static KLong nativeOpen(KString pathStr, KInt openFlags,
     }
 
     // Set the default busy handler to retry automatically before returning SQLITE_BUSY.
-    err = sqlite3_busy_timeout(db, BUSY_TIMEOUT_MS);
+    err = sqlite3_busy_timeout(db, timeout);
     if (err != SQLITE_OK) {
         throw_sqlite3_exception( db, "Could not set busy timeout");
         sqlite3_close(db);
@@ -806,10 +794,10 @@ static void nativeResetCancel(KLong connectionPtr,
 extern "C"{
 KLong Android_Database_SQLiteConnection_nativeOpen(KRef thiz, KString pathStr, KInt openFlags,
                                                    KString labelStr, KBoolean enableTrace, KBoolean enableProfile, KInt lookasideSz,
-KInt lookasideCnt)
+KInt lookasideCnt, KInt timeout)
 {
     return nativeOpen(pathStr, openFlags,
-                      labelStr, enableTrace, enableProfile, lookasideSz, lookasideCnt);
+                      labelStr, enableTrace, enableProfile, lookasideSz, lookasideCnt, timeout);
 }
 
 void Android_Database_SQLiteConnection_nativeClose(KRef thiz, KLong connectionPtr)
@@ -1052,6 +1040,12 @@ OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnGetBlob, KLong statementPtr, KIn
            colSize);
 
     RETURN_OBJ(result->obj());
+}
+
+KInt SQLiter_SQLiteConnection_nativeColumnType(KLong statementPtr, KInt columnIndex)
+{
+    auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
+    return sqlite3_column_type(statement, columnIndex);
 }
 
 }

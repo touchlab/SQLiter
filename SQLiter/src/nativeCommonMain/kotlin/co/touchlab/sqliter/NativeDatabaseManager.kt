@@ -32,6 +32,13 @@ class NativeDatabaseManager(private val path:String,
         try {
             if(connectionList.size == 0){
                 conn.updateJournalMode(configuration.journalMode)
+                val walAutocheckpoint = configuration.walAutocheckpoint
+                if(walAutocheckpoint != null)
+                {
+                    val updated = conn.updateWalAutocheckpoint(walAutocheckpoint)
+                    if(walAutocheckpoint != updated)
+                        throw IllegalStateException("values not equal")
+                }
                 conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.version)
             }
         }finally {
