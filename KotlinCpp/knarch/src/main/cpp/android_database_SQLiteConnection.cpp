@@ -1009,6 +1009,12 @@ KInt SQLiter_SQLiteConnection_nativeColumnCount(KLong statementPtr)
     return sqlite3_column_count(statement);
 }
 
+KInt SQLiter_SQLiteConnection_nativeColumnType(KLong statementPtr, KInt columnIndex)
+{
+    auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
+    return sqlite3_column_type(statement, columnIndex);
+}
+
 OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnName, KLong statementPtr, KInt columnIndex) {
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     auto colName = sqlite3_column_name(statement, columnIndex);
