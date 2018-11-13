@@ -12,6 +12,7 @@ interface Statement{
     fun bindDouble(index:Int, value:Double)
     fun bindString(index:Int, value:String)
     fun bindBlob(index:Int, value:ByteArray)
+    fun bindParameterIndex(paramName:String):Int
 }
 
 fun Statement.bindLong(index:Int, value:Long?){

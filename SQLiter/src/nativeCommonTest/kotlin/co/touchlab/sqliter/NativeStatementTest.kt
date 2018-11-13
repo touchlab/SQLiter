@@ -155,5 +155,40 @@ class NativeStatementTest {
             }
         }
     }
+
+    @Test
+    fun paramByName() {
+        basicTestDb(TWO_COL) {
+            it.withConnection {
+                it.withStatement("insert into test(num, str)values(@num,@str)") {
+                    val index = it.bindParameterIndex("@num")
+                    assertEquals(1, index)
+                    it.bindLong(index, 21)
+                    it.bindString(it.bindParameterIndex("@str"), "asdf")
+                    it.executeInsert()
+                }
+                it.withStatement("insert into test(num, str)values(:num,\$str)") {
+                    it.bindLong(it.bindParameterIndex(":num"), 21)
+                    it.bindString(it.bindParameterIndex("\$str"), "asdf")
+                    it.executeInsert()
+                }
+
+                assertEquals(2, it.longForQuery("select count(*) from test where num = 21"))
+            }
+        }
+    }
+
+    @Test
+    fun paramByNameNotFound() {
+        basicTestDb(TWO_COL) {
+            it.withConnection {
+                it.withStatement("insert into test(num, str)values(@num,@str)") {
+                    assertFails {
+                        it.bindParameterIndex("@numm")
+                    }
+                }
+            }
+        }
+    }
 }
 

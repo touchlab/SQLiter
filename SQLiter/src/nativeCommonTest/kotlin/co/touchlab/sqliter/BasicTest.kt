@@ -1,6 +1,5 @@
 package co.touchlab.sqliter
 
-import kotlinx.coroutines.runBlocking
 import kotlin.system.getTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertEquals

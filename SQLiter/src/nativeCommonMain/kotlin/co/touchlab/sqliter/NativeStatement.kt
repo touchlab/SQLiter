@@ -51,6 +51,13 @@ class NativeStatement(internal val connection: NativeDatabaseConnection, interna
         nativeBindBlob(connection.connectionPtr, statementPtr, index, value)
     }
 
+    override fun bindParameterIndex(paramName: String): Int {
+        val index = nativeBindParameterIndex(statementPtr, paramName)
+        if(index == 0)
+            throw IllegalArgumentException("Statement parameter $paramName not found")
+        return index
+    }
+
     @SymbolName("Android_Database_SQLiteConnection_nativeExecute")
     private external fun nativeExecute(connectionPtr:Long, statementPtr:Long)
 
@@ -86,3 +93,6 @@ class NativeStatement(internal val connection: NativeDatabaseConnection, interna
 
 @SymbolName("Android_Database_SQLiteConnection_nativeFinalizeStatement")
 private external fun nativeFinalizeStatement(connectionPtr:Long, statementPtr:Long)
+
+@SymbolName("SQLiter_SQLiteConnection_nativeBindParameterIndex")
+private external fun nativeBindParameterIndex(statementPtr:Long, paramName:String):Int

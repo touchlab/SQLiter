@@ -8,6 +8,7 @@ buildscript {
         maven {
             url  "https://dl.bintray.com/jetbrains/kotlin-native-dependencies"
         }
+        maven { url 'https://dl.bintray.com/touchlabpublic/kotlin' }
     }
 
     dependencies {
@@ -22,6 +23,7 @@ plugins {
 repositories {
     maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
     mavenCentral()
+    maven { url 'https://dl.bintray.com/touchlabpublic/kotlin' }
     if(project.hasProperty('j2objcMavenDeploy')) {
             maven {
                 url project.property('j2objcMavenDeploy')
@@ -94,8 +96,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation "co.touchlab.stately:stately:0.3.5-k1.3.0-a1"
-                implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0'
+                implementation "co.touchlab.stately:stately:0.3.6-k1.3.0-g4.10.2-a1"
+//                implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0'
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
             }
         }
@@ -119,8 +121,8 @@ kotlin {
 
         nativeCommonMain {
             dependencies {
-                implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.0'
-                implementation 'com.squareup.sqldelight:sqldelightruntimeios:1.0.0-k1.3.0-a3'
+//                implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.0'
+//                implementation 'com.squareup.sqldelight:sqldelightruntimeios:1.0.0-k1.3.0-a3'
             }
         }
         nativeCommonTest { }
