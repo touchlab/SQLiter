@@ -6,7 +6,8 @@ interface Statement{
     fun executeUpdateDelete():Int
     fun query():Cursor
     fun finalizeStatement()
-    fun reset()
+    fun resetStatement()
+    fun clearBindings()
     fun bindNull(index:Int)
     fun bindLong(index:Int, value:Long)
     fun bindDouble(index:Int, value:Double)

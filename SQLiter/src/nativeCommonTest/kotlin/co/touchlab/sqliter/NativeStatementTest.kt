@@ -28,7 +28,6 @@ class NativeStatementTest {
                     statement.bindString(3, "asdf jfasdf $i fflkajsdf $i")
                 statement.bindString(4, "WWWWW QWER jfasdf $i fflkajsdf $i")
                 statement.executeInsert()
-                statement.reset()
             }
             statement.finalizeStatement()
 
@@ -55,7 +54,6 @@ class NativeStatementTest {
                     statement.bindString(3, "asdf jfasdf $i fflkajsdf $i")
                 statement.bindString(4, "WWWWW QWER jfasdf $i fflkajsdf $i")
                 statement.executeInsert()
-                statement.reset()
             }
             statement.finalizeStatement()
 
@@ -84,7 +82,7 @@ class NativeStatementTest {
                     it.bindLong(1, 1)
                     it.bindString(2, "asdf")
                     assertTrue(it.executeInsert() > 0)
-                    it.reset()
+                    it.resetStatement()
                     it.bindLong(1, 2)
                     it.bindString(2, "rrr")
                     it.executeInsert()

@@ -1,18 +1,13 @@
 package co.touchlab.sqliter
 
-import co.touchlab.stately.collections.AbstractSharedLinkedList
 import kotlin.native.concurrent.AtomicReference
-import kotlin.native.concurrent.Worker
 import kotlin.native.concurrent.freeze
-
 
 class NativeDatabaseConnection(
     private val dbManager: NativeDatabaseManager,
     internal val connectionPtr: Long
 ) : DatabaseConnection {
 
-    internal val meNode: AtomicReference<AbstractSharedLinkedList.Node<NativeDatabaseConnection>?> =
-        AtomicReference(null)
     internal val transaction = AtomicReference<Transaction?>(null)
 
     data class Transaction(val successful: Boolean)
@@ -59,9 +54,7 @@ class NativeDatabaseConnection(
     }
 
     override fun close() {
-        val node = meNode.value
-        if (node != null && !node.isRemoved)
-            node.remove()
+        dbManager.decrementConnectionCount()
         nativeClose(connectionPtr)
     }
 

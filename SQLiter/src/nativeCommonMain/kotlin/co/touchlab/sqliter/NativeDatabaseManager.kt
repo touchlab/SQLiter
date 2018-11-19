@@ -1,8 +1,7 @@
 package co.touchlab.sqliter
 
-import co.touchlab.stately.collections.AbstractSharedLinkedList
-import co.touchlab.stately.collections.frozenLinkedList
 import platform.Foundation.NSLock
+import kotlin.native.concurrent.AtomicInt
 
 class NativeDatabaseManager(private val path:String,
                             private val configuration: DatabaseConfiguration
@@ -13,7 +12,7 @@ class NativeDatabaseManager(private val path:String,
         val CREATE_IF_NECESSARY = 0x10000000
     }
 
-    private val connectionList = frozenLinkedList<NativeDatabaseConnection>(stableIterator = true) as AbstractSharedLinkedList<NativeDatabaseConnection>
+    private val connectionCount = AtomicInt(0)
 
     override fun createConnection(): DatabaseConnection {
         lock.lock()
@@ -30,22 +29,20 @@ class NativeDatabaseManager(private val path:String,
         ))
 
         try {
-            if(connectionList.size == 0){
+            if(connectionCount.value == 0){
                 conn.updateJournalMode(configuration.journalMode)
                 conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.version)
             }
         }finally {
+            connectionCount.increment()
             lock.unlock()
         }
 
-        val node = connectionList.addNode(conn)
-        conn.meNode.value = node
         return conn
     }
 
-    override fun close() {
-        val iterator = connectionList.iterator()
-        iterator.forEach { it.close() }
+    internal fun decrementConnectionCount(){
+        connectionCount.decrement()
     }
 
     @SymbolName("Android_Database_SQLiteConnection_nativeOpen")

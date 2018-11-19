@@ -57,5 +57,6 @@ build.finalizedBy(buildCopy)
 task clean {
     doLast {
         delete buildDir
+        delete '../bcdist'
     }
 }

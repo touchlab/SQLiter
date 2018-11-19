@@ -5,20 +5,23 @@ class NativeStatement(internal val connection: NativeDatabaseConnection, interna
         try {
             nativeExecute(connection.connectionPtr, statementPtr)
         } finally {
-            reset()
+            resetStatement()
+            clearBindings()
         }
     }
 
     override fun executeInsert():Long = try {
         nativeExecuteForLastInsertedRowId(connection.connectionPtr, statementPtr)
     } finally {
-        reset()
+        resetStatement()
+        clearBindings()
     }
 
     override fun executeUpdateDelete():Int = try {
         nativeExecuteForChangedRowCount(connection.connectionPtr, statementPtr)
     } finally {
-        reset()
+        resetStatement()
+        clearBindings()
     }
 
     override fun query(): Cursor = NativeCursor(this)
@@ -27,8 +30,12 @@ class NativeStatement(internal val connection: NativeDatabaseConnection, interna
         nativeFinalizeStatement(connection.connectionPtr, statementPtr)
     }
 
-    override fun reset() {
-        nativeResetStatementAndClearBindings(connection.connectionPtr, statementPtr)
+    override fun resetStatement() {
+        nativeResetStatement(connection.connectionPtr, statementPtr)
+    }
+
+    override fun clearBindings() {
+        nativeClearBindings(connection.connectionPtr, statementPtr)
     }
 
     override fun bindNull(index: Int) {
@@ -68,11 +75,6 @@ class NativeStatement(internal val connection: NativeDatabaseConnection, interna
     private external fun nativeExecuteForLastInsertedRowId(
         connectionPtr:Long, statementPtr:Long):Long
 
-
-    @SymbolName("Android_Database_SQLiteConnection_nativeResetStatementAndClearBindings")
-    private external fun nativeResetStatementAndClearBindings(
-        connectionPtr:Long, statementPtr:Long)
-
     @SymbolName("Android_Database_SQLiteConnection_nativeBindNull")
     private external fun nativeBindNull(connectionPtr:Long, statementPtr:Long,
                                         index:Int)
@@ -96,3 +98,9 @@ private external fun nativeFinalizeStatement(connectionPtr:Long, statementPtr:Lo
 
 @SymbolName("SQLiter_SQLiteConnection_nativeBindParameterIndex")
 private external fun nativeBindParameterIndex(statementPtr:Long, paramName:String):Int
+
+@SymbolName("SQLiter_SQLiteConnection_nativeResetStatement")
+private external fun nativeResetStatement(connectionPtr:Long, statementPtr:Long)
+
+@SymbolName("SQLiter_SQLiteConnection_nativeClearBindings")
+private external fun nativeClearBindings(connectionPtr:Long, statementPtr:Long)

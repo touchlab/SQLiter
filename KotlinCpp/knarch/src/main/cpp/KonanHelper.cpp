@@ -52,7 +52,7 @@ char *CreateCStringFromStringWithSize(KString kstring, size_t *utf8Size) {
     utf8::unchecked::utf16to8(utf16, utf16 + kstring->count_, back_inserter(utf8));
     char *result = reinterpret_cast<char *>(konan::calloc(1, utf8.size() + 1));
     ::memcpy(result, utf8.c_str(), utf8.size());
-
+    result[utf8.size()] = 0;
     *utf8Size = utf8.size();
 
     return result;

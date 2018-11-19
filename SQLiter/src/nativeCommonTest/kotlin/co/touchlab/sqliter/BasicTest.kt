@@ -30,7 +30,7 @@ class BasicTest{
                     statement.bindString(3, "asdf jfasdf $i fflkajsdf $i")
                     statement.bindString(4, "WWWWW QWER jfasdf $i fflkajsdf $i")
                     statement.executeInsert()
-                    statement.reset()
+                    statement.resetStatement()
                 }
                 statement.finalizeStatement()
             }

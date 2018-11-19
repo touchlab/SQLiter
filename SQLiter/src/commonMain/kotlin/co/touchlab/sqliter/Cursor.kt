@@ -13,8 +13,8 @@ interface Cursor {
     fun getType(index: Int):FieldType
     val columnCount: Int
     fun columnName(index: Int): String
-    fun close()
     val columnNames: Map<String, Int>
+    val statement:Statement
 }
 
 enum class FieldType(val nativeCode: Int) {
@@ -62,7 +62,7 @@ fun Cursor.getDoubleOrNull(index: Int): Double?{
 fun Cursor.forLong():Long{
     next()
     val result = getLong(0)
-    close()
+    statement.resetStatement()
     return result
 }
 

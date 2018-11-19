@@ -119,7 +119,7 @@ class NativeDatabaseConnectionTest {
                         it.bindLong(1, 555)
                         it.bindString(2, "qwerqwer")
                         it.executeInsert()
-                        it.reset()
+                        it.resetStatement()
                         it.bindLong(1, 545)
                         it.bindString(2, "qasdfwerqwer")
                         it.executeInsert()
@@ -143,7 +143,7 @@ class NativeDatabaseConnectionTest {
                 it.bindLong(1, 1)
                 it.bindString(2, "a")
                 it.executeInsert()
-                it.reset()
+                it.resetStatement()
                 it.bindLong(1, 2)
                 it.bindString(2, "b")
                 it.executeInsert()
@@ -155,7 +155,7 @@ class NativeDatabaseConnectionTest {
 
             println("write timeout $time")
 
-            cursor.close()
+            cursor.statement.resetStatement()
         }
 
         assertEquals(4, reader.longForQuery("select count(*) from test"))
@@ -178,7 +178,7 @@ class NativeDatabaseConnectionTest {
                         it.bindLong(1, 555)
                         it.bindString(2, "qwerqwer")
                         it.executeInsert()
-                        it.reset()
+                        it.resetStatement()
                         it.bindLong(1, 545)
                         it.bindString(2, "qasdfwerqwer")
                         it.executeInsert()
@@ -204,7 +204,7 @@ class NativeDatabaseConnectionTest {
                         it.bindLong(1, 1)
                         it.bindString(2, "a")
                         it.executeInsert()
-                        it.reset()
+                        it.resetStatement()
                         it.bindLong(1, 2)
                         it.bindString(2, "b")
                         it.executeInsert()
@@ -217,7 +217,7 @@ class NativeDatabaseConnectionTest {
 
                 println("write timeout $time")
 
-                cursor.close()
+                cursor.statement.resetStatement()
             }
         } finally {
             reader.close()
@@ -239,7 +239,7 @@ class NativeDatabaseConnectionTest {
                         it.bindLong(1, 555)
                         it.bindString(2, "qwerqwer")
                         it.executeInsert()
-                        it.reset()
+                        it.resetStatement()
                         it.bindLong(1, 545)
                         it.bindString(2, "qasdfwerqwer")
                         it.executeInsert()
@@ -263,7 +263,7 @@ class NativeDatabaseConnectionTest {
 
                         println("Run time ${getTimeMillis() - start}")
                     } finally {
-                        cursor.close()
+                        cursor.statement.resetStatement()
                     }
                 }
 

@@ -379,6 +379,21 @@ static size_t lengthOfString(const KChar* wstr)
     return len;
 }
 
+static int nativeBindParameterIndex(KLong statementPtr, KString paramName)
+{
+    auto * statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
+
+    size_t utf8Size;
+
+    char * value = CreateCStringFromStringWithSize(paramName, &utf8Size);
+
+    int result = sqlite3_bind_parameter_index(statement, reinterpret_cast<const char*>(value));
+
+    DisposeCStringHelper(value);
+
+    return result;
+}
+
 static void nativeBindNull(KLong connectionPtr, KLong statementPtr, KInt index) {
     auto * connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     auto * statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -434,19 +449,6 @@ static void nativeBindBlob(KLong connectionPtr, KLong statementPtr, KInt index, 
     const auto * value = ByteArrayAddressOfElementAt(array, 0);
     int err = sqlite3_bind_blob(statement, index, value, valueLength, SQLITE_TRANSIENT);
 
-    if (err != SQLITE_OK) {
-        throw_sqlite3_exception( connection->db, NULL);
-    }
-}
-
-static void nativeResetStatementAndClearBindings(KLong connectionPtr, KLong statementPtr) {
-    auto * connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
-    auto * statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
-
-    int err = sqlite3_reset(statement);
-    if (err == SQLITE_OK) {
-        err = sqlite3_clear_bindings(statement);
-    }
     if (err != SQLITE_OK) {
         throw_sqlite3_exception( connection->db, NULL);
     }
@@ -864,6 +866,11 @@ OBJ_GETTER(Android_Database_SQLiteConnection_nativeGetColumnName, KRef thiz, KLo
     RETURN_OBJ(nullptr);
 }
 
+KInt SQLiter_SQLiteConnection_nativeBindParameterIndex(KLong statementPtr, KString paramName)
+{
+    return nativeBindParameterIndex(statementPtr, paramName);
+}
+
 void Android_Database_SQLiteConnection_nativeBindNull(KRef thiz,
                                                       KLong connectionPtr, KLong statementPtr, KInt index)
 {
@@ -892,12 +899,6 @@ void Android_Database_SQLiteConnection_nativeBindBlob(KRef thiz,
                                                       KLong connectionPtr, KLong statementPtr, KInt index, KConstRef valueArray)
 {
     nativeBindBlob(connectionPtr, statementPtr, index, valueArray);
-}
-
-void Android_Database_SQLiteConnection_nativeResetStatementAndClearBindings(KRef thiz,
-                                                                            KLong connectionPtr, KLong statementPtr)
-{
-    nativeResetStatementAndClearBindings(connectionPtr, statementPtr);
 }
 
 void Android_Database_SQLiteConnection_nativeExecute(KRef thiz,
@@ -1013,6 +1014,26 @@ KInt SQLiter_SQLiteConnection_nativeColumnType(KLong statementPtr, KInt columnIn
 {
     auto statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     return sqlite3_column_type(statement, columnIndex);
+}
+
+void SQLiter_SQLiteConnection_nativeResetStatement(KLong connectionPtr, KLong statementPtr) {
+    auto * connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
+    auto * statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
+
+    int err = sqlite3_reset(statement);
+    if (err != SQLITE_OK) {
+        throw_sqlite3_exception( connection->db, NULL);
+    }
+}
+
+void SQLiter_SQLiteConnection_nativeClearBindings(KLong connectionPtr, KLong statementPtr) {
+    auto * connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
+    auto * statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
+
+    int err = sqlite3_clear_bindings(statement);
+    if (err != SQLITE_OK) {
+        throw_sqlite3_exception( connection->db, NULL);
+    }
 }
 
 OBJ_GETTER(SQLiter_SQLiteConnection_nativeColumnName, KLong statementPtr, KInt columnIndex) {

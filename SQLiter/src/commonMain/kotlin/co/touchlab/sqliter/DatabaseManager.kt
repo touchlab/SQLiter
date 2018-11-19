@@ -2,7 +2,6 @@ package co.touchlab.sqliter
 
 interface DatabaseManager{
     fun createConnection():DatabaseConnection
-    fun close()
 }
 
 //expect fun createDatabaseManager(configuration: DatabaseConfiguration):DatabaseManager

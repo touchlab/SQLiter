@@ -1,6 +1,6 @@
 package co.touchlab.sqliter
 
-class NativeCursor(private val statement: NativeStatement) : Cursor {
+class NativeCursor(override val statement: NativeStatement) : Cursor {
     private var nextCalled = false
     override fun next(): Boolean {
         nextCalled = true
@@ -16,9 +16,6 @@ class NativeCursor(private val statement: NativeStatement) : Cursor {
         get() = nativeColumnCount(statement.statementPtr)
 
     override fun columnName(index: Int): String = nativeColumnName(statement.statementPtr, index)
-    override fun close() {
-        statement.reset()
-    }
 
     override val columnNames: Map<String, Int> by lazy {
         val map = HashMap<String, Int>(this.columnCount)
