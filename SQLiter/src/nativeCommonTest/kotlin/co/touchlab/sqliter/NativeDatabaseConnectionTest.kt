@@ -302,6 +302,22 @@ class NativeDatabaseConnectionTest {
         assertFalse(threadWait(5000, manager, block))
     }
 
+    @Test
+    fun testClosedThrows(){
+        val man = createDb()
+        val conn = man.createConnection()
+        val goInsert: (Statement) -> Long = {
+            it.bindLong(1, 123)
+            it.bindString(2, "hello")
+            it.executeInsert()
+        }
+        val insertSql = "insert into test(num, str)values(?,?)"
+        conn.withStatement(insertSql, goInsert)
+        conn.close()
+        assertFails { conn.withStatement(insertSql, goInsert) }
+    }
+
+
     private fun threadWait(time: Int, manager: DatabaseManager, block: (DatabaseConnection) -> Unit): Boolean {
         return manager.withConnection {
             val worker = Worker.start()
@@ -337,4 +353,18 @@ class NativeDatabaseConnectionTest {
             result
         }
     }
+
+    private fun createDb() =
+        createDatabaseManager(
+            DatabaseConfiguration(
+                name = "testdb", version = 1,
+                journalMode = JournalMode.WAL, create = { db ->
+                    db.withStatement(TWO_COL) {
+                        it.execute()
+
+                    }
+
+                }, busyTimeout = 30000
+            )
+        )
 }

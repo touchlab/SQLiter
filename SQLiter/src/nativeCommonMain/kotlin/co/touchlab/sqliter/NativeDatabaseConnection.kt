@@ -1,19 +1,22 @@
 package co.touchlab.sqliter
 
+import co.touchlab.stately.concurrency.QuickLock
+import co.touchlab.stately.concurrency.withLock
+import kotlin.native.concurrent.AtomicLong
 import kotlin.native.concurrent.AtomicReference
 import kotlin.native.concurrent.freeze
 
 class NativeDatabaseConnection(
     private val dbManager: NativeDatabaseManager,
-    internal val connectionPtr: Long
-) : DatabaseConnection {
+    connectionPtrArg: Long
+) : NativePointer(connectionPtrArg), DatabaseConnection {
 
     internal val transaction = AtomicReference<Transaction?>(null)
 
     data class Transaction(val successful: Boolean)
 
     override fun createStatement(sql: String): Statement {
-        val statementPtr = nativePrepareStatement(connectionPtr, sql)
+        val statementPtr = nativePrepareStatement(nativePointer, sql)
         val statement = NativeStatement(this, statementPtr)
 
         return statement
@@ -26,7 +29,6 @@ class NativeDatabaseConnection(
 
     override fun setTransactionSuccessful() {
         val trans = checkFailTransaction()
-
         transaction.value = trans.copy(successful = true).freeze()
     }
 
@@ -47,15 +49,16 @@ class NativeDatabaseConnection(
     }
 
     private fun checkFailTransaction(): Transaction {
-        val trans = transaction.value
-        if (trans == null)
-            throw Exception("No transaction")
-        return trans!!
+        return transaction.value ?: throw Exception("No transaction")
     }
 
     override fun close() {
+        closeNativePointer()
+    }
+
+    override fun actualClose(nativePointerArg: Long) {
         dbManager.decrementConnectionCount()
-        nativeClose(connectionPtr)
+        nativeClose(nativePointerArg)
     }
 
     fun migrateIfNeeded(

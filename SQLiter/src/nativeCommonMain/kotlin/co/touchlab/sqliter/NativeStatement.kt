@@ -3,7 +3,7 @@ package co.touchlab.sqliter
 class NativeStatement(internal val connection: NativeDatabaseConnection, internal val statementPtr:Long):Statement {
     override fun execute() {
         try {
-            nativeExecute(connection.connectionPtr, statementPtr)
+            nativeExecute(connection.nativePointer, statementPtr)
         } finally {
             resetStatement()
             clearBindings()
@@ -11,14 +11,14 @@ class NativeStatement(internal val connection: NativeDatabaseConnection, interna
     }
 
     override fun executeInsert():Long = try {
-        nativeExecuteForLastInsertedRowId(connection.connectionPtr, statementPtr)
+        nativeExecuteForLastInsertedRowId(connection.nativePointer, statementPtr)
     } finally {
         resetStatement()
         clearBindings()
     }
 
     override fun executeUpdateDelete():Int = try {
-        nativeExecuteForChangedRowCount(connection.connectionPtr, statementPtr)
+        nativeExecuteForChangedRowCount(connection.nativePointer, statementPtr)
     } finally {
         resetStatement()
         clearBindings()
@@ -27,35 +27,35 @@ class NativeStatement(internal val connection: NativeDatabaseConnection, interna
     override fun query(): Cursor = NativeCursor(this)
 
     override fun finalizeStatement() {
-        nativeFinalizeStatement(connection.connectionPtr, statementPtr)
+        nativeFinalizeStatement(connection.nativePointer, statementPtr)
     }
 
     override fun resetStatement() {
-        nativeResetStatement(connection.connectionPtr, statementPtr)
+        nativeResetStatement(connection.nativePointer, statementPtr)
     }
 
     override fun clearBindings() {
-        nativeClearBindings(connection.connectionPtr, statementPtr)
+        nativeClearBindings(connection.nativePointer, statementPtr)
     }
 
     override fun bindNull(index: Int) {
-        nativeBindNull(connection.connectionPtr, statementPtr, index)
+        nativeBindNull(connection.nativePointer, statementPtr, index)
     }
 
     override fun bindLong(index: Int, value: Long) {
-        nativeBindLong(connection.connectionPtr, statementPtr, index, value)
+        nativeBindLong(connection.nativePointer, statementPtr, index, value)
     }
 
     override fun bindDouble(index: Int, value: Double) {
-        nativeBindDouble(connection.connectionPtr, statementPtr, index, value)
+        nativeBindDouble(connection.nativePointer, statementPtr, index, value)
     }
 
     override fun bindString(index: Int, value: String) {
-        nativeBindString(connection.connectionPtr, statementPtr, index, value)
+        nativeBindString(connection.nativePointer, statementPtr, index, value)
     }
 
     override fun bindBlob(index: Int, value: ByteArray) {
-        nativeBindBlob(connection.connectionPtr, statementPtr, index, value)
+        nativeBindBlob(connection.nativePointer, statementPtr, index, value)
     }
 
     override fun bindParameterIndex(paramName: String): Int {

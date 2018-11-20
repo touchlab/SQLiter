@@ -4,7 +4,7 @@ class NativeCursor(override val statement: NativeStatement) : Cursor {
     private var nextCalled = false
     override fun next(): Boolean {
         nextCalled = true
-        return nativeStep(statement.connection.connectionPtr, statement.statementPtr)
+        return nativeStep(statement.connection.nativePointer, statement.statementPtr)
     }
     override fun isNull(index: Int): Boolean = checkNextCalled{nativeIsNull(statement.statementPtr, index)}
     override fun getString(index: Int): String = checkNextCalled{nativeColumnGetString(statement.statementPtr, index)}
