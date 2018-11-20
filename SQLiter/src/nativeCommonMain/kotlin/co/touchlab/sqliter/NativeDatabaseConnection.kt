@@ -24,7 +24,7 @@ class NativeDatabaseConnection(
 
     override fun beginTransaction() {
         transaction.value = Transaction(false).freeze()
-        withStatement("BEGIN;") { it.execute() }
+        withStatement("BEGIN;") { execute() }
     }
 
     override fun setTransactionSuccessful() {
@@ -42,7 +42,7 @@ class NativeDatabaseConnection(
                 } else {
                     "ROLLBACK;"
                 }
-            ) { it.execute() }
+            ) { execute() }
         } finally {
             transaction.value = null
         }
@@ -96,6 +96,6 @@ fun NativeDatabaseConnection.getVersion(): Int = longForQuery("PRAGMA user_versi
  * @param version the new database version
  */
 fun NativeDatabaseConnection.setVersion(version: Int) {
-    withStatement("PRAGMA user_version = $version") { it.execute() }
+    withStatement("PRAGMA user_version = $version") { execute() }
 }
 

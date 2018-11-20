@@ -18,7 +18,7 @@ class NativeCursorTest {
     fun beforeNextFails() {
         withSample2Col { conn ->
             conn.withStatement("select * from test") {
-                val cursor = it.query()
+                val cursor = query()
                 assertFails {
                     cursor.getLong(0)
                 }
@@ -30,7 +30,7 @@ class NativeCursorTest {
     fun afterDoneFails() {
         withSample2Col { conn ->
             conn.withStatement("select * from test") {
-                val cursor = it.query()
+                val cursor = query()
                 while (cursor.next()){
                     //Meh
                 }
@@ -43,7 +43,7 @@ class NativeCursorTest {
     fun colNames(){
         withSample2Col { conn ->
             conn.withStatement("select * from test") {
-                val cursor = it.query()
+                val cursor = query()
 
                 assertEquals(2, cursor.columnCount)
             }
@@ -54,12 +54,12 @@ class NativeCursorTest {
         val manager = createDb()
         manager.withConnection { conn ->
             conn.withStatement("insert into test(num, str)values(?,?)") {
-                it.bindLong(1, 22)
-                it.bindString(2, "asdf")
-                it.executeInsert()
-                it.bindLong(1, 33)
-                it.bindString(2, "qwert")
-                it.executeInsert()
+                bindLong(1, 22)
+                bindString(2, "asdf")
+                executeInsert()
+                bindLong(1, 33)
+                bindString(2, "qwert")
+                executeInsert()
                 1
             }
 
@@ -73,8 +73,7 @@ class NativeCursorTest {
                 name = "testdb", version = 1,
                 journalMode = JournalMode.WAL, create = { db ->
                     db.withStatement(TWO_COL) {
-                        it.execute()
-
+                        execute()
                     }
 
                 }, busyTimeout = 30000

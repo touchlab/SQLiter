@@ -33,7 +33,7 @@ class NativeDatabaseConnectionTest {
                 name = "testdb", version = 1,
                 journalMode = mode, create = { db ->
                     db.withStatement(TWO_COL) {
-                        it.execute()
+                        execute()
 
                     }
 
@@ -47,9 +47,9 @@ class NativeDatabaseConnectionTest {
             conn.withTransaction {
                 it.withStatement("insert into test(num, str)values(?,?)") {
                     for (i in 0 until 50_000) {
-                        it.bindLong(1, i.toLong())
-                        it.bindString(2, "row $i")
-                        it.executeInsert()
+                        bindLong(1, i.toLong())
+                        bindString(2, "row $i")
+                        executeInsert()
                     }
                 }
             }
@@ -59,7 +59,7 @@ class NativeDatabaseConnectionTest {
             val rows = conn.longForQuery("select count(*) from test")
             conn.withStatement("select * from test limit 1000 offset ${rows - 2000}") {
                 var rowCount = 0
-                it.query().iterator().forEach { rowCount++ }
+                query().iterator().forEach { rowCount++ }
                 assertEquals(rowCount, 1000)
             }
         }
@@ -112,17 +112,17 @@ class NativeDatabaseConnectionTest {
                 name = "testdb", version = 1,
                 journalMode = JournalMode.WAL, create = { db ->
                     db.withStatement(TWO_COL) {
-                        it.execute()
+                        execute()
 
                     }
                     db.withStatement("insert into test(num, str)values(?,?)") {
-                        it.bindLong(1, 555)
-                        it.bindString(2, "qwerqwer")
-                        it.executeInsert()
-                        it.resetStatement()
-                        it.bindLong(1, 545)
-                        it.bindString(2, "qasdfwerqwer")
-                        it.executeInsert()
+                        bindLong(1, 555)
+                        bindString(2, "qwerqwer")
+                        executeInsert()
+                        resetStatement()
+                        bindLong(1, 545)
+                        bindString(2, "qasdfwerqwer")
+                        executeInsert()
 
                     }
                 }, busyTimeout = 3000
@@ -135,18 +135,18 @@ class NativeDatabaseConnectionTest {
         assertEquals(reader.journalMode, JournalMode.WAL)
 
         reader.withStatement("select num, str from test limit 20") {
-            val cursor = it.query()
+            val cursor = query()
             cursor.next()
             val start = getTimeMillis()
 
             writer.withStatement("insert into test(num, str)values(?,?)") {
-                it.bindLong(1, 1)
-                it.bindString(2, "a")
-                it.executeInsert()
-                it.resetStatement()
-                it.bindLong(1, 2)
-                it.bindString(2, "b")
-                it.executeInsert()
+                bindLong(1, 1)
+                bindString(2, "a")
+                executeInsert()
+                resetStatement()
+                bindLong(1, 2)
+                bindString(2, "b")
+                executeInsert()
             }
 
             val time = getTimeMillis() - start
@@ -171,17 +171,17 @@ class NativeDatabaseConnectionTest {
                 name = "testdb", version = 1,
                 journalMode = JournalMode.DELETE, create = { db ->
                     db.withStatement(TWO_COL) {
-                        it.execute()
+                        execute()
 
                     }
                     db.withStatement("insert into test(num, str)values(?,?)") {
-                        it.bindLong(1, 555)
-                        it.bindString(2, "qwerqwer")
-                        it.executeInsert()
-                        it.resetStatement()
-                        it.bindLong(1, 545)
-                        it.bindString(2, "qasdfwerqwer")
-                        it.executeInsert()
+                        bindLong(1, 555)
+                        bindString(2, "qwerqwer")
+                        executeInsert()
+                        resetStatement()
+                        bindLong(1, 545)
+                        bindString(2, "qasdfwerqwer")
+                        executeInsert()
 
                     }
                 }, busyTimeout = 1500
@@ -195,19 +195,19 @@ class NativeDatabaseConnectionTest {
             assertEquals(reader.journalMode, JournalMode.DELETE)
 
             reader.withStatement("select num, str from test limit 20") {
-                val cursor = it.query()
+                val cursor = query()
                 cursor.next()
                 val start = getTimeMillis()
 
                 assertFails {
                     writer.withStatement("insert into test(num, str)values(?,?)") {
-                        it.bindLong(1, 1)
-                        it.bindString(2, "a")
-                        it.executeInsert()
-                        it.resetStatement()
-                        it.bindLong(1, 2)
-                        it.bindString(2, "b")
-                        it.executeInsert()
+                        bindLong(1, 1)
+                        bindString(2, "a")
+                        executeInsert()
+                        resetStatement()
+                        bindLong(1, 2)
+                        bindString(2, "b")
+                        executeInsert()
                     }
                 }
 
@@ -232,17 +232,17 @@ class NativeDatabaseConnectionTest {
                 name = "testdb", version = 1,
                 journalMode = JournalMode.DELETE, create = { db ->
                     db.withStatement(TWO_COL) {
-                        it.execute()
+                        execute()
 
                     }
                     db.withStatement("insert into test(num, str)values(?,?)") {
-                        it.bindLong(1, 555)
-                        it.bindString(2, "qwerqwer")
-                        it.executeInsert()
-                        it.resetStatement()
-                        it.bindLong(1, 545)
-                        it.bindString(2, "qasdfwerqwer")
-                        it.executeInsert()
+                        bindLong(1, 555)
+                        bindString(2, "qwerqwer")
+                        executeInsert()
+                        resetStatement()
+                        bindLong(1, 545)
+                        bindString(2, "qasdfwerqwer")
+                        executeInsert()
 
                     }
                 }, busyTimeout = 3000
@@ -253,7 +253,7 @@ class NativeDatabaseConnectionTest {
             val queryBlock: (DatabaseConnection) -> Unit = {
                 it.withStatement("select num, str from test limit 20") {
                     val start = getTimeMillis()
-                    val cursor = it.query()
+                    val cursor = query()
                     cursor.next()
                     try {
                         usleep(4_000_000)
@@ -281,7 +281,7 @@ class NativeDatabaseConnectionTest {
     fun testTimeout() {
         val manager = createDatabaseManager(DatabaseConfiguration(name = "testdb", version = 1, create = { db ->
             db.withStatement(TWO_COL) {
-                it.execute()
+                execute()
             }
         }, busyTimeout = 3000))
 
@@ -291,9 +291,9 @@ class NativeDatabaseConnectionTest {
 
 
                     for (i in 0 until 10_000) {
-                        it.bindLong(1, i.toLong())
-                        it.bindString(2, "Oh $i")
-                        it.executeInsert()
+                        bindLong(1, i.toLong())
+                        bindString(2, "Oh $i")
+                        executeInsert()
                     }
                 }
             }
@@ -335,15 +335,15 @@ class NativeDatabaseConnectionTest {
             it.withTransaction {
                 it.withStatement("insert into test(num, str)values(?,?)") {
                     for (i in 0 until 10_000) {
-                        it.bindLong(1, i.toLong())
-                        it.bindString(2, "Hey $i")
-                        it.executeInsert()
+                        bindLong(1, i.toLong())
+                        bindString(2, "Hey $i")
+                        executeInsert()
                     }
                     usleep((time * 1000).toUInt())
                     for (i in 0 until 10_000) {
-                        it.bindLong(1, i.toLong())
-                        it.bindString(2, "Hey $i")
-                        it.executeInsert()
+                        bindLong(1, i.toLong())
+                        bindString(2, "Hey $i")
+                        executeInsert()
                     }
                 }
             }
@@ -360,7 +360,7 @@ class NativeDatabaseConnectionTest {
                 name = "testdb", version = 1,
                 journalMode = JournalMode.WAL, create = { db ->
                     db.withStatement(TWO_COL) {
-                        it.execute()
+                        execute()
 
                     }
 

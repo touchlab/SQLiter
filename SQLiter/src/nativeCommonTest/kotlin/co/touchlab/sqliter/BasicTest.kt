@@ -36,7 +36,7 @@ class BasicTest{
             }
 
             connection.withStatement("SELECT * FROM test") {
-                val cursor = it.query()
+                val cursor = query()
                 val timeBlocking = timeCursorBlocking(cursor) {
                     it.next()
                 }

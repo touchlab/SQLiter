@@ -32,7 +32,7 @@ class NativeStatementTest {
             statement.finalizeStatement()
 
             connection.withStatement("select str from test") {
-                val query = it.query()
+                val query = query()
                 query.next()
                 assertTrue(query.getString(query.columnNames["str"]!!).startsWith("Hilo"))
             }
@@ -58,12 +58,12 @@ class NativeStatementTest {
             statement.finalizeStatement()
 
             connection.withStatement("update test set str = ?") {
-                it.bindString(1, "asdf")
-                it.executeUpdateDelete()
+                bindString(1, "asdf")
+                executeUpdateDelete()
             }
 
             connection.withStatement("select str from test") {
-                val query = it.query()
+                val query = query()
                 query.next()
                 assertFalse(query.getString(query.columnNames["str"]!!).startsWith("Hilo"))
                 assertTrue(query.getString(query.columnNames["str"]!!).startsWith("asdf"))
@@ -79,20 +79,20 @@ class NativeStatementTest {
             val connection = it.createConnection()
             connection.withTransaction {
                 it.withStatement("insert into test(num, str)values(?,?)") {
-                    it.bindLong(1, 1)
-                    it.bindString(2, "asdf")
-                    assertTrue(it.executeInsert() > 0)
-                    it.resetStatement()
-                    it.bindLong(1, 2)
-                    it.bindString(2, "rrr")
-                    it.executeInsert()
+                    bindLong(1, 1)
+                    bindString(2, "asdf")
+                    assertTrue(executeInsert() > 0)
+                    resetStatement()
+                    bindLong(1, 2)
+                    bindString(2, "rrr")
+                    executeInsert()
                 }
             }
 
             connection.withTransaction {
                 it.withStatement("update test set str = ?") {
-                    it.bindString(1, "qwert")
-                    assertEquals(2, it.executeUpdateDelete())
+                    bindString(1, "qwert")
+                    assertEquals(2, executeUpdateDelete())
                 }
             }
 
@@ -105,13 +105,13 @@ class NativeStatementTest {
         basicTestDb(TWO_COL) {
             it.withConnection {
                 it.withStatement("insert into test(num, str)values(?,?)") {
-                    assertFails { it.bindString(0, "asdf") }
-                    assertFails { it.bindString(3, "asdf") }
+                    assertFails { bindString(0, "asdf") }
+                    assertFails { bindString(3, "asdf") }
 
                     //Still works?
-                    it.bindLong(1, 123)
-                    it.bindString(2, "asdf")
-                    assertTrue(it.executeInsert() > 0)
+                    bindLong(1, 123)
+                    bindString(2, "asdf")
+                    assertTrue(executeInsert() > 0)
                 }
             }
         }
@@ -122,9 +122,9 @@ class NativeStatementTest {
         basicTestDb(TWO_COL) {
             it.withConnection {
                 it.withStatement("insert into test(num, str)values(?,?)") {
-                    it.bindLong(1, 333)
-                    it.bindString(2, null)
-                    assertFails { it.executeInsert() }
+                    bindLong(1, 333)
+                    bindString(2, null)
+                    assertFails { executeInsert() }
                 }
             }
         }
@@ -144,11 +144,11 @@ class NativeStatementTest {
         basicTestDb(TWO_COL) {
             it.withConnection {
                 it.withStatement("insert into test(num, str)values(?,?)") {
-                    it.bindLong(1, 21)
-                    it.bindString(2, "asdf")
-                    it.executeInsert()
-                    it.bindLong(1, 44)
-                    assertFails { it.executeInsert() }
+                    bindLong(1, 21)
+                    bindString(2, "asdf")
+                    executeInsert()
+                    bindLong(1, 44)
+                    assertFails { executeInsert() }
                 }
             }
         }
@@ -159,16 +159,16 @@ class NativeStatementTest {
         basicTestDb(TWO_COL) {
             it.withConnection {
                 it.withStatement("insert into test(num, str)values(@num,@str)") {
-                    val index = it.bindParameterIndex("@num")
+                    val index = bindParameterIndex("@num")
                     assertEquals(1, index)
-                    it.bindLong(index, 21)
-                    it.bindString(it.bindParameterIndex("@str"), "asdf")
-                    it.executeInsert()
+                    bindLong(index, 21)
+                    bindString(bindParameterIndex("@str"), "asdf")
+                    executeInsert()
                 }
                 it.withStatement("insert into test(num, str)values(:num,\$str)") {
-                    it.bindLong(it.bindParameterIndex(":num"), 21)
-                    it.bindString(it.bindParameterIndex("\$str"), "asdf")
-                    it.executeInsert()
+                    bindLong(bindParameterIndex(":num"), 21)
+                    bindString(bindParameterIndex("\$str"), "asdf")
+                    executeInsert()
                 }
 
                 assertEquals(2, it.longForQuery("select count(*) from test where num = 21"))
@@ -182,7 +182,7 @@ class NativeStatementTest {
             it.withConnection {
                 it.withStatement("insert into test(num, str)values(@num,@str)") {
                     assertFails {
-                        it.bindParameterIndex("@numm")
+                        bindParameterIndex("@numm")
                     }
                 }
             }

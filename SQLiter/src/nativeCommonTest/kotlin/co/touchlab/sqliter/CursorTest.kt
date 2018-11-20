@@ -21,23 +21,23 @@ class CursorTest{
         val manager = createDatabaseManager(DatabaseConfiguration(name = "testdb", version = 1,
             journalMode = JournalMode.WAL, create = { db ->
                 db.withStatement(TWO_COL) {
-                    it.execute()
+                    execute()
                 }
             }))
 
         val connection = manager.createConnection()
         connection.withStatement("insert into test(num, str)values(?,?)"){
-            it.bindLong(1, 2)
-            it.bindString(2, "asdf")
-            it.executeInsert()
-            it.bindLong(1, 3)
-            it.bindString(2, "qwert")
-            it.executeInsert()
+            bindLong(1, 2)
+            bindString(2, "asdf")
+            executeInsert()
+            bindLong(1, 3)
+            bindString(2, "qwert")
+            executeInsert()
         }
 
         connection.withStatement("select * from test"){
             var rowCount = 0
-            it.query().iterator().forEach {
+            query().iterator().forEach {
                 if(rowCount == 0){
                     assertEquals(it.values.get(0).second as Long, 2)
                     assertEquals(it.values.get(1).second as String, "asdf")

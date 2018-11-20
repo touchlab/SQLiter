@@ -32,7 +32,7 @@ inline fun basicTestDb(createSql:String = FOUR_COL, block:(DatabaseManager)->Uni
     val dbname = "testdb"
     val dbManager = createTestDb {db ->
         db.withStatement(createSql){
-            it.execute()
+            execute()
         }
     }
 

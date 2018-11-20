@@ -4,18 +4,18 @@ class NativeCursor(override val statement: NativeStatement) : Cursor {
     private var nextCalled = false
     override fun next(): Boolean {
         nextCalled = true
-        return nativeStep(statement.connection.nativePointer, statement.statementPtr)
+        return nativeStep(statement.connection.nativePointer, statement.nativePointer)
     }
-    override fun isNull(index: Int): Boolean = checkNextCalled{nativeIsNull(statement.statementPtr, index)}
-    override fun getString(index: Int): String = checkNextCalled{nativeColumnGetString(statement.statementPtr, index)}
-    override fun getLong(index: Int): Long = checkNextCalled{nativeColumnGetLong(statement.statementPtr, index)}
-    override fun getBytes(index: Int): ByteArray = checkNextCalled{nativeColumnGetBlob(statement.statementPtr, index)}
-    override fun getDouble(index: Int): Double = checkNextCalled{nativeColumnGetDouble(statement.statementPtr, index)}
-    override fun getType(index: Int): FieldType = checkNextCalled{FieldType.forCode(nativeColumnType(statement.statementPtr, index))}
+    override fun isNull(index: Int): Boolean = checkNextCalled{nativeIsNull(statement.nativePointer, index)}
+    override fun getString(index: Int): String = checkNextCalled{nativeColumnGetString(statement.nativePointer, index)}
+    override fun getLong(index: Int): Long = checkNextCalled{nativeColumnGetLong(statement.nativePointer, index)}
+    override fun getBytes(index: Int): ByteArray = checkNextCalled{nativeColumnGetBlob(statement.nativePointer, index)}
+    override fun getDouble(index: Int): Double = checkNextCalled{nativeColumnGetDouble(statement.nativePointer, index)}
+    override fun getType(index: Int): FieldType = checkNextCalled{FieldType.forCode(nativeColumnType(statement.nativePointer, index))}
     override val columnCount: Int
-        get() = nativeColumnCount(statement.statementPtr)
+        get() = nativeColumnCount(statement.nativePointer)
 
-    override fun columnName(index: Int): String = nativeColumnName(statement.statementPtr, index)
+    override fun columnName(index: Int): String = nativeColumnName(statement.nativePointer, index)
 
     override val columnNames: Map<String, Int> by lazy {
         val map = HashMap<String, Int>(this.columnCount)

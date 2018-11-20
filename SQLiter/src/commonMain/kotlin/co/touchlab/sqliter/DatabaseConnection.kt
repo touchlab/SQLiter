@@ -8,10 +8,10 @@ interface DatabaseConnection{
     fun close()
 }
 
-fun <R> DatabaseConnection.withStatement(sql: String, proc: (Statement) -> R): R {
+fun <R> DatabaseConnection.withStatement(sql: String, proc: Statement.() -> R): R {
     val statement = createStatement(sql)
     try{
-        return proc(statement)
+        return statement.proc()
     }
     finally {
         statement.finalizeStatement()
@@ -30,13 +30,13 @@ fun <R> DatabaseConnection.withTransaction(proc: (DatabaseConnection) -> R): R {
 }
 
 fun DatabaseConnection.longForQuery(sql:String):Long = withStatement(sql){
-    val query = it.query()
+    val query = query()
     query.next()
     return@withStatement query.getLong(0)
 }
 
 fun DatabaseConnection.stringForQuery(sql:String):String = withStatement(sql){
-    val query = it.query()
+    val query = query()
     query.next()
     return@withStatement query.getString(0)
 }
