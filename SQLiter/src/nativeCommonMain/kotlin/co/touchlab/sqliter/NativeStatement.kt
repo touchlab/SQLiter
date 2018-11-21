@@ -72,36 +72,9 @@ class NativeStatement(
             throw IllegalArgumentException("Statement parameter $paramName not found")
         return index
     }
-
-    @SymbolName("Android_Database_SQLiteConnection_nativeExecute")
-    private external fun nativeExecute(connectionPtr:Long, nativePointer:Long)
-
-    @SymbolName("Android_Database_SQLiteConnection_nativeExecuteForChangedRowCount")
-    private external fun nativeExecuteForChangedRowCount(connectionPtr:Long, nativePointer:Long):Int
-
-    @SymbolName("Android_Database_SQLiteConnection_nativeExecuteForLastInsertedRowId")
-    private external fun nativeExecuteForLastInsertedRowId(
-        connectionPtr:Long, nativePointer:Long):Long
-
-    @SymbolName("Android_Database_SQLiteConnection_nativeBindNull")
-    private external fun nativeBindNull(connectionPtr:Long, nativePointer:Long,
-                                        index:Int)
-    @SymbolName("Android_Database_SQLiteConnection_nativeBindLong")
-    private external fun nativeBindLong(connectionPtr:Long, nativePointer:Long,
-                                        index:Int, value:Long)
-    @SymbolName("Android_Database_SQLiteConnection_nativeBindDouble")
-    private external fun nativeBindDouble(connectionPtr:Long, nativePointer:Long,
-                                          index:Int, value:Double)
-    @SymbolName("Android_Database_SQLiteConnection_nativeBindString")
-    private external fun nativeBindString(connectionPtr:Long, nativePointer:Long,
-                                          index:Int, value:String)
-    @SymbolName("Android_Database_SQLiteConnection_nativeBindBlob")
-    private external fun nativeBindBlob(connectionPtr:Long, nativePointer:Long,
-                                        index:Int, value:ByteArray)
-
 }
 
-@SymbolName("Android_Database_SQLiteConnection_nativeFinalizeStatement")
+@SymbolName("SQLiter_SQLiteStatement_nativeFinalizeStatement")
 private external fun nativeFinalizeStatement(connectionPtr:Long, nativePointer:Long)
 
 @SymbolName("SQLiter_SQLiteConnection_nativeBindParameterIndex")
@@ -112,3 +85,30 @@ private external fun nativeResetStatement(connectionPtr:Long, nativePointer:Long
 
 @SymbolName("SQLiter_SQLiteConnection_nativeClearBindings")
 private external fun nativeClearBindings(connectionPtr:Long, nativePointer:Long)
+
+@SymbolName("SQLiter_SQLiteStatement_nativeExecute")
+private external fun nativeExecute(connectionPtr:Long, nativePointer:Long)
+
+@SymbolName("SQLiter_SQLiteStatement_nativeExecuteForChangedRowCount")
+private external fun nativeExecuteForChangedRowCount(connectionPtr:Long, nativePointer:Long):Int
+
+@SymbolName("SQLiter_SQLiteStatement_nativeExecuteForLastInsertedRowId")
+private external fun nativeExecuteForLastInsertedRowId(
+    connectionPtr:Long, nativePointer:Long):Long
+
+@SymbolName("SQLiter_SQLiteStatement_nativeBindNull")
+private external fun nativeBindNull(connectionPtr:Long, nativePointer:Long,
+                                    index:Int)
+
+@SymbolName("SQLiter_SQLiteStatement_nativeBindLong")
+private external fun nativeBindLong(connectionPtr:Long, nativePointer:Long,
+                                    index:Int, value:Long)
+@SymbolName("SQLiter_SQLiteStatement_nativeBindDouble")
+private external fun nativeBindDouble(connectionPtr:Long, nativePointer:Long,
+                                      index:Int, value:Double)
+@SymbolName("SQLiter_SQLiteStatement_nativeBindString")
+private external fun nativeBindString(connectionPtr:Long, nativePointer:Long,
+                                      index:Int, value:String)
+@SymbolName("SQLiter_SQLiteStatement_nativeBindBlob")
+private external fun nativeBindBlob(connectionPtr:Long, nativePointer:Long,
+                                    index:Int, value:ByteArray)

@@ -75,13 +75,13 @@ class NativeDatabaseConnection(
 
         setVersion(version)
     }
-
-    @SymbolName("Android_Database_SQLiteConnection_nativePrepareStatement")
-    private external fun nativePrepareStatement(connectionPtr: Long, sql: String): Long
-
-    @SymbolName("Android_Database_SQLiteConnection_nativeClose")
-    private external fun nativeClose(connectionPtr: Long)
 }
+
+@SymbolName("SQLiter_SQLiteConnection_nativePrepareStatement")
+private external fun nativePrepareStatement(connectionPtr: Long, sql: String): Long
+
+@SymbolName("SQLiter_SQLiteConnection_nativeClose")
+private external fun nativeClose(connectionPtr: Long)
 
 /**
  * Gets the database version.

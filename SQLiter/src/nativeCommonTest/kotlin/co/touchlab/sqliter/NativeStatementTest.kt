@@ -155,6 +155,29 @@ class NativeStatementTest {
     }
 
     @Test
+    fun testClosedThrows(){
+        basicTestDb(TWO_COL) {
+            it.withConnection {
+                val statement = it.createStatement("insert into test(num, str)values(?,?)")
+                statement.bindLong(1, 21)
+                statement.bindString(2, "asdf")
+                statement.executeInsert()
+                statement.finalizeStatement()
+                assertFails {
+                    statement.bindLong(1, 22)
+                }
+                it.withStatement("insert into test(num, str)values(?,?)") {
+                    bindLong(1, 21)
+                    bindString(2, "asdf")
+                    executeInsert()
+                    bindLong(1, 44)
+                    assertFails { executeInsert() }
+                }
+            }
+        }
+    }
+
+    @Test
     fun paramByName() {
         basicTestDb(TWO_COL) {
             it.withConnection {

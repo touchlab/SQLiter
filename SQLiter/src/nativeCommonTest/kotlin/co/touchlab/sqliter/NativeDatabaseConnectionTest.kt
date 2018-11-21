@@ -306,10 +306,10 @@ class NativeDatabaseConnectionTest {
     fun testClosedThrows(){
         val man = createDb()
         val conn = man.createConnection()
-        val goInsert: (Statement) -> Long = {
-            it.bindLong(1, 123)
-            it.bindString(2, "hello")
-            it.executeInsert()
+        val goInsert: Statement.() -> Long = {
+            bindLong(1, 123)
+            bindString(2, "hello")
+            executeInsert()
         }
         val insertSql = "insert into test(num, str)values(?,?)"
         conn.withStatement(insertSql, goInsert)

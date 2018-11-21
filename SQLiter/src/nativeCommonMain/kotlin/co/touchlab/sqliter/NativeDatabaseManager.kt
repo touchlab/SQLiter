@@ -44,9 +44,9 @@ class NativeDatabaseManager(private val path:String,
     internal fun decrementConnectionCount(){
         connectionCount.decrement()
     }
-
-    @SymbolName("Android_Database_SQLiteConnection_nativeOpen")
-    private external fun nativeOpen(path:String, openFlags:Int, label:String,
-                                    enableTrace:Boolean, enableProfile:Boolean,
-                                    lookasideSlotSize:Int, lookasideSlotCount:Int, busyTimeout:Int):Long
 }
+
+@SymbolName("SQLiter_SQLiteConnection_nativeOpen")
+private external fun nativeOpen(path:String, openFlags:Int, label:String,
+                                enableTrace:Boolean, enableProfile:Boolean,
+                                lookasideSlotSize:Int, lookasideSlotCount:Int, busyTimeout:Int):Long
