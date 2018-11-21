@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "android_database_SQLiteCommon.h"
+#include "SQLiteCommon.h"
 #include <cstdio>
 #include <string>
 #include "KonanHelper.h"

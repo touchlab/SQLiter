@@ -34,7 +34,7 @@
 
 #include <sqlite3.h>
 
-#include "android_database_SQLiteCommon.h"
+#include "SQLiteCommon.h"
 
 // Set to 1 to use UTF16 storage for localized indexes.
 #define UTF16_STORAGE 0
