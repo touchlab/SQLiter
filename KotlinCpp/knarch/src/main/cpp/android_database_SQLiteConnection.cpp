@@ -84,12 +84,6 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
             connection->label, sql, tm * 0.000001f);
 }
 
-// Called after each SQLite VM instruction when cancelation is enabled.
-static int sqliteProgressHandlerCallback(void* data) {
-    SQLiteConnection* connection = static_cast<SQLiteConnection*>(data);
-    return connection->canceled;
-}
-
 static int executeNonQuery(SQLiteConnection* connection, sqlite3_stmt* statement) {
     int err = sqlite3_step(statement);
     if (err == SQLITE_ROW) {
@@ -99,33 +93,6 @@ static int executeNonQuery(SQLiteConnection* connection, sqlite3_stmt* statement
         throw_sqlite3_exception( connection->db);
     }
     return err;
-}
-
-static KInt nativeGetDbLookaside(KLong connectionPtr) {
-    auto connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
-
-    int cur = -1;
-    int unused;
-    sqlite3_db_status(connection->db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &unused, 0);
-    return cur;
-}
-
-static void nativeCancel(KLong connectionPtr) {
-    auto connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
-    connection->canceled = true;
-}
-
-static void nativeResetCancel(KLong connectionPtr,
-        KBoolean cancelable) {
-    auto connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
-    connection->canceled = false;
-
-    if (cancelable) {
-        sqlite3_progress_handler(connection->db, 4, sqliteProgressHandlerCallback,
-                connection);
-    } else {
-        sqlite3_progress_handler(connection->db, 0, NULL, NULL);
-    }
 }
 
 static int nativeBindParameterIndex(KLong statementPtr, KString paramName)
@@ -384,15 +351,6 @@ KLong SQLiter_SQLiteConnection_nativeOpen(KString pathStr, KInt openFlags,
         return 0;
     }
 
-    /* No custom fumnctions
-    // Register custom Android functions.
-    err = register_android_functions(db, UTF16_STORAGE);
-    if (err) {
-        throw_sqlite3_exception(env, db, "Could not register Android SQL functions.");
-        sqlite3_close(db);
-        return 0;
-    }
-    */
     // Create wrapper object.
     SQLiteConnection* connection = new SQLiteConnection(db, openFlags, path, label);
 
