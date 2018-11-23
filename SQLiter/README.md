@@ -42,7 +42,7 @@ SQLiter releases are published to Maven Central. You'll need a minimum gradle ve
 to gradle metadata versioning.
 
 ```
-implementation 'co.touchlab:sqliter:0.4.0'
+implementation 'co.touchlab:sqliter:0.4.1'
 
 ```
 
