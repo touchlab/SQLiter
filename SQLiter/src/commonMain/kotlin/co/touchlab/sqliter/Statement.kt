@@ -59,3 +59,23 @@ fun Statement.bindBlob(index:Int, value:ByteArray?){
     else
         bindBlob(index, value)
 }
+
+fun Statement.longForQuery():Long{
+    try {
+        val query = query()
+        query.next()
+        return query.getLong(0)
+    } finally {
+        resetStatement()
+    }
+}
+
+fun Statement.stringForQuery():String{
+    try {
+        val query = query()
+        query.next()
+        return query.getString(0)
+    } finally {
+        resetStatement()
+    }
+}

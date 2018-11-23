@@ -21,17 +21,7 @@ import kotlin.test.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CursorTest{
-    @BeforeEach
-    fun before(){
-        deleteDatabase(TEST_DB_NAME)
-    }
-
-    @AfterEach
-    fun after(){
-        deleteDatabase(TEST_DB_NAME)
-    }
-
+class CursorTest:BaseDatabaseTest(){
     @Test
     fun iterator(){
         val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,

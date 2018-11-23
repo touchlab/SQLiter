@@ -17,14 +17,23 @@
 package co.touchlab.sqliter
 
 data class DatabaseConfiguration(
+
     val name:String,
     val version:Int,
     val create:(DatabaseConnection)->Unit,
     val upgrade:(DatabaseConnection, Int, Int)->Unit = {_,_,_->},
     val journalMode: JournalMode = JournalMode.WAL,
     val busyTimeout:Int = 2500,
-    val pageSize:Int? = null
-)
+    val pageSize:Int? = null,
+    val inMemory:Boolean = false
+){
+    init {
+        if(!validDatabaseName.matches(name))
+            throw IllegalArgumentException("Database name $name not valid. Only letters, numbers, dash and underscore allowed")
+    }
+}
+
+internal val validDatabaseName = "[A-Za-z0-9\\-_.]+".toRegex()
 
 enum class JournalMode {
     DELETE, WAL;

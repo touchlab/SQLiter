@@ -82,4 +82,5 @@ fun Cursor.forLong():Long{
     return result
 }
 
+fun Cursor.getColumnIndexOrThrow(name:String):Int = columnNames[name] ?: throw IllegalArgumentException("Col for $name not found")
 

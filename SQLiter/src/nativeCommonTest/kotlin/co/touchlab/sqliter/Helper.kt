@@ -16,6 +16,7 @@
 
 package co.touchlab.sqliter
 
+import co.touchlab.sqliter.NativeFileContext.deleteDatabase
 import kotlin.native.concurrent.Future
 import kotlin.native.concurrent.waitForMultipleFutures
 

@@ -18,17 +18,7 @@ package co.touchlab.sqliter
 
 import kotlin.test.*
 
-class NativeStatementTest {
-
-    @BeforeEach
-    fun before() {
-        deleteDatabase(TEST_DB_NAME)
-    }
-
-    @AfterEach
-    fun after() {
-        deleteDatabase(TEST_DB_NAME)
-    }
+class NativeStatementTest : BaseDatabaseTest(){
 
     @Test
     fun insertStatement() {

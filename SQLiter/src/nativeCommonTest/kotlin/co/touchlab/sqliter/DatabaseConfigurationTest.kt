@@ -18,16 +18,39 @@ package co.touchlab.sqliter
 
 import kotlin.test.*
 
-class DatabaseConfigurationTest{
-    @BeforeEach
-    fun before(){
-        deleteDatabase(TEST_DB_NAME)
+class DatabaseConfigurationTest : BaseDatabaseTest(){
+
+    @Test
+    fun pathTest(){
+        val dbPathString = NativeFileContext.databasePath(TEST_DB_NAME, false)
+        assertTrue(dbPathString.endsWith(TEST_DB_NAME))
     }
 
-    @AfterEach
-    fun after(){
-        deleteDatabase(TEST_DB_NAME)
+    @Test
+    fun memoryPathTest(){
+        val dbPathString = NativeFileContext.databasePath(TEST_DB_NAME, true)
+        assertEquals("file:$TEST_DB_NAME?mode=memory&cache=shared", dbPathString)
     }
+
+    @Test
+    fun validDatabaseName(){
+        assertTrue(validDatabaseName.matches("absdf"))
+        assertTrue(validDatabaseName.matches("abs4f"))
+        assertTrue(validDatabaseName.matches("abWWs4f"))
+        assertTrue(validDatabaseName.matches("_-abWWs4f"))
+        assertTrue(validDatabaseName.matches("_-ab.WWs4f"))
+        assertFalse(validDatabaseName.matches("_-a bWWs4f"))
+        assertFalse(validDatabaseName.matches("_-a ~bWWs4f"))
+        assertFalse(validDatabaseName.matches("_-a ~bWWs4f"))
+    }
+
+    @Test
+    fun invalidDatabaseNameFailsConfig() {
+        DatabaseConfiguration("asdf", 1, {})
+        assertFails { DatabaseConfiguration("as df", 1, {}) }
+    }
+
+
 
     @Test
     fun journalModeSetting()
@@ -67,4 +90,6 @@ class DatabaseConfigurationTest{
         assertEquals(conn2.journalMode, JournalMode.WAL)
         conn2.close()
     }
+
+
 }

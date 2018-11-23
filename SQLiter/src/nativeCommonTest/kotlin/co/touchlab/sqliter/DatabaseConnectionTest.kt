@@ -16,6 +16,7 @@
 
 package co.touchlab.sqliter
 
+import co.touchlab.sqliter.NativeFileContext.deleteDatabase
 import kotlin.test.*
 
 class DatabaseConnectionTest {
@@ -223,4 +224,92 @@ class DatabaseConnectionTest {
         deleteDatabase(secondDbName)
     }
 
+    @Test
+    fun memoryDatabase() {
+        assertFalse(checkDbIsFile("chevychasevoicemail", true))
+        assertTrue(checkDbIsFile("heyfile", false))
+    }
+
+    @Test
+    fun memoryDatabaseMultipleConnections(){
+        val memoryName = "asdfasdf"
+        val man = createDatabaseManager(
+            DatabaseConfiguration(
+                name = memoryName,
+                version = 1,
+                create = {
+                    it.withStatement(TWO_COL) {
+                        execute()
+                    }
+                },
+                inMemory = true
+            )
+        )
+
+        val conn1 = man.createConnection()
+
+        conn1.withTransaction {
+                it.withStatement("insert into test(num, str)values(?,?)") {
+                    bindLong(1, 232)
+                    bindString(2, "asdf")
+                    executeInsert()
+                }
+            }
+
+        assertEquals(1, conn1.longForQuery("select count(*) from test"))
+
+        val conn2 = man.createConnection()
+        conn2.withTransaction {
+            it.withStatement("insert into test(num, str)values(?,?)") {
+                bindLong(1, 232)
+                bindString(2, "asdf")
+                executeInsert()
+            }
+        }
+
+        assertEquals(2, conn2.longForQuery("select count(*) from test"))
+
+        conn1.close()
+
+        assertEquals(2, conn2.longForQuery("select count(*) from test"))
+
+        conn2.close()
+
+        man.withConnection {
+            assertEquals(0, it.longForQuery("select count(*) from test"))
+        }
+    }
+
+    private fun checkDbIsFile(memoryName: String, mem:Boolean): Boolean {
+        var dbFileExists = false
+        try {
+            val man = createDatabaseManager(
+                DatabaseConfiguration(
+                    name = memoryName,
+                    version = 1,
+                    create = {
+                        it.withStatement(TWO_COL) {
+                            execute()
+                        }
+                    },
+                    inMemory = mem
+                )
+            )
+
+            man.withConnection {
+                it.withTransaction {
+                    it.withStatement("insert into test(num, str)values(?,?)") {
+                        bindLong(1, 232)
+                        bindString(2, "asdf")
+                        executeInsert()
+                    }
+                }
+
+                dbFileExists = NativeFileContext.databaseFile(memoryName).exists()
+            }
+        } finally {
+            NativeFileContext.deleteDatabase(memoryName)
+        }
+        return dbFileExists
+    }
 }

@@ -21,16 +21,7 @@ import kotlin.native.concurrent.*
 import kotlin.system.getTimeMillis
 import kotlin.test.*
 
-class NativeDatabaseConnectionTest {
-    @BeforeEach
-    fun before() {
-        deleteDatabase(TEST_DB_NAME)
-    }
-
-    @AfterEach
-    fun after() {
-        deleteDatabase(TEST_DB_NAME)
-    }
+class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
 //    @Test
     fun multithreadedActivityWAL() {

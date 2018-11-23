@@ -18,17 +18,7 @@ package co.touchlab.sqliter
 
 import kotlin.test.*
 
-class DatabaseManagerTest{
-
-    @BeforeEach
-    fun before() {
-        deleteDatabase(TEST_DB_NAME)
-    }
-
-    @AfterEach
-    fun after() {
-        deleteDatabase(TEST_DB_NAME)
-    }
+class DatabaseManagerTest : BaseDatabaseTest(){
 
     @Test
     fun connectionCount(){

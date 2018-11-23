@@ -46,15 +46,11 @@ fun <R> DatabaseConnection.withTransaction(proc: (DatabaseConnection) -> R): R {
 }
 
 fun DatabaseConnection.longForQuery(sql:String):Long = withStatement(sql){
-    val query = query()
-    query.next()
-    return@withStatement query.getLong(0)
+    longForQuery()
 }
 
 fun DatabaseConnection.stringForQuery(sql:String):String = withStatement(sql){
-    val query = query()
-    query.next()
-    return@withStatement query.getString(0)
+    stringForQuery()
 }
 
 /**

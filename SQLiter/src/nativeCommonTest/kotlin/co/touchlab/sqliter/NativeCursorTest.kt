@@ -18,17 +18,7 @@ package co.touchlab.sqliter
 
 import kotlin.test.*
 
-class NativeCursorTest {
-
-    @BeforeEach
-    fun before() {
-        deleteDatabase(TEST_DB_NAME)
-    }
-
-    @AfterEach
-    fun after() {
-        deleteDatabase(TEST_DB_NAME)
-    }
+class NativeCursorTest : BaseDatabaseTest(){
 
     @Test
     fun beforeNextFails() {

@@ -16,7 +16,18 @@
 
 package co.touchlab.sqliter
 
-fun createDatabaseManager(configuration: DatabaseConfiguration): DatabaseManager {
-    val databasePath = NativeFileContext.databasePath(configuration.name, configuration.inMemory)
-    return NativeDatabaseManager(databasePath, configuration)
+import co.touchlab.sqliter.NativeFileContext.deleteDatabase
+import kotlin.test.AfterEach
+import kotlin.test.BeforeEach
+
+abstract class BaseDatabaseTest{
+    @BeforeEach
+    fun before(){
+        deleteDatabase(TEST_DB_NAME)
+    }
+
+    @AfterEach
+    fun after(){
+        deleteDatabase(TEST_DB_NAME)
+    }
 }
