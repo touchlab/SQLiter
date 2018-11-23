@@ -293,7 +293,7 @@ class NativeDatabaseConnectionTest {
         }
     }
 
-    @Test
+//    @Test
     fun testTimeout() {
         val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1, create = { db ->
             db.withStatement(TWO_COL) {
