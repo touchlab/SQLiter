@@ -27,6 +27,9 @@ class NativeDatabaseConnection(
     connectionPtrArg: Long
 ) : NativePointer(connectionPtrArg), DatabaseConnection {
 
+    private val transLock = QuickLock()
+
+
     internal val transaction = AtomicReference<Transaction?>(null)
 
     data class Transaction(val successful: Boolean)
@@ -38,26 +41,26 @@ class NativeDatabaseConnection(
         return statement
     }
 
-    override fun beginTransaction() {
-        transaction.value = Transaction(false).freeze()
+    override fun beginTransaction() = transLock.withLock {
         withStatement("BEGIN;") { execute() }
+        transaction.value = Transaction(false).freeze()
     }
 
-    override fun setTransactionSuccessful() {
+    override fun setTransactionSuccessful() = transLock.withLock {
         val trans = checkFailTransaction()
         transaction.value = trans.copy(successful = true).freeze()
     }
 
-    override fun endTransaction() {
+    override fun endTransaction() = transLock.withLock {
         val trans = checkFailTransaction()
 
         try {
             withStatement(
-                if (trans.successful) {
+            if(trans.successful){
                     "COMMIT;"
-                } else {
+            } else {
                     "ROLLBACK;"
-                }
+            }
             ) { execute() }
         } finally {
             transaction.value = null
@@ -84,12 +87,19 @@ class NativeDatabaseConnection(
     ) {
         val initialVersion = getVersion()
         if (initialVersion == 0) {
-            create(this)
-        } else {
-            upgrade(this, initialVersion, version)
-        }
+            this.withTransaction {
+                create(this)
+                setVersion(version)
+            }
+        } else if(initialVersion != version) {
+            if(initialVersion > version)
+                throw IllegalStateException("Database version $initialVersion newer than config version $version")
 
-        setVersion(version)
+            this.withTransaction {
+                upgrade(this, initialVersion, version)
+                setVersion(version)
+            }
+        }
     }
 }
 
@@ -98,20 +108,4 @@ private external fun nativePrepareStatement(connectionPtr: Long, sql: String): L
 
 @SymbolName("SQLiter_SQLiteConnection_nativeClose")
 private external fun nativeClose(connectionPtr: Long)
-
-/**
- * Gets the database version.
- *
- * @return the database version
- */
-fun NativeDatabaseConnection.getVersion(): Int = longForQuery("PRAGMA user_version;").toInt()
-
-/**
- * Sets the database version.
- *
- * @param version the new database version
- */
-fun NativeDatabaseConnection.setVersion(version: Int) {
-    withStatement("PRAGMA user_version = $version") { execute() }
-}
 

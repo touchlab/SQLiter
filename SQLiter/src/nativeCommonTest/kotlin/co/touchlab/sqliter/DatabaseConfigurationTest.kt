@@ -21,18 +21,18 @@ import kotlin.test.*
 class DatabaseConfigurationTest{
     @BeforeEach
     fun before(){
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
     @AfterEach
     fun after(){
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
     @Test
     fun journalModeSetting()
     {
-        val manager = createDatabaseManager(DatabaseConfiguration(name = "testdb", version = 1,
+        val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
             journalMode = JournalMode.WAL, create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
@@ -58,8 +58,7 @@ class DatabaseConfigurationTest{
 
         conn.close()
 
-        println("tr 2")
-        val manager2 = createDatabaseManager(DatabaseConfiguration(name = "testdb", version = 1,
+        val manager2 = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
             journalMode = JournalMode.WAL, create = {
                 fail("Same version shouldn't run")
             }))

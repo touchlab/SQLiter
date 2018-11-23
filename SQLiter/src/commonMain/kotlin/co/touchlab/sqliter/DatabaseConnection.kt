@@ -57,6 +57,22 @@ fun DatabaseConnection.stringForQuery(sql:String):String = withStatement(sql){
     return@withStatement query.getString(0)
 }
 
+/**
+ * Gets the database version.
+ *
+ * @return the database version
+ */
+fun DatabaseConnection.getVersion(): Int = longForQuery("PRAGMA user_version;").toInt()
+
+/**
+ * Sets the database version.
+ *
+ * @param version the new database version
+ */
+fun DatabaseConnection.setVersion(version: Int) {
+    withStatement("PRAGMA user_version = $version") { execute() }
+}
+
 val DatabaseConnection.journalMode: JournalMode
     get() = JournalMode.forString(stringForQuery("PRAGMA journal_mode"))
 

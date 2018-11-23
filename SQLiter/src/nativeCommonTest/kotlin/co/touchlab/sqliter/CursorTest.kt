@@ -24,17 +24,17 @@ import kotlin.test.assertEquals
 class CursorTest{
     @BeforeEach
     fun before(){
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
     @AfterEach
     fun after(){
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
     @Test
     fun iterator(){
-        val manager = createDatabaseManager(DatabaseConfiguration(name = "testdb", version = 1,
+        val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
             journalMode = JournalMode.WAL, create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()

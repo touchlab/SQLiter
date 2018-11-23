@@ -28,33 +28,34 @@ class NativeDatabaseManager(private val path:String,
         val CREATE_IF_NECESSARY = 0x10000000
     }
 
-    private val connectionCount = AtomicInt(0)
+    internal val connectionCount = AtomicInt(0)
 
     override fun createConnection(): DatabaseConnection {
         lock.lock()
 
-        val conn = NativeDatabaseConnection(this, nativeOpen(
-            path,
-            CREATE_IF_NECESSARY,
-            "asdf",
-            false,
-            false,
-            -1,
-            -1,
-            configuration.busyTimeout
-        ))
-
         try {
+            val conn = NativeDatabaseConnection(this, nativeOpen(
+                path,
+                CREATE_IF_NECESSARY,
+                "asdf",
+                false,
+                false,
+                -1,
+                -1,
+                configuration.busyTimeout
+            ))
+
             if(connectionCount.value == 0){
                 conn.updateJournalMode(configuration.journalMode)
                 conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.version)
             }
-        }finally {
+
+            return conn
+        }
+        finally {
             connectionCount.increment()
             lock.unlock()
         }
-
-        return conn
     }
 
     internal fun decrementConnectionCount(){

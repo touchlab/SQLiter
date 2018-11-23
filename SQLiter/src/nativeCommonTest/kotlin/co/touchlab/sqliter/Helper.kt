@@ -19,12 +19,19 @@ package co.touchlab.sqliter
 import kotlin.native.concurrent.Future
 import kotlin.native.concurrent.waitForMultipleFutures
 
-fun createTestDb(name:String = "testdb", version:Int = 1, create:(DatabaseConnection)->Unit):DatabaseManager{
+val TEST_DB_NAME = "testdb"
+
+fun createTestDb(
+    name:String = TEST_DB_NAME,
+    version:Int = 1,
+    update:(DatabaseConnection, Int, Int)->Unit = {_,_,_->},
+    create:(DatabaseConnection)->Unit
+    ):DatabaseManager{
     try {
         deleteDatabase(name)
     } catch (e: Exception) {
     }
-    return createDatabaseManager(DatabaseConfiguration(name, version, create))
+    return createDatabaseManager(DatabaseConfiguration(name, version, create, update))
 }
 
 inline fun deleteAfter(name: String, manager: DatabaseManager, block:(DatabaseManager)->Unit){
@@ -45,7 +52,7 @@ val FOUR_COL = "CREATE TABLE test (num INTEGER NOT NULL, " +
         "rrr TEST NOT NULL)"
 
 inline fun basicTestDb(createSql:String = FOUR_COL, block:(DatabaseManager)->Unit){
-    val dbname = "testdb"
+    val dbname = TEST_DB_NAME
     val dbManager = createTestDb {db ->
         db.withStatement(createSql){
             execute()

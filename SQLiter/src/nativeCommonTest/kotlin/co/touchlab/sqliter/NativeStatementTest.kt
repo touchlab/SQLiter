@@ -22,12 +22,12 @@ class NativeStatementTest {
 
     @BeforeEach
     fun before() {
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
     @AfterEach
     fun after() {
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
     @Test

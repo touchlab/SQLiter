@@ -26,9 +26,9 @@ class BasicTest{
 
     @Test
     fun pathTest(){
-        val dbPathString = getDatabasePath("testdb").path
+        val dbPathString = getDatabasePath(TEST_DB_NAME).path
         println("DBPath: $dbPathString")
-        assertTrue(dbPathString.endsWith("testdb"))
+        assertTrue(dbPathString.endsWith(TEST_DB_NAME))
     }
 
     @Test

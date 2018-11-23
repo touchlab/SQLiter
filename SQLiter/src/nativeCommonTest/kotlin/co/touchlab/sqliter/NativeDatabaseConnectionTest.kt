@@ -24,12 +24,12 @@ import kotlin.test.*
 class NativeDatabaseConnectionTest {
     @BeforeEach
     fun before() {
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
     @AfterEach
     fun after() {
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
 //    @Test
@@ -46,7 +46,7 @@ class NativeDatabaseConnectionTest {
         val start = getTimeMillis()
         val manager = createDatabaseManager(
             DatabaseConfiguration(
-                name = "testdb", version = 1,
+                name = TEST_DB_NAME, version = 1,
                 journalMode = mode, create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
@@ -125,7 +125,7 @@ class NativeDatabaseConnectionTest {
 
         val manager = createDatabaseManager(
             DatabaseConfiguration(
-                name = "testdb", version = 1,
+                name = TEST_DB_NAME, version = 1,
                 journalMode = JournalMode.WAL, create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
@@ -184,7 +184,7 @@ class NativeDatabaseConnectionTest {
 
         val manager = createDatabaseManager(
             DatabaseConfiguration(
-                name = "testdb", version = 1,
+                name = TEST_DB_NAME, version = 1,
                 journalMode = JournalMode.DELETE, create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
@@ -245,7 +245,7 @@ class NativeDatabaseConnectionTest {
     fun testReadWhileWriting() {
         val manager = createDatabaseManager(
             DatabaseConfiguration(
-                name = "testdb", version = 1,
+                name = TEST_DB_NAME, version = 1,
                 journalMode = JournalMode.DELETE, create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
@@ -295,7 +295,7 @@ class NativeDatabaseConnectionTest {
 
     @Test
     fun testTimeout() {
-        val manager = createDatabaseManager(DatabaseConfiguration(name = "testdb", version = 1, create = { db ->
+        val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1, create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
             }
@@ -373,7 +373,7 @@ class NativeDatabaseConnectionTest {
     private fun createDb() =
         createDatabaseManager(
             DatabaseConfiguration(
-                name = "testdb", version = 1,
+                name = TEST_DB_NAME, version = 1,
                 journalMode = JournalMode.WAL, create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()

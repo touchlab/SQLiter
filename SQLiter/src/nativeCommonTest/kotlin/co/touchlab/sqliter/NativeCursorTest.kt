@@ -22,12 +22,12 @@ class NativeCursorTest {
 
     @BeforeEach
     fun before() {
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
     @AfterEach
     fun after() {
-        deleteDatabase("testdb")
+        deleteDatabase(TEST_DB_NAME)
     }
 
     @Test
@@ -86,7 +86,7 @@ class NativeCursorTest {
     private fun createDb() =
         createDatabaseManager(
             DatabaseConfiguration(
-                name = "testdb", version = 1,
+                name = TEST_DB_NAME, version = 1,
                 journalMode = JournalMode.WAL, create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()

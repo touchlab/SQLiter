@@ -56,7 +56,7 @@ process. You create a DatabaseManager by calling createDatabaseManager with a Da
 ```kotlin
 val manager = createDatabaseManager(
     DatabaseConfiguration(
-        name = "testdb", 
+        name = TEST_DB_NAME, 
         version = 1,
         journalMode = JournalMode.WAL, 
         create = { db ->
