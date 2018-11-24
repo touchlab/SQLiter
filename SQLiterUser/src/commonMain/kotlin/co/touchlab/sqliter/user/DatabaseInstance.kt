@@ -1,13 +1,18 @@
 package co.touchlab.sqliter.user
 
 import co.touchlab.sqliter.DatabaseConnection
+import co.touchlab.sqliter.longForQuery
+import co.touchlab.sqliter.stringForQuery
 import co.touchlab.sqliter.withTransaction
 import co.touchlab.stately.collections.frozenLruCache
 import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.concurrency.QuickLock
 import co.touchlab.stately.concurrency.withLock
 
-class DatabaseInstance internal constructor(private val connection: DatabaseConnection, cacheSize: Int = 200) {
+class DatabaseInstance internal constructor(
+    private val connection: DatabaseConnection,
+    private val cacheSize: Int = 200
+) {
 
     private val closed = AtomicBoolean(false)
     private val statementCache = frozenLruCache<String, BinderStatement>(cacheSize) {
@@ -35,8 +40,8 @@ class DatabaseInstance internal constructor(private val connection: DatabaseConn
             it.statement.executeUpdateDelete()
         }
 
-    fun useStatement(sql:String, block:BinderStatement.()->Unit){
-        safeUseStatement(sql){
+    fun useStatement(sql: String, block: BinderStatement.() -> Unit) {
+        safeUseStatement(sql) {
             block(it)
         }
     }
@@ -59,6 +64,9 @@ class DatabaseInstance internal constructor(private val connection: DatabaseConn
         statementCache.removeAll()
         tryClose()
     }
+
+    fun longForQuery(sql: String): Long = connection.longForQuery(sql)
+    fun stringForQuery(sql: String): String = connection.stringForQuery(sql)
 
     private fun tryClose() {
         try {
@@ -84,17 +92,22 @@ class DatabaseInstance internal constructor(private val connection: DatabaseConn
     }
 
     internal fun recycle(statement: BinderStatement) = cacheLock.withLock {
+
         //If connection is closed but an operation is still running, the earlier close call should fail
         //Getting here means the outstanding process finished and now we try closing again
         if (closed.value) {
             statement.statement.finalizeStatement()
             tryClose()
         } else {
-            statement.reset()
-            statementCache.put(statement.sql, statement)
+            if (cacheSize == 0) {
+                statement.statement.finalizeStatement()
+            } else {
+                statement.reset()
+                statementCache.put(statement.sql, statement)
+            }
         }
     }
 }
 
 fun wrapDatabaseInstance(connection: DatabaseConnection): DatabaseInstance =
-    DatabaseInstance(connection, 1)
+    DatabaseInstance(connection, 0)

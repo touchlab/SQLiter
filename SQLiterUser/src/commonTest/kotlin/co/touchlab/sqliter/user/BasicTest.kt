@@ -37,13 +37,13 @@ class BasicTest{
             string("Heyo")
         }
 
-        instance.query("select * from test where num = ?",{
+        /*instance.query("select * from test where num = ?",{
             long(123)
         }){
             it.forEach {
                 assertEquals("Heyo", it.string(1))
             }
-        }
+        }*/
     }
 
     @Test
@@ -51,12 +51,14 @@ class BasicTest{
         val instance = database.instance()
         instance.transaction {
             it.useStatement("insert into test(num, str)values(?,?)"){
-                for(i in 0 until 20000){
+                for(i in 0 until 200000){
                     long(123)
                     string("Heyo")
                     insert()
                 }
             }
         }
+
+        assertEquals(200000, instance.longForQuery("select count(*) from test"))
     }
 }
