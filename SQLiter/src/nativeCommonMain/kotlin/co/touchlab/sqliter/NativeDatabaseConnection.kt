@@ -26,6 +26,8 @@ class NativeDatabaseConnection(
     private val dbManager: NativeDatabaseManager,
     connectionPtrArg: Long
 ) : NativePointer(connectionPtrArg), DatabaseConnection {
+    override val closed: Boolean
+        get() = pointerClosed
 
     private val transLock = QuickLock()
 

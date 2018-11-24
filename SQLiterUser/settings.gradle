@@ -1,0 +1,3 @@
+rootProject.name = 'sqliter-user'
+enableFeaturePreview('GRADLE_METADATA')
+enableFeaturePreview('STABLE_PUBLISHING')

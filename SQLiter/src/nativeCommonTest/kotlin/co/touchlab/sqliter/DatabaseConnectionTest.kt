@@ -280,6 +280,16 @@ class DatabaseConnectionTest {
         }
     }
 
+    @Test
+    fun closed(){
+        basicTestDb(TWO_COL) {
+            val conn = it.createConnection()
+            assertFalse(conn.closed)
+            conn.close()
+            assertTrue(conn.closed)
+        }
+    }
+
     private fun checkDbIsFile(memoryName: String, mem:Boolean): Boolean {
         var dbFileExists = false
         try {
