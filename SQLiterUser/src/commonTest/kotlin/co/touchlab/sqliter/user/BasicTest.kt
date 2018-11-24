@@ -29,22 +29,34 @@ class BasicTest{
         database.close()
     }
 
-
-
     @Test
     fun sanityCheck(){
         val instance = database.instance()
-        val stmt = instance.statement("insert into test(num, str)values(?,?)")
-
-        stmt.execute {
+        instance.insert("insert into test(num, str)values(?,?)"){
             long(123)
             string("Heyo")
         }
 
-        instance.query("select * from test where num = ?"){
+        instance.query("select * from test where num = ?",{
             long(123)
-        }.iterator().forEach {
-            assertEquals("Heyo", it.getString(1))
+        }){
+            it.forEach {
+                assertEquals("Heyo", it.string(1))
+            }
+        }
+    }
+
+    @Test
+    fun bigInsert(){
+        val instance = database.instance()
+        instance.transaction {
+            it.useStatement("insert into test(num, str)values(?,?)"){
+                for(i in 0 until 20000){
+                    long(123)
+                    string("Heyo")
+                    insert()
+                }
+            }
         }
     }
 }

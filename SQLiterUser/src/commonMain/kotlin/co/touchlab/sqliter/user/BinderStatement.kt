@@ -2,7 +2,7 @@ package co.touchlab.sqliter.user
 
 import co.touchlab.sqliter.Statement
 
-internal class BinderStatement(internal val sql:String, internal val statement: Statement):Binder{
+class BinderStatement internal constructor(internal val sql:String, internal val statement: Statement):Binder{
 
     private var indexCounter = 0
 
@@ -26,6 +26,30 @@ internal class BinderStatement(internal val sql:String, internal val statement: 
         statement.bindNull(bindIndex(index, name))
     }
 
+    fun execute() {
+        try {
+            statement.execute()
+        } finally {
+            reset()
+        }
+    }
+
+    fun insert(): Long {
+        try {
+            return statement.executeInsert()
+        } finally {
+            reset()
+        }
+    }
+
+    fun updateDelete(): Int {
+        try {
+            return statement.executeUpdateDelete()
+        } finally {
+            reset()
+        }
+    }
+
     internal fun reset(){
         statement.resetStatement()
         statement.clearBindings()
@@ -44,8 +68,4 @@ internal class BinderStatement(internal val sql:String, internal val statement: 
         }
     }
 
-}
-
-abstract class BinderStatementRecycler{
-    internal abstract fun recycle(statement: BinderStatement)
 }
