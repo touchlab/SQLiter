@@ -31,8 +31,8 @@ class BasicTest{
 
     @Test
     fun sanityCheck(){
-        val instance = database.instance()
-        instance.insert("insert into test(num, str)values(?,?)"){
+
+        database.insert("insert into test(num, str)values(?,?)"){
             long(123)
             string("Heyo")
         }
@@ -48,8 +48,7 @@ class BasicTest{
 
     @Test
     fun bigInsert(){
-        val instance = database.instance()
-        instance.transaction {
+        database.transaction {
             it.useStatement("insert into test(num, str)values(?,?)"){
                 for(i in 0 until 200000){
                     long(123)
@@ -59,6 +58,6 @@ class BasicTest{
             }
         }
 
-        assertEquals(200000, instance.longForQuery("select count(*) from test"))
+        assertEquals(200000, database.longForQuery("select count(*) from test"))
     }
 }

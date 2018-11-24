@@ -9,44 +9,49 @@ import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.concurrency.QuickLock
 import co.touchlab.stately.concurrency.withLock
 
-class DatabaseInstance internal constructor(
+internal class DatabaseInstance internal constructor(
     private val connection: DatabaseConnection,
     private val cacheSize: Int
-) {
+) : Operations {
 
     private val closed = AtomicBoolean(false)
     internal val statementCache = frozenLruCache<String, BinderStatement>(cacheSize) {
         it.value.statement.finalizeStatement()
     }
 
+    private val accessLock = QuickLock()
+    internal inline fun <R> access(block:(DatabaseInstance)->R):R = accessLock.withLock {
+        block(this)
+    }
+
     private val cacheLock = QuickLock()
 
-    fun execute(sql: String, bind: Binder.() -> Unit = {}) {
+    override fun execute(sql: String, bind: Binder.() -> Unit) {
         safeUseStatement(sql) {
             bind(it)
             it.statement.execute()
         }
     }
 
-    fun insert(sql: String, bind: Binder.() -> Unit = {}): Long =
+    override fun insert(sql: String, bind: Binder.() -> Unit): Long =
         safeUseStatement(sql) {
             bind(it)
             it.statement.executeInsert()
         }
 
-    fun updateDelete(sql: String, bind: Binder.() -> Unit = {}): Int =
+    override fun updateDelete(sql: String, bind: Binder.() -> Unit): Int =
         safeUseStatement(sql) {
             bind(it)
             it.statement.executeUpdateDelete()
         }
 
-    fun useStatement(sql: String, block: BinderStatement.() -> Unit) {
+    override fun useStatement(sql: String, block: BinderStatement.() -> Unit) {
         safeUseStatement(sql) {
             block(it)
         }
     }
 
-    fun <T> query(sql: String, bind: Binder.() -> Unit = {}, results: (Iterator<Row>) -> T) {
+    override fun <T> query(sql: String, bind: Binder.() -> Unit, results: (Iterator<Row>) -> T) {
         safeUseStatement(sql) {
             bind(it)
             val rows = Results(
@@ -56,7 +61,7 @@ class DatabaseInstance internal constructor(
         }
     }
 
-    fun <R> transaction(proc: (DatabaseInstance) -> R): R =
+    fun <R> transaction(proc: (Operations) -> R): R =
         connection.withTransaction { proc(this) }
 
     fun close():Boolean = cacheLock.withLock {
@@ -65,8 +70,8 @@ class DatabaseInstance internal constructor(
         tryClose()
     }
 
-    fun longForQuery(sql: String): Long = connection.longForQuery(sql)
-    fun stringForQuery(sql: String): String = connection.stringForQuery(sql)
+    override fun longForQuery(sql: String): Long = connection.longForQuery(sql)
+    override fun stringForQuery(sql: String): String = connection.stringForQuery(sql)
 
     private fun tryClose():Boolean {
         return try {
@@ -111,5 +116,5 @@ class DatabaseInstance internal constructor(
     }
 }
 
-fun wrapDatabaseInstance(connection: DatabaseConnection): DatabaseInstance =
+fun wrapDatabaseInstance(connection: DatabaseConnection): Operations =
     DatabaseInstance(connection, 0)

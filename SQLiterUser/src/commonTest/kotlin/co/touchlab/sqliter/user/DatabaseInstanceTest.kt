@@ -3,11 +3,11 @@ package co.touchlab.sqliter.user
 import co.touchlab.sqliter.DatabaseConfiguration
 import kotlin.test.*
 
-class DatabaseInstanceTest{
+class DatabaseInstanceTest {
     lateinit var database: Database
 
     @BeforeTest
-    fun setup(){
+    fun setup() {
         val man = createDatabaseManager(DatabaseConfiguration(
             name = "testdb",
             version = 1,
@@ -22,29 +22,31 @@ class DatabaseInstanceTest{
     }
 
     @AfterTest
-    fun tearDown(){
+    fun tearDown() {
         database.close()
     }
 
     @Test
-    fun cacheClears(){
-        for(i in 0 until 30){
-            database.instance().insert("insert into test(num, str)values($i,'$i')")
+    fun cacheClears() {
+        for (i in 0 until 30) {
+            database.insert("insert into test(num, str)values($i,'$i')")
         }
 
-        assertEquals(20, database.instance().statementCache.size)
+        assertEquals(20, database.localInstance { statementCache.size })
         assertTrue(database.close())
     }
 
     @Test
-    fun badStatementsFail(){
-        val instance = database.instance()
-        assertFails { instance.execute("Mac and me") }
-        assertFails { instance.insert("Mac and me") }
-        assertFails { instance.updateDelete("Mac and me") }
-        assertFails { instance.query("Mac and me"){
-
-        } }
+    fun badStatementsFail() {
+        database.instance { instance ->
+            assertFails { instance.execute("Mac and me") }
+            assertFails { instance.insert("Mac and me") }
+            assertFails { instance.updateDelete("Mac and me") }
+            assertFails {
+                instance.query("Mac and me") {
+                }
+            }
+        }
     }
 
 
