@@ -1,4 +1,4 @@
-package co.touchlab.sqliter.user
+package co.touchlab.sqlager.user
 
 import co.touchlab.sqliter.DatabaseConnection
 import co.touchlab.sqliter.longForQuery
@@ -95,7 +95,10 @@ internal class DatabaseInstance internal constructor(
     private fun makeStatement(sql: String): BinderStatement = cacheLock.withLock {
         if (closed.value)
             throw IllegalStateException("Cannot use a closed connection")
-        statementCache.remove(sql) ?: return@withLock BinderStatement(sql, connection.createStatement(sql))
+        statementCache.remove(sql) ?: return@withLock BinderStatement(
+            sql,
+            connection.createStatement(sql)
+        )
     }
 
     internal fun recycle(statement: BinderStatement) = cacheLock.withLock {

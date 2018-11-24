@@ -1,9 +1,9 @@
-package co.touchlab.sqliter.user
+package co.touchlab.sqlager.user
 
 import co.touchlab.sqliter.Cursor
 import co.touchlab.sqliter.FieldType
 
-internal class Results constructor(private val cursor: Cursor):Row{
+internal class Results constructor(private val cursor: Cursor): Row {
     fun next(): Boolean = cursor.next()
     override fun isNull(index: Int): Boolean = cursor.isNull(index)
     override fun string(index: Int): String = cursor.getString(index)

@@ -25,7 +25,7 @@ version = VERSION_NAME
 kotlin {
     targets {
 //        fromPreset(presets.jvm, 'jvm')
-//        fromPreset(presets.macosX64, 'nativeCommon')
+        fromPreset(presets.macosX64, 'nativeCommon')
 
         fromPreset(presets.macosX64, 'macos') {
             compilations.each {

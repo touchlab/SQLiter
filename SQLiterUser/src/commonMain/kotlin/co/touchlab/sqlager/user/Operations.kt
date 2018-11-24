@@ -1,4 +1,4 @@
-package co.touchlab.sqliter.user
+package co.touchlab.sqlager.user
 
 interface Operations{
     fun execute(sql: String, bind: Binder.() -> Unit = {})

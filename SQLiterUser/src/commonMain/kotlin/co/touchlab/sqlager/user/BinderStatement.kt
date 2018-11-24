@@ -1,8 +1,9 @@
-package co.touchlab.sqliter.user
+package co.touchlab.sqlager.user
 
 import co.touchlab.sqliter.Statement
 
-class BinderStatement internal constructor(internal val sql:String, internal val statement: Statement):Binder{
+class BinderStatement internal constructor(internal val sql:String, internal val statement: Statement):
+    Binder {
 
     private var indexCounter = 0
 
