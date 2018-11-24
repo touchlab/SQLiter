@@ -11,11 +11,11 @@ import co.touchlab.stately.concurrency.withLock
 
 class DatabaseInstance internal constructor(
     private val connection: DatabaseConnection,
-    private val cacheSize: Int = 200
+    private val cacheSize: Int
 ) {
 
     private val closed = AtomicBoolean(false)
-    private val statementCache = frozenLruCache<String, BinderStatement>(cacheSize) {
+    internal val statementCache = frozenLruCache<String, BinderStatement>(cacheSize) {
         it.value.statement.finalizeStatement()
     }
 
@@ -59,7 +59,7 @@ class DatabaseInstance internal constructor(
     fun <R> transaction(proc: (DatabaseInstance) -> R): R =
         connection.withTransaction { proc(this) }
 
-    fun close() = cacheLock.withLock {
+    fun close():Boolean = cacheLock.withLock {
         closed.value = true
         statementCache.removeAll()
         tryClose()
@@ -68,11 +68,13 @@ class DatabaseInstance internal constructor(
     fun longForQuery(sql: String): Long = connection.longForQuery(sql)
     fun stringForQuery(sql: String): String = connection.stringForQuery(sql)
 
-    private fun tryClose() {
-        try {
+    private fun tryClose():Boolean {
+        return try {
             connection.close()
+            true
         } catch (e: Exception) {
             //TODO: Need to log this. Should only happen if you're mid-operation.
+            false
         }
     }
 

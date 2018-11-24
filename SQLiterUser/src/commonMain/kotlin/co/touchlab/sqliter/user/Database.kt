@@ -2,12 +2,10 @@ package co.touchlab.sqliter.user
 
 import co.touchlab.sqliter.DatabaseManager
 
-class Database(private val databaseManager: DatabaseManager){
-    private val instance = DatabaseInstance(databaseManager.createConnection())
+class Database(databaseManager: DatabaseManager, cacheSize: Int = 200){
+    private val instance = DatabaseInstance(databaseManager.createConnection(), cacheSize)
 
-    fun close(){
-        instance.close()
-    }
+    fun close():Boolean = instance.close()
 
     fun instance():DatabaseInstance = instance
 }
