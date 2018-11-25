@@ -9,7 +9,7 @@ class DatabaseInstanceTest {
     @BeforeTest
     fun setup() {
         val man = createDatabaseManager(DatabaseConfiguration(
-            name = "testdb",
+            name = makeDbName(),
             version = 1,
             inMemory = true,
             create = {
@@ -23,7 +23,7 @@ class DatabaseInstanceTest {
 
     @AfterTest
     fun tearDown() {
-        database.close()
+        assertTrue(database.close())
     }
 
     @Test

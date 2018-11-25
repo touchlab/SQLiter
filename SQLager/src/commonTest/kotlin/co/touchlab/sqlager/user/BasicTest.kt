@@ -1,10 +1,7 @@
 package co.touchlab.sqlager.user
 
 import co.touchlab.sqliter.DatabaseConfiguration
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class BasicTest{
     lateinit var database: Database
@@ -12,7 +9,7 @@ class BasicTest{
     @BeforeTest
     fun setup(){
         val man = createDatabaseManager(DatabaseConfiguration(
-            name = "testdb",
+            name = makeDbName(),
             version = 1,
             inMemory = true,
             create = {
@@ -26,7 +23,7 @@ class BasicTest{
 
     @AfterTest
     fun tearDown(){
-        database.close()
+        assertTrue(database.close())
     }
 
     @Test

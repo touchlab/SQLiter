@@ -14,7 +14,7 @@ internal class DatabaseInstance internal constructor(
     private val cacheSize: Int
 ) : Operations {
 
-    private val closed = AtomicBoolean(false)
+    internal val closed = AtomicBoolean(false)
     internal val statementCache = frozenLruCache<String, BinderStatement>(cacheSize) {
         it.value.statement.finalizeStatement()
     }
@@ -95,7 +95,7 @@ internal class DatabaseInstance internal constructor(
     private fun makeStatement(sql: String): BinderStatement = cacheLock.withLock {
         if (closed.value)
             throw IllegalStateException("Cannot use a closed connection")
-        statementCache.remove(sql) ?: return@withLock BinderStatement(
+        statementCache.remove(key = sql, skipCallback = true) ?: return@withLock BinderStatement(
             sql,
             connection.createStatement(sql)
         )
@@ -113,7 +113,10 @@ internal class DatabaseInstance internal constructor(
                 statement.statement.finalizeStatement()
             } else {
                 statement.reset()
-                statementCache.put(statement.sql, statement)
+                val existing = statementCache.put(statement.sql, statement)
+                if(existing != null)
+                    existing.statement.finalizeStatement()
+                Unit
             }
         }
     }

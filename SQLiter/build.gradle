@@ -148,3 +148,4 @@ apply from: "$rootDir/gradle/gradle-mvn-mpp-push.gradle"
 //}
 
 tasks.findByName("publish").dependsOn("mergeCppAll")
+tasks.findByName("publishToMavenLocal").dependsOn("mergeCppAll")

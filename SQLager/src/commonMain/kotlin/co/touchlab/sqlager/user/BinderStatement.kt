@@ -1,11 +1,12 @@
 package co.touchlab.sqlager.user
 
 import co.touchlab.sqliter.Statement
+import co.touchlab.stately.concurrency.AtomicInt
 
 class BinderStatement internal constructor(internal val sql:String, internal val statement: Statement):
     Binder {
 
-    private var indexCounter = 0
+    private val indexCounter = AtomicInt(0)
 
     override fun bytes(bytes: ByteArray, index: Int, name: String?) {
         statement.bindBlob(bindIndex(index, name), bytes)
@@ -54,7 +55,7 @@ class BinderStatement internal constructor(internal val sql:String, internal val
     internal fun reset(){
         statement.resetStatement()
         statement.clearBindings()
-        indexCounter = 0
+        indexCounter.value = 0
     }
 
     private fun bindIndex(paramIndex:Int, paramName:String?):Int{
@@ -63,7 +64,7 @@ class BinderStatement internal constructor(internal val sql:String, internal val
         }
 
         return if(paramIndex == AUTO_INDEX) {
-            ++indexCounter
+            indexCounter.addAndGet(1)
         }else{
             paramIndex
         }

@@ -29,7 +29,7 @@ abstract class NativePointer(nativePointerArg: Long) {
         get() = pointerLock.withLock {
             val now = nativePointerActual.value
             if (now == 0L)
-                throw IllegalStateException("Connection closed")
+                throw IllegalStateException("Pointer closed")
             return now
         }
 

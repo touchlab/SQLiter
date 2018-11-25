@@ -1,6 +1,8 @@
 package co.touchlab.sqlager.user
 
 import co.touchlab.sqliter.DatabaseManager
+import co.touchlab.stately.collections.AbstractSharedLinkedList
+import co.touchlab.stately.collections.SharedLinkedList
 import co.touchlab.stately.collections.frozenLinkedList
 import co.touchlab.stately.concurrency.QuickLock
 import co.touchlab.stately.concurrency.withLock
@@ -11,26 +13,28 @@ class Database(
     private val instances: Int = 1
 ) : Operations {
 
-    private val databaseInstances = frozenLinkedList<DatabaseInstance>()
+    internal val databaseInstances = frozenLinkedList<DatabaseInstance>() as SharedLinkedList<DatabaseInstance>
 
     private val accessLock = QuickLock()
     internal inline fun <R> localInstance(block: DatabaseInstance.() -> R): R {
-        val instance: DatabaseInstance = accessLock.withLock {
+        val instanceNode: AbstractSharedLinkedList.Node<DatabaseInstance> = accessLock.withLock {
             if (databaseInstances.size < instances) {
-                val inst = DatabaseInstance(databaseManager.createConnection(), cacheSize)
-                databaseInstances.add(inst)
-                inst
+                val connection = databaseManager.createConnection()
+                val inst = DatabaseInstance(connection, cacheSize)
+                databaseInstances.addNode(inst)
             } else {
-                val inst = databaseInstances.removeAt(0)
-                databaseInstances.add(inst)
-                inst
+                val inst = databaseInstances.get(0)//databaseInstances.removeAt(0)
+                val node = databaseInstances.nodeIterator().next()
+                node.readd()
+                node
             }
         }
         try {
-            return instance.block()
+            return instanceNode.nodeValue.block()
         } finally {
             accessLock.withLock {
-                databaseInstances.add(0, instance)
+                instanceNode.remove()
+                databaseInstances.add(0, instanceNode.nodeValue)
             }
         }
     }
