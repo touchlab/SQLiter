@@ -1,6 +1,6 @@
 package co.touchlab.sqlager.user
 
-import co.touchlab.sqliter.Statement
+import co.touchlab.sqliter.*
 import co.touchlab.stately.concurrency.AtomicInt
 
 class BinderStatement internal constructor(internal val sql:String, internal val statement: Statement):
@@ -8,19 +8,19 @@ class BinderStatement internal constructor(internal val sql:String, internal val
 
     private val indexCounter = AtomicInt(0)
 
-    override fun bytes(bytes: ByteArray, index: Int, name: String?) {
+    override fun bytes(bytes: ByteArray?, index: Int, name: String?) {
         statement.bindBlob(bindIndex(index, name), bytes)
     }
 
-    override fun double(double: Double, index: Int, name: String?) {
+    override fun double(double: Double?, index: Int, name: String?) {
         statement.bindDouble(bindIndex(index, name), double)
     }
 
-    override fun long(long: Long, index: Int, name: String?) {
+    override fun long(long: Long?, index: Int, name: String?) {
         statement.bindLong(bindIndex(index, name), long)
     }
 
-    override fun string(string: String, index: Int, name: String?) {
+    override fun string(string: String?, index: Int, name: String?) {
         statement.bindString(bindIndex(index, name), string)
     }
 

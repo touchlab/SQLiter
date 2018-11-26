@@ -1,40 +1,64 @@
 package co.touchlab.sqlager.user
 
 import co.touchlab.sqliter.DatabaseManager
+import co.touchlab.stately.annotation.ThreadLocal
 import co.touchlab.stately.collections.AbstractSharedLinkedList
 import co.touchlab.stately.collections.SharedLinkedList
 import co.touchlab.stately.collections.frozenLinkedList
-import co.touchlab.stately.concurrency.QuickLock
+import co.touchlab.stately.concurrency.ReentrantLock
+import co.touchlab.stately.concurrency.ThreadLocalRef
 import co.touchlab.stately.concurrency.withLock
 
 class Database(
     private val databaseManager: DatabaseManager,
     private val cacheSize: Int = 200,
-    private val instances: Int = 1
+    instances: Int = 1
 ) : Operations {
 
+    //In-memory databases throw rather than wait if another transaction is happening.
+    internal val instanceCap = if (databaseManager.configuration.inMemory) {
+        1
+    } else {
+        instances
+    }
     internal val databaseInstances = frozenLinkedList<DatabaseInstance>() as SharedLinkedList<DatabaseInstance>
 
-    private val accessLock = QuickLock()
+    private val accessLock = ReentrantLock()
+    private val threadLocalDatabaseInstance = ThreadLocalRef<DatabaseInstance>()
+
+    /**
+     * Gets a db instance from the queue. If we're nesting calls, but the user is calling from the outer db,
+     * return the previously associated instance.
+     */
     internal inline fun <R> localInstance(block: DatabaseInstance.() -> R): R {
-        val instanceNode: AbstractSharedLinkedList.Node<DatabaseInstance> = accessLock.withLock {
-            if (databaseInstances.size < instances) {
-                val connection = databaseManager.createConnection()
-                val inst = DatabaseInstance(connection, cacheSize)
-                databaseInstances.addNode(inst)
-            } else {
-                val inst = databaseInstances.get(0)//databaseInstances.removeAt(0)
-                val node = databaseInstances.nodeIterator().next()
-                node.readd()
-                node
+        val localInstance = threadLocalDatabaseInstance.value
+        if (localInstance != null) {
+            return localInstance.block()
+        } else {
+            val instanceNode: AbstractSharedLinkedList.Node<DatabaseInstance> = accessLock.withLock {
+
+                if (databaseInstances.size < instanceCap) {
+                    val connection = databaseManager.createConnection()
+                    val inst = DatabaseInstance(connection, cacheSize)
+                    databaseInstances.addNode(inst)
+                } else {
+                    val node = databaseInstances.nodeIterator().next()
+                    node.readd()
+                    node
+                }
+
             }
-        }
-        try {
-            return instanceNode.nodeValue.block()
-        } finally {
-            accessLock.withLock {
-                instanceNode.remove()
-                databaseInstances.add(0, instanceNode.nodeValue)
+
+            threadLocalDatabaseInstance.value = instanceNode.nodeValue
+
+            try {
+                return instanceNode.nodeValue.block()
+            } finally {
+                threadLocalDatabaseInstance.value = null
+                accessLock.withLock {
+                    //                instanceNode.remove()
+                    //                databaseInstances.add(0, instanceNode.nodeValue)
+                }
             }
         }
     }

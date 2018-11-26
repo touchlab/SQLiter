@@ -20,7 +20,7 @@ import platform.Foundation.NSLock
 import kotlin.native.concurrent.AtomicInt
 
 class NativeDatabaseManager(private val path:String,
-                            private val configuration: DatabaseConfiguration
+                            override val configuration: DatabaseConfiguration
                             ):DatabaseManager{
     val lock = NSLock()
 

@@ -13,6 +13,7 @@ buildscript {
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'

@@ -18,6 +18,7 @@ package co.touchlab.sqliter
 
 interface DatabaseManager{
     fun createConnection():DatabaseConnection
+    val configuration:DatabaseConfiguration
 }
 
 //expect fun createDatabaseManager(configuration: DatabaseConfiguration):DatabaseManager
