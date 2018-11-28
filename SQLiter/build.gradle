@@ -63,6 +63,7 @@ kotlin {
             dependencies {
                 implementation "co.touchlab:stately:$STATELY_VERSION"
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
+                implementation 'com.squareup.sqldelight:runtime:1.0.0-rc4'
             }
         }
         commonTest {

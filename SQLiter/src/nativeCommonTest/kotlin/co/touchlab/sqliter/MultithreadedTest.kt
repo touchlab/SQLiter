@@ -17,6 +17,7 @@
 package co.touchlab.sqliter
 
 import platform.posix.usleep
+import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.TransferMode
 import kotlin.native.concurrent.Worker
 import kotlin.native.concurrent.freeze
@@ -24,6 +25,68 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class MultithreadedTest {
+    @Test
+    fun multipleThreadsHammer(){
+        basicTestDb {
+            val totalRun = AtomicInt(0)
+            val conn = it.createMultiThreadedConnection()
+            val ops = ThreadOps{Unit}
+            for(i in 0 until 200) {
+                opInsert(ops, conn, totalRun)
+                opInsert(ops, conn, totalRun)
+                opInsert(ops, conn, totalRun)
+                opInsert(ops, conn, totalRun)
+                opInsert(ops, conn, totalRun)
+                opQuery(ops, conn)
+            }
+
+            timer {
+                ops.run(10)
+            }
+
+            assertEquals(1_000_000L, conn.longForQuery("select count(*) from test"))
+        }
+    }
+
+    inline fun timer(block:()->Unit){
+        val start = currentTimeMillis()
+        try {
+            block()
+        }finally {
+            println("Total time ${currentTimeMillis() - start}")
+        }
+    }
+
+    private fun opQuery(ops: ThreadOps<Unit>, conn: DatabaseConnection) {
+        ops.exe {
+            conn.withStatement("select * from test limit 20000") {
+                val result = query()
+                var rowCount = 0
+                while (result.next()) {
+                    rowCount++
+                }
+            }
+        }
+    }
+
+    private fun opInsert(
+        ops: ThreadOps<Unit>,
+        conn: DatabaseConnection,
+        totalRun: AtomicInt
+    ) {
+        ops.exe {
+            conn.withTransaction {
+                conn.withStatement("insert into test(num, str, rrr)values(?, ?, ?)") {
+                    for (i in 0 until 1000) {
+                        bindLong(1, i.toLong())
+                        bindString(2, "str $i")
+                        bindString(3, "rrr $i")
+                    }
+                }
+            }
+            totalRun.increment()
+        }
+    }
     /*@Test
     fun journalMultipleInsert() {
         basicTestDb(TWO_COL) { manager ->
