@@ -66,7 +66,7 @@ class ConcurrentDatabaseConnection(private val delegateConnection:DatabaseConnec
 
     }
 
-    inner class ConcurrentStatement(private val delegateStatement:Statement):Statement{
+    inner class ConcurrentStatement(internal val delegateStatement:Statement):Statement{
         override fun execute() = accessLock.withLock { delegateStatement.execute() }
 
         override fun executeInsert(): Long = accessLock.withLock { delegateStatement.executeInsert() }

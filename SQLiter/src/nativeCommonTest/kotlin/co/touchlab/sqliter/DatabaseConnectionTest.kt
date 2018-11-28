@@ -17,6 +17,7 @@
 package co.touchlab.sqliter
 
 import co.touchlab.sqliter.NativeFileContext.deleteDatabase
+import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
 import kotlin.test.*
 
 class DatabaseConnectionTest {
@@ -70,16 +71,23 @@ class DatabaseConnectionTest {
     fun sameStatementSqlDifferentInstances() {
         basicTestDb(TWO_COL) {
             it.withConnection {
+                println("a 1")
                 val s1 = it.createStatement("INSERT INTO test(num, str)values(?,?)")
+                println("a 2")
                 val s2 = it.createStatement("INSERT INTO test(num, str)values(?,?)")
+                println("a 3")
                 assertNotSame(s1, s2)
+                println("a 4")
                 assertNotEquals(
-                    (s1 as NativeStatement).nativePointer,
-                    (s2 as NativeStatement).nativePointer
+                    ((s1 as ConcurrentDatabaseConnection.ConcurrentStatement).delegateStatement as NativeStatement).nativePointer,
+                    ((s2 as ConcurrentDatabaseConnection.ConcurrentStatement).delegateStatement as NativeStatement).nativePointer
                 )
+                println("a 5")
 
                 s1.finalizeStatement()
+                println("a 6")
                 s2.finalizeStatement()
+                println("a 7")
             }
         }
     }

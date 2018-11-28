@@ -16,6 +16,7 @@
 
 package co.touchlab.sqliter
 
+import kotlin.native.concurrent.AtomicInt
 import kotlin.test.*
 
 class DatabaseManagerTest : BaseDatabaseTest(){
@@ -36,21 +37,21 @@ class DatabaseManagerTest : BaseDatabaseTest(){
 
     @Test
     fun createUpdateCalled(){
-        var createCalled = 0
-        var updateCalled = 0
+        val createCalled = AtomicInt(0)
+        var updateCalled = AtomicInt(0)
 
         val config1 = DatabaseConfiguration(
             name = TEST_DB_NAME,
             version = 1,
             create = { db ->
                 db.withStatement(TWO_COL) {
-                    createCalled++
+                    createCalled.increment()
                     println("createCalled $createCalled")
                     execute()
                 }
             },
             upgrade = { _, _, _ ->
-                updateCalled++
+                updateCalled.increment()
                 println("updateCalled $updateCalled")
             }
         )
@@ -59,30 +60,30 @@ class DatabaseManagerTest : BaseDatabaseTest(){
 
         val db1 = createDatabaseManager(config1)
 
-        assertEquals(0, createCalled)
+        assertEquals(0, createCalled.value)
         db1.withConnection {  }
-        assertEquals(1, createCalled)
-        assertEquals(0, updateCalled)
+        assertEquals(1, createCalled.value)
+        assertEquals(0, updateCalled.value)
         db1.withConnection {  }
-        assertEquals(1, createCalled)
+        assertEquals(1, createCalled.value)
 
         val db2 = createDatabaseManager(config2)
 
-        assertEquals(0, updateCalled)
+        assertEquals(0, updateCalled.value)
         db2.withConnection {  }
-        assertEquals(1, createCalled)
-        assertEquals(1, updateCalled)
+        assertEquals(1, createCalled.value)
+        assertEquals(1, updateCalled.value)
 
         val db3 = createDatabaseManager(config2)
 
         db3.withConnection {  }
-        assertEquals(1, createCalled)
-        assertEquals(1, updateCalled)
+        assertEquals(1, createCalled.value)
+        assertEquals(1, updateCalled.value)
     }
 
     @Test
     fun downgradeNotAllowed(){
-        var upgradeCalled = 0
+        val upgradeCalled = AtomicInt(0)
         val config1 = DatabaseConfiguration(
             name = TEST_DB_NAME,
             version = 1,
@@ -92,14 +93,14 @@ class DatabaseManagerTest : BaseDatabaseTest(){
                 }
             },
             upgrade = { _, _, _ ->
-                upgradeCalled++
+                upgradeCalled.increment()
             }
         )
 
         createDatabaseManager(config1).withConnection {  }
-        assertEquals(0, upgradeCalled)
+        assertEquals(0, upgradeCalled.value)
         createDatabaseManager(config1.copy(version = 2)).withConnection {  }
-        assertEquals(1, upgradeCalled)
+        assertEquals(1, upgradeCalled.value)
         assertFails {
             createDatabaseManager(config1.copy(version = 1)).withConnection {  }
         }
