@@ -16,8 +16,6 @@
 
 package co.touchlab.sqliter
 
-import kotlin.test.AfterEach
-import kotlin.test.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -31,7 +29,7 @@ class CursorTest:BaseDatabaseTest(){
                 }
             }))
 
-        val connection = manager.createConnection()
+        val connection = manager.surpriseMeConnection()
         connection.withStatement("insert into test(num, str)values(?,?)"){
             bindLong(1, 2)
             bindString(2, "asdf")

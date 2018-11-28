@@ -26,7 +26,7 @@ class BasicTest{
     @Test
     fun createTable(){
         basicTestDb {manager ->
-            val connection = manager.createConnection()
+            val connection = manager.createSingleThreadedConnection()
             val start = getTimeMillis()
             connection.withTransaction {
                 val statement = it.createStatement("INSERT INTO test VALUES (?, ?, ?, ?)")

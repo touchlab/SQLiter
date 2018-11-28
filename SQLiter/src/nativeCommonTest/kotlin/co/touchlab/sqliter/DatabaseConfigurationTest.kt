@@ -62,7 +62,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
                 }
             }))
 
-        val conn = manager.createConnection()
+        val conn = manager.surpriseMeConnection()
         println("tr 0")
         assertEquals(conn.journalMode, JournalMode.WAL)
         println("tr 1")
@@ -86,7 +86,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
                 fail("Same version shouldn't run")
             }))
 
-        val conn2 = manager2.createConnection()
+        val conn2 = manager2.surpriseMeConnection()
         assertEquals(conn2.journalMode, JournalMode.WAL)
         conn2.close()
     }

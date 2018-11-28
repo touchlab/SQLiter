@@ -74,3 +74,14 @@ fun <T> Collection<Future<T>>.waitForAllFutures() {
         }
     }
 }
+
+/**
+ * For connections where we don't care about threading, randomize(ish)
+ */
+fun DatabaseManager.surpriseMeConnection():DatabaseConnection {
+    return if(currentTimeMillis() %2 == 0L){
+        createMultiThreadedConnection()
+    }else{
+        createSingleThreadedConnection()
+    }
+}

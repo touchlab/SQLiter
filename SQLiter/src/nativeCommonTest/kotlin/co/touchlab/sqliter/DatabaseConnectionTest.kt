@@ -246,7 +246,7 @@ class DatabaseConnectionTest {
             )
         )
 
-        val conn1 = man.createConnection()
+        val conn1 = man.surpriseMeConnection()
 
         conn1.withTransaction {
                 it.withStatement("insert into test(num, str)values(?,?)") {
@@ -258,7 +258,7 @@ class DatabaseConnectionTest {
 
         assertEquals(1, conn1.longForQuery("select count(*) from test"))
 
-        val conn2 = man.createConnection()
+        val conn2 = man.surpriseMeConnection()
         conn2.withTransaction {
             it.withStatement("insert into test(num, str)values(?,?)") {
                 bindLong(1, 232)
@@ -283,7 +283,7 @@ class DatabaseConnectionTest {
     @Test
     fun closed(){
         basicTestDb(TWO_COL) {
-            val conn = it.createConnection()
+            val conn = it.surpriseMeConnection()
             assertFalse(conn.closed)
             conn.close()
             assertTrue(conn.closed)

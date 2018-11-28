@@ -16,12 +16,23 @@
 
 package co.touchlab.sqliter
 
+import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
+import co.touchlab.sqliter.concurrency.SingleThreadDatabaseConnection
 import platform.Foundation.NSLock
 import kotlin.native.concurrent.AtomicInt
+import kotlin.native.concurrent.freeze
 
 class NativeDatabaseManager(private val path:String,
                             override val configuration: DatabaseConfiguration
                             ):DatabaseManager{
+    override fun createMultiThreadedConnection(): DatabaseConnection {
+        return ConcurrentDatabaseConnection(createConnection()).freeze()
+    }
+
+    override fun createSingleThreadedConnection(): DatabaseConnection {
+        return SingleThreadDatabaseConnection(createConnection())
+    }
+
     val lock = NSLock()
 
     companion object {
@@ -30,7 +41,7 @@ class NativeDatabaseManager(private val path:String,
 
     internal val connectionCount = AtomicInt(0)
 
-    override fun createConnection(): DatabaseConnection {
+    private fun createConnection(): DatabaseConnection {
         lock.lock()
 
         try {

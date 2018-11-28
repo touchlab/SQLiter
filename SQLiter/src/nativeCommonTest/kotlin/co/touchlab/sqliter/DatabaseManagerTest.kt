@@ -23,7 +23,7 @@ class DatabaseManagerTest : BaseDatabaseTest(){
     @Test
     fun connectionCount(){
         basicTestDb {man ->
-            val conn = man.createConnection()
+            val conn = man.surpriseMeConnection()
             assertEquals(1, countLiveConnections(man))
             man.withConnection {
                 assertEquals(2, countLiveConnections(man))

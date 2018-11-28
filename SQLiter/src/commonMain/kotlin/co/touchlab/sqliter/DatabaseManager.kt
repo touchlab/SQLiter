@@ -17,7 +17,18 @@
 package co.touchlab.sqliter
 
 interface DatabaseManager{
-    fun createConnection():DatabaseConnection
+    /**
+     * Create a connection with locked access to the underlying sqlite instance. Use this
+     * in most cases.
+     */
+    fun createMultiThreadedConnection():DatabaseConnection
+
+    /**
+     * Create a connection without locked access to the underlying sqlite instance. Use this only
+     * if you are absolutely sure you're only accessing from one thread. It will proactively fail
+     * if you are attempting otherwise. Performance is better, but marginally so.
+     */
+    fun createSingleThreadedConnection():DatabaseConnection
     val configuration:DatabaseConfiguration
 }
 
@@ -25,7 +36,7 @@ interface DatabaseManager{
 //expect fun deleteDatabase(name:String)
 
 fun <R> DatabaseManager.withConnection(block:(DatabaseConnection) -> R):R{
-    val connection = createConnection()
+    val connection = createMultiThreadedConnection()
     try {
         return block(connection)
     }finally {

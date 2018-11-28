@@ -48,7 +48,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
             )
         )
 
-        val mainConn = manager.createConnection()
+        val mainConn = manager.surpriseMeConnection()
 
         val biginsert = { conn: DatabaseConnection ->
             conn.withTransaction {
@@ -78,7 +78,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         val futures = mutableListOf<Future<Unit>>()
         workers.forEach {
             futures.add(it.execute(TransferMode.SAFE, { ManagerOps(manager, biginsert, bigselect).freeze() }) {
-                val conn = it.manager.createConnection()
+                val conn = it.manager.surpriseMeConnection()
                 try {
                     for (i in 0 until 10) {
                         if (i % 2 == 0) {
@@ -136,8 +136,8 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
             )
         )
 
-        val reader = manager.createConnection()
-        val writer = manager.createConnection()
+        val reader = manager.surpriseMeConnection()
+        val writer = manager.surpriseMeConnection()
 
         assertEquals(reader.journalMode, JournalMode.WAL)
 
@@ -195,8 +195,8 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
             )
         )
 
-        val reader = manager.createConnection()
-        val writer = manager.createConnection()
+        val reader = manager.surpriseMeConnection()
+        val writer = manager.surpriseMeConnection()
 
         try {
             assertEquals(reader.journalMode, JournalMode.DELETE)
@@ -312,7 +312,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
     @Test
     fun testClosedThrows(){
         val man = createDb()
-        val conn = man.createConnection()
+        val conn = man.surpriseMeConnection()
         val goInsert: Statement.() -> Long = {
             bindLong(1, 123)
             bindString(2, "hello")

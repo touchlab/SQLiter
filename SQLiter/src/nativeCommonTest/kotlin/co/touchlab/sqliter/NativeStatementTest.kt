@@ -23,7 +23,7 @@ class NativeStatementTest : BaseDatabaseTest(){
     @Test
     fun insertStatement() {
         basicTestDb {
-            val connection = it.createConnection()
+            val connection = it.surpriseMeConnection()
             val statement = connection.createStatement("INSERT INTO test VALUES (?, ?, ?, ?)")
             for (i in 0 until 50) {
                 statement.bindLong(1, i.toLong())
@@ -49,7 +49,7 @@ class NativeStatementTest : BaseDatabaseTest(){
     @Test
     fun updateStatement() {
         basicTestDb {
-            val connection = it.createConnection()
+            val connection = it.surpriseMeConnection()
             val statement = connection.createStatement("INSERT INTO test VALUES (?, ?, ?, ?)")
             for (i in 0 until 50) {
                 statement.bindLong(1, i.toLong())
@@ -82,7 +82,7 @@ class NativeStatementTest : BaseDatabaseTest(){
     @Test
     fun updateCountResult() {
         basicTestDb(TWO_COL) {
-            val connection = it.createConnection()
+            val connection = it.surpriseMeConnection()
             connection.withTransaction {
                 it.withStatement("insert into test(num, str)values(?,?)") {
                     bindLong(1, 1)

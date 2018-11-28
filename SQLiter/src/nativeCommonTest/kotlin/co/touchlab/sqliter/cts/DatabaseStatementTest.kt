@@ -34,7 +34,7 @@ class DatabaseStatementTest{
             name = DATABASE_NAME,
             version = CURRENT_DATABASE_VERSION,
             create = {}
-        )).createConnection()
+        )).surpriseMeConnection()
     }
 
     @AfterEach
