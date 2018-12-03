@@ -20,11 +20,11 @@ import co.touchlab.sqliter.Cursor
 import co.touchlab.sqliter.DatabaseConnection
 import co.touchlab.sqliter.FieldType
 import co.touchlab.sqliter.Statement
-import co.touchlab.stately.concurrency.ReentrantLock
+import co.touchlab.stately.concurrency.Lock
 import co.touchlab.stately.concurrency.withLock
 
 class ConcurrentDatabaseConnection(private val delegateConnection:DatabaseConnection):DatabaseConnection{
-    private val accessLock = ReentrantLock()
+    private val accessLock = Lock()
 
     override fun createStatement(sql: String): Statement = accessLock.withLock { ConcurrentStatement(delegateConnection.createStatement(sql)) }
 

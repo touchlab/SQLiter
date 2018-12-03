@@ -16,6 +16,8 @@
 
 package co.touchlab.sqliter
 
+import co.touchlab.sqliter.Constants.validDatabaseName
+
 data class DatabaseConfiguration(
 
     val name:String,
@@ -33,7 +35,9 @@ data class DatabaseConfiguration(
     }
 }
 
-internal val validDatabaseName = "[A-Za-z0-9\\-_.]+".toRegex()
+object Constants{
+    val validDatabaseName = "[A-Za-z0-9\\-_.]+".toRegex()
+}
 
 enum class JournalMode {
     DELETE, WAL;

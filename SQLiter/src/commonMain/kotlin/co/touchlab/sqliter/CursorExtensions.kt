@@ -32,11 +32,11 @@ class CursorIterator(private val cursor: Cursor):Iterator<Row> {
         for(i in 0 until cursor.columnCount){
             val type = cursor.getType(i)
             val value:Any? = when(type){
-                FieldType.BLOB -> cursor.getBytes(i)
-                FieldType.FLOAT -> cursor.getDouble(i)
-                FieldType.INTEGER -> cursor.getLong(i)
-                FieldType.NULL -> null
-                FieldType.TEXT -> cursor.getString(i)
+                FieldType.TYPE_BLOB -> cursor.getBytes(i)
+                FieldType.TYPE_FLOAT -> cursor.getDouble(i)
+                FieldType.TYPE_INTEGER -> cursor.getLong(i)
+                FieldType.TYPE_NULL -> null
+                FieldType.TYPE_TEXT -> cursor.getString(i)
             }
 
             result.values.add(Pair(type, value))

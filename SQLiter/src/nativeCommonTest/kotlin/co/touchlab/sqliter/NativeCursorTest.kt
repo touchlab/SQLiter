@@ -21,18 +21,6 @@ import kotlin.test.*
 class NativeCursorTest : BaseDatabaseTest(){
 
     @Test
-    fun beforeNextFails() {
-        withSample2Col { conn ->
-            conn.withStatement("select * from test") {
-                val cursor = query()
-                assertFails {
-                    cursor.getLong(0)
-                }
-            }
-        }
-    }
-
-    @Test
     fun afterDoneFails() {
         withSample2Col { conn ->
             conn.withStatement("select * from test") {

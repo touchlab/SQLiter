@@ -30,14 +30,14 @@ kotlin {
         
 //                fromPreset(presets.macosX64, 'nativeCommon')
         
-        fromPreset(presets.macosX64, 'macos'){
+        /*fromPreset(presets.macosX64, 'macos'){
             compilations.each {
                 it.extraOpts("-linker-options", "-lsqlite3")
             }
             compilations.test {
                 it.extraOpts("-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc")
             }
-        }
+        }*/
 
         fromPreset(presets.iosX64, 'iosX64'){
             compilations.each {
@@ -51,11 +51,11 @@ kotlin {
             }
         }
         
-        fromPreset(presets.iosArm32, 'iosArm32'){
+        /*fromPreset(presets.iosArm32, 'iosArm32'){
             compilations.each {
                 it.extraOpts("-linker-options", "-lsqlite3")
             }
-        }
+        }*/
         
     }
     sourceSets {
@@ -63,7 +63,6 @@ kotlin {
             dependencies {
                 implementation "co.touchlab:stately:$STATELY_VERSION"
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
-//                implementation 'com.squareup.sqldelight:runtime:1.0.0-rc4'
             }
         }
         commonTest {
@@ -87,11 +86,11 @@ kotlin {
         nativeCommonMain { }
         nativeCommonTest { }
 
-        configure([iosX64Main, iosArm32Main, iosArm64Main, macosMain]) {
+        configure([iosX64Main, iosArm64Main/*, macosMain, iosArm32Main*/]) {
             dependsOn nativeCommonMain
         }
 
-        configure([iosX64Test, iosArm32Test, iosArm64Test, macosTest]) {
+        configure([iosX64Test, iosArm64Test/*, macosTest, iosArm32Test*/]) {
             dependsOn nativeCommonTest
         }
     }

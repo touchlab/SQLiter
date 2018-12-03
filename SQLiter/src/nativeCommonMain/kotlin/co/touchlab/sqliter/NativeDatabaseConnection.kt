@@ -16,7 +16,7 @@
 
 package co.touchlab.sqliter
 
-import co.touchlab.stately.concurrency.ReentrantLock
+import co.touchlab.stately.concurrency.Lock
 import co.touchlab.stately.concurrency.withLock
 import kotlin.native.concurrent.AtomicReference
 import kotlin.native.concurrent.freeze
@@ -28,7 +28,7 @@ class NativeDatabaseConnection(
     override val closed: Boolean
         get() = pointerClosed
 
-    private val transLock = ReentrantLock()
+    private val transLock = Lock()
 
 
     internal val transaction = AtomicReference<Transaction?>(null)

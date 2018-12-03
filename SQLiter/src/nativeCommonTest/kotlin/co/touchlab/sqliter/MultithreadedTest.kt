@@ -25,7 +25,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class MultithreadedTest {
-    @Test
+    /*@Test
     fun multipleThreadsHammer(){
         basicTestDb {
             val totalRun = AtomicInt(0)
@@ -47,7 +47,7 @@ class MultithreadedTest {
             assertEquals(1_000_000L, conn.longForQuery("select count(*) from test"))
         }
     }
-
+*/
     inline fun timer(block:()->Unit){
         val start = currentTimeMillis()
         try {

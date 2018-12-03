@@ -17,6 +17,7 @@
 package co.touchlab.sqliter
 
 import kotlin.test.*
+import co.touchlab.sqliter.Constants.validDatabaseName
 
 class DatabaseConfigurationTest : BaseDatabaseTest(){
 

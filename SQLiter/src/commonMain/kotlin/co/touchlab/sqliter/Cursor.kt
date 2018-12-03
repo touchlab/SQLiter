@@ -34,7 +34,8 @@ interface Cursor {
 }
 
 enum class FieldType(val nativeCode: Int) {
-    INTEGER(1), FLOAT(2), BLOB(4), NULL(5), TEXT(3);
+    //These names a prefixed with 'TYPE_' to avoid Kotlin/Native to Swift name collisions
+    TYPE_INTEGER(1), TYPE_FLOAT(2), TYPE_BLOB(4), TYPE_NULL(5), TYPE_TEXT(3);
 
     companion object {
         fun forCode(nativeCode: Int):FieldType{

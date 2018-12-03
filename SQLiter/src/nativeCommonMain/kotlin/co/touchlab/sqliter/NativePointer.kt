@@ -16,7 +16,7 @@
 
 package co.touchlab.sqliter
 
-import co.touchlab.stately.concurrency.ReentrantLock
+import co.touchlab.stately.concurrency.Lock
 import co.touchlab.stately.concurrency.withLock
 import kotlin.native.concurrent.AtomicLong
 
@@ -24,7 +24,7 @@ abstract class NativePointer(nativePointerArg: Long) {
     //Hold connection pointer in atomic and guard access to connection
     private val nativePointerActual = AtomicLong(nativePointerArg)
 
-    private val pointerLock = ReentrantLock()
+    private val pointerLock = Lock()
     internal val nativePointer: Long
         get() = pointerLock.withLock {
             val now = nativePointerActual.value

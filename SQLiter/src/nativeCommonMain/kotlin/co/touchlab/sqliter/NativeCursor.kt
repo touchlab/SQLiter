@@ -17,17 +17,15 @@
 package co.touchlab.sqliter
 
 class NativeCursor(override val statement: NativeStatement) : Cursor {
-    private var nextCalled = false
     override fun next(): Boolean {
-        nextCalled = true
         return nativeStep(statement.connection.nativePointer, statement.nativePointer)
     }
-    override fun isNull(index: Int): Boolean = checkNextCalled{nativeIsNull(statement.nativePointer, index)}
-    override fun getString(index: Int): String = checkNextCalled{nativeColumnGetString(statement.nativePointer, index)}
-    override fun getLong(index: Int): Long = checkNextCalled{nativeColumnGetLong(statement.nativePointer, index)}
-    override fun getBytes(index: Int): ByteArray = checkNextCalled{nativeColumnGetBlob(statement.nativePointer, index)}
-    override fun getDouble(index: Int): Double = checkNextCalled{nativeColumnGetDouble(statement.nativePointer, index)}
-    override fun getType(index: Int): FieldType = checkNextCalled{FieldType.forCode(nativeColumnType(statement.nativePointer, index))}
+    override fun isNull(index: Int): Boolean = nativeIsNull(statement.nativePointer, index)
+    override fun getString(index: Int): String = nativeColumnGetString(statement.nativePointer, index)
+    override fun getLong(index: Int): Long = nativeColumnGetLong(statement.nativePointer, index)
+    override fun getBytes(index: Int): ByteArray = nativeColumnGetBlob(statement.nativePointer, index)
+    override fun getDouble(index: Int): Double = nativeColumnGetDouble(statement.nativePointer, index)
+    override fun getType(index: Int): FieldType = FieldType.forCode(nativeColumnType(statement.nativePointer, index))
     override val columnCount: Int
         get() = nativeColumnCount(statement.nativePointer)
 
@@ -39,13 +37,6 @@ class NativeCursor(override val statement: NativeStatement) : Cursor {
             map.put(columnName(i), i)
         }
         map
-    }
-
-    private inline fun <R> checkNextCalled(block:()->R):R{
-        if(!nextCalled){
-            throw IllegalStateException("next() must be called before first result")
-        }
-        return block()
     }
 }
 
