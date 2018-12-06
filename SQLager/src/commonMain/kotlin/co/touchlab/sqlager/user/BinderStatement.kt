@@ -3,6 +3,7 @@ package co.touchlab.sqlager.user
 import co.touchlab.sqliter.*
 import co.touchlab.stately.concurrency.AtomicBoolean
 import co.touchlab.stately.concurrency.AtomicInt
+import co.touchlab.stately.concurrency.value
 
 class BinderStatement internal constructor(internal val sql:String, internal val statement: Statement):
     Binder {

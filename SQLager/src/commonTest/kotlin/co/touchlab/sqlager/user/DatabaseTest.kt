@@ -1,14 +1,9 @@
 package co.touchlab.sqlager.user
 
-import co.touchlab.sqliter.DatabaseConfiguration
 import co.touchlab.sqliter.JournalMode
-import co.touchlab.sqliter.journalMode
-import co.touchlab.sqliter.withConnection
-import co.touchlab.stately.collections.frozenLinkedList
 import co.touchlab.stately.concurrency.AtomicInt
-import co.touchlab.stately.concurrency.ReentrantLock
-import co.touchlab.stately.concurrency.SingleLock
-import co.touchlab.stately.concurrency.withLock
+import co.touchlab.stately.concurrency.value
+
 import co.touchlab.stately.freeze
 import kotlin.test.*
 
@@ -300,7 +295,7 @@ class DatabaseTest{
                         sleep(700)
                     }
                 } catch (e: Exception) {
-                    exceptions.increment()
+                    exceptions.incrementAndGet()
                 }
             }
         }

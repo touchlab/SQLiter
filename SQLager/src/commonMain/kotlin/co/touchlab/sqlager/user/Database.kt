@@ -1,12 +1,12 @@
 package co.touchlab.sqlager.user
 
 import co.touchlab.sqliter.DatabaseManager
-import co.touchlab.stately.annotation.ThreadLocal
 import co.touchlab.stately.collections.AbstractSharedLinkedList
 import co.touchlab.stately.collections.SharedLinkedList
 import co.touchlab.stately.collections.frozenLinkedList
-import co.touchlab.stately.concurrency.ReentrantLock
+import co.touchlab.stately.concurrency.Lock
 import co.touchlab.stately.concurrency.ThreadLocalRef
+import co.touchlab.stately.concurrency.value
 import co.touchlab.stately.concurrency.withLock
 
 class Database(
@@ -23,7 +23,7 @@ class Database(
     }
     internal val databaseInstances = frozenLinkedList<DatabaseInstance>() as SharedLinkedList<DatabaseInstance>
 
-    private val accessLock = ReentrantLock()
+    private val accessLock = Lock()
     private val threadLocalDatabaseInstance = ThreadLocalRef<DatabaseInstance>()
 
     /**
@@ -38,7 +38,7 @@ class Database(
             val instanceNode: AbstractSharedLinkedList.Node<DatabaseInstance> = accessLock.withLock {
 
                 if (databaseInstances.size < instanceCap) {
-                    val connection = databaseManager.createConnection()
+                    val connection = databaseManager.createMultiThreadedConnection()
                     val inst = DatabaseInstance(connection, cacheSize)
                     databaseInstances.addNode(inst)
                 } else {

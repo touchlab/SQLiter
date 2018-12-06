@@ -6,7 +6,7 @@ import co.touchlab.sqliter.stringForQuery
 import co.touchlab.sqliter.withTransaction
 import co.touchlab.stately.collections.frozenLruCache
 import co.touchlab.stately.concurrency.AtomicBoolean
-import co.touchlab.stately.concurrency.ReentrantLock
+import co.touchlab.stately.concurrency.Lock
 import co.touchlab.stately.concurrency.withLock
 
 internal class DatabaseInstance internal constructor(
@@ -19,12 +19,12 @@ internal class DatabaseInstance internal constructor(
         it.value.statement.finalizeStatement()
     }
 
-    private val accessLock = ReentrantLock()
+    private val accessLock = Lock()
     internal inline fun <R> access(block:(DatabaseInstance)->R):R = accessLock.withLock {
         block(this)
     }
 
-    private val cacheLock = ReentrantLock()
+    private val cacheLock = Lock()
 
     override fun execute(sql: String, bind: Binder.() -> Unit) {
         safeUseStatement(sql) {
