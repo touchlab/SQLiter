@@ -29,7 +29,7 @@ class DatabaseStatementTest{
 
     @BeforeEach
     protected fun setUp() {
-        NativeFileContext.deleteDatabase(DATABASE_NAME)
+        DatabaseFileContext.deleteDatabase(DATABASE_NAME)
         mDatabase = createDatabaseManager(DatabaseConfiguration(
             name = DATABASE_NAME,
             version = CURRENT_DATABASE_VERSION,
@@ -40,7 +40,7 @@ class DatabaseStatementTest{
     @AfterEach
     protected fun tearDown() {
         mDatabase.close()
-        NativeFileContext.deleteDatabase(DATABASE_NAME)
+        DatabaseFileContext.deleteDatabase(DATABASE_NAME)
     }
 
     private fun populateDefaultTable() {

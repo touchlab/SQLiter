@@ -23,13 +23,13 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
 
     @Test
     fun pathTest(){
-        val dbPathString = NativeFileContext.databasePath(TEST_DB_NAME, false)
+        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, false)
         assertTrue(dbPathString.endsWith(TEST_DB_NAME))
     }
 
     @Test
     fun memoryPathTest(){
-        val dbPathString = NativeFileContext.databasePath(TEST_DB_NAME, true)
+        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, true)
         assertEquals("file:$TEST_DB_NAME?mode=memory&cache=shared", dbPathString)
     }
 

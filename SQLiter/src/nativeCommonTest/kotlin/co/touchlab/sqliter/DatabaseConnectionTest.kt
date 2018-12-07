@@ -16,7 +16,7 @@
 
 package co.touchlab.sqliter
 
-import co.touchlab.sqliter.NativeFileContext.deleteDatabase
+import co.touchlab.sqliter.DatabaseFileContext.deleteDatabase
 import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
 import kotlin.test.*
 
@@ -323,10 +323,10 @@ class DatabaseConnectionTest {
                     }
                 }
 
-                dbFileExists = NativeFileContext.databaseFile(memoryName).exists()
+                dbFileExists = DatabaseFileContext.databaseFile(memoryName).exists()
             }
         } finally {
-            NativeFileContext.deleteDatabase(memoryName)
+            DatabaseFileContext.deleteDatabase(memoryName)
         }
         return dbFileExists
     }

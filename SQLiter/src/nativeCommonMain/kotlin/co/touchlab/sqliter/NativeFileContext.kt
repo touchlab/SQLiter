@@ -23,8 +23,8 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 
-object NativeFileContext{
-    fun deleteDatabase(name: String) {
+actual object DatabaseFileContext{
+    actual fun deleteDatabase(name: String) {
         deleteDatabaseFile(databaseFile(name))
     }
 

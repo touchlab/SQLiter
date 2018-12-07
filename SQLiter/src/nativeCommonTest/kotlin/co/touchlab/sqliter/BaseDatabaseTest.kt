@@ -16,7 +16,7 @@
 
 package co.touchlab.sqliter
 
-import co.touchlab.sqliter.NativeFileContext.deleteDatabase
+import co.touchlab.sqliter.DatabaseFileContext.deleteDatabase
 import kotlin.test.AfterEach
 import kotlin.test.BeforeEach
 
