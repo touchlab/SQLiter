@@ -33,10 +33,14 @@ abstract class NativePointer(nativePointerArg: Long) {
             return now
         }
 
+    /**
+     * Attempt to run 'actualClose' first. That may fail, in which case we don't want to mark
+     * the pointer as closed
+     */
     fun closeNativePointer() = pointerLock.withLock {
         val local = nativePointerActual.value
-        nativePointerActual.value = 0
         actualClose(local)
+        nativePointerActual.value = 0
     }
 
     val pointerClosed: Boolean

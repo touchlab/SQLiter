@@ -324,6 +324,29 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         assertFails { conn.withStatement(insertSql, goInsert) }
     }
 
+    @Test
+    fun testFailedCloseRecall(){
+        val manager = createDatabaseManager(
+            DatabaseConfiguration(
+                name = TEST_DB_NAME, version = 1,
+                create = { db ->
+                    db.withStatement(TWO_COL) {
+                        execute()
+
+                    }
+
+                }, busyTimeout = 15000
+            )
+        )
+
+        val conn = manager.createMultiThreadedConnection()
+        val stmt = conn.createStatement("select * from test")
+        assertFails { conn.close() }
+        assertFalse(conn.closed)
+        stmt.finalizeStatement()
+        conn.close()
+    }
+
 
     private fun threadWait(time: Int, manager: DatabaseManager, block: (DatabaseConnection) -> Unit): Boolean {
         return manager.withConnection {

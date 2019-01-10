@@ -77,8 +77,8 @@ class NativeDatabaseConnection(
     }
 
     override fun actualClose(nativePointerArg: Long) {
+        nativeClose(nativePointerArg) //Call this first, in case it fails
         dbManager.decrementConnectionCount()
-        nativeClose(nativePointerArg)
     }
 
     fun migrateIfNeeded(
