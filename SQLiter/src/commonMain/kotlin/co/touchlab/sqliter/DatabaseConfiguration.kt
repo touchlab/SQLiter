@@ -36,7 +36,7 @@ data class DatabaseConfiguration(
 }
 
 object Constants{
-    val validDatabaseName = "[A-Za-z0-9\\-_.]+".toRegex()
+    val validDatabaseName = "[A-Za-z0-9\\-_./\]+".toRegex()
 }
 
 enum class JournalMode {
