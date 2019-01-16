@@ -17,5 +17,5 @@
 package co.touchlab.sqliter
 
 actual object DatabaseFileContext {
-    actual fun deleteDatabase(name: String) {}
+    actual fun deleteDatabase(name: String, basePath:String?) {}
 }

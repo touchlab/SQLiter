@@ -24,15 +24,15 @@ import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 
 actual object DatabaseFileContext{
-    actual fun deleteDatabase(name: String) {
-        deleteDatabaseFile(databaseFile(name))
+    actual fun deleteDatabase(name: String, basePath:String?) {
+        deleteDatabaseFile(databaseFile(name, basePath))
     }
 
-    internal fun databasePath(databaseName:String, inMemory:Boolean):String{
+    internal fun databasePath(databaseName:String, inMemory:Boolean, datapathPath:String?):String{
         return if(inMemory){
             "file:$databaseName?mode=memory&cache=shared"
         }else{
-            File(databaseDirPath(), databaseName).path
+            databaseFile(databaseName, datapathPath).path
         }
     }
 
@@ -52,7 +52,7 @@ actual object DatabaseFileContext{
         return databaseDirectory
     }
 
-    internal fun databaseFile(databaseName:String):File = File(databaseDirPath(), databaseName)
+    internal fun databaseFile(databaseName:String, datapathPath:String?):File = File(datapathPath?:databaseDirPath(), databaseName)
 
     internal fun deleteDatabaseFile(file:File):Boolean {
         var deleted = false

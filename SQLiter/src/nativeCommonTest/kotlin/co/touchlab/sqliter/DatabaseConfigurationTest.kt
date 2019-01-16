@@ -16,42 +16,66 @@
 
 package co.touchlab.sqliter
 
+import platform.Foundation.NSFileManager
 import kotlin.test.*
-import co.touchlab.sqliter.Constants.validDatabaseName
 
 class DatabaseConfigurationTest : BaseDatabaseTest(){
 
     @Test
     fun pathTest(){
-        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, false)
+        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, false, null)
         assertTrue(dbPathString.endsWith(TEST_DB_NAME))
     }
 
     @Test
     fun memoryPathTest(){
-        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, true)
+        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, true, null)
         assertEquals("file:$TEST_DB_NAME?mode=memory&cache=shared", dbPathString)
     }
 
-    @Test
-    fun validDatabaseName(){
-        assertTrue(validDatabaseName.matches("absdf"))
-        assertTrue(validDatabaseName.matches("abs4f"))
-        assertTrue(validDatabaseName.matches("abWWs4f"))
-        assertTrue(validDatabaseName.matches("_-abWWs4f"))
-        assertTrue(validDatabaseName.matches("_-ab.WWs4f"))
-        assertFalse(validDatabaseName.matches("_-a bWWs4f"))
-        assertFalse(validDatabaseName.matches("_-a ~bWWs4f"))
-        assertFalse(validDatabaseName.matches("_-a ~bWWs4f"))
+    fun checkFilePath(name: String, path: String?) {
+        var conn: DatabaseConnection? = null
+        val config = DatabaseConfiguration(name = name, basePath = path, version = 1, create = { db ->
+            db.withStatement(TWO_COL) {
+                execute()
+            }
+        })
+
+        try {
+            val expectedPath = DatabaseFileContext.databaseFile(name, path)
+            val manager = createDatabaseManager(config)
+
+            conn = manager.createMultiThreadedConnection()
+
+            assertTrue(expectedPath.exists())
+        } finally {
+            conn?.close()
+            DatabaseFileContext.deleteDatabase(config)
+        }
     }
 
     @Test
-    fun invalidDatabaseNameFailsConfig() {
-        DatabaseConfiguration("asdf", 1, {})
-        assertFails { DatabaseConfiguration("as df", 1, {}) }
+    fun noSlashInName(){
+        assertFails {
+            checkFilePath("arst/qwfp", null)
+        }
     }
 
+    @Test
+    fun basicDbNameWorks(){
+        checkFilePath("arst", null)
+    }
 
+    @Test
+    fun nameWithSpace(){
+        checkFilePath("ar st", null)
+    }
+
+    @Test
+    fun dbWithBasePath(){
+        val basePath = DatabaseFileContext.iosDirPath("notdatabases")
+        checkFilePath("arst", basePath)
+    }
 
     @Test
     fun journalModeSetting()

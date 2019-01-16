@@ -17,6 +17,6 @@
 package co.touchlab.sqliter
 
 fun createDatabaseManager(configuration: DatabaseConfiguration): DatabaseManager {
-    val databasePath = DatabaseFileContext.databasePath(configuration.name, configuration.inMemory)
+    val databasePath = DatabaseFileContext.databasePath(configuration.name, configuration.inMemory, configuration.basePath)
     return NativeDatabaseManager(databasePath, configuration)
 }

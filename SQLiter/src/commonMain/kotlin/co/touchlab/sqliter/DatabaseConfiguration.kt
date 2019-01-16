@@ -16,27 +16,29 @@
 
 package co.touchlab.sqliter
 
-import co.touchlab.sqliter.Constants.validDatabaseName
-
 data class DatabaseConfiguration(
 
-    val name:String,
-    val version:Int,
-    val create:(DatabaseConnection)->Unit,
-    val upgrade:(DatabaseConnection, Int, Int)->Unit = {_,_,_->},
+    val name: String,
+    val version: Int,
+    val create: (DatabaseConnection) -> Unit,
+    val upgrade: (DatabaseConnection, Int, Int) -> Unit = { _, _, _ -> },
     val journalMode: JournalMode = JournalMode.WAL,
-    val busyTimeout:Int = 2500,
-    val pageSize:Int? = null,
-    val inMemory:Boolean = false
-){
+    val busyTimeout: Int = 2500,
+    val pageSize: Int? = null,
+    val inMemory: Boolean = false,
+    val basePath: String? = null
+) {
     init {
-        if(!validDatabaseName.matches(name))
-            throw IllegalArgumentException("Database name $name not valid. Only letters, numbers, dash and underscore allowed")
+        checkFilename(name)
     }
 }
 
-object Constants{
-    val validDatabaseName = "[A-Za-z0-9\\-_.]+".toRegex()
+private fun checkFilename(name: String) {
+    if (name.contains("/")) {
+        throw IllegalArgumentException(
+            "File $name contains a path separator"
+        )
+    }
 }
 
 enum class JournalMode {

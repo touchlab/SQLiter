@@ -17,5 +17,9 @@
 package co.touchlab.sqliter
 
 expect object DatabaseFileContext{
-    fun deleteDatabase(name: String)
+    fun deleteDatabase(name: String, basePath:String? = null)
+}
+
+fun DatabaseFileContext.deleteDatabase(configuration: DatabaseConfiguration){
+    deleteDatabase(configuration.name, configuration.basePath)
 }
