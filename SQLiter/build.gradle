@@ -13,7 +13,7 @@ buildscript {
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 repositories {
-    mavenLocal()
+//    mavenLocal()
     mavenCentral()
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
@@ -43,17 +43,26 @@ kotlin {
             compilations.each {
                 it.extraOpts("-linker-options", "-lsqlite3")
             }
+            compilations.test {
+                it.extraOpts("-native-library", "../KotlinCpp/bcdist/ios_x64/tlruntime.bc")
+            }
         }
         
         fromPreset(presets.iosArm64, 'iosArm64'){
             compilations.each {
                 it.extraOpts("-linker-options", "-lsqlite3")
             }
+            compilations.test {
+                it.extraOpts("-native-library", "../KotlinCpp/bcdist/ios_arm64/tlruntime.bc")
+            }
         }
         
         fromPreset(presets.iosArm32, 'iosArm32'){
             compilations.each {
                 it.extraOpts("-linker-options", "-lsqlite3")
+            }
+            compilations.test {
+                it.extraOpts("-native-library", "../KotlinCpp/bcdist/ios_arm32/tlruntime.bc")
             }
         }
         

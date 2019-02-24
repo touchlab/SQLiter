@@ -66,7 +66,7 @@ inline fun basicTestDb(createSql:String = FOUR_COL, block:(DatabaseManager)->Uni
 fun <T> Collection<Future<T>>.waitForAllFutures() {
     var consumed = 0
     while (consumed < this.size) {
-        val ready = this.waitForMultipleFutures(10000)
+        val ready = waitForMultipleFutures(this, 10000)
         ready.forEach {
             it.consume { result ->
                 consumed++
