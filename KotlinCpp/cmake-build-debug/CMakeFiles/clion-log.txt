@@ -1,16 +1,4 @@
-"/Applications/CLion 2018.3 EAP.app/Contents/bin/cmake/mac/bin/cmake" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/kgalligan/temp6/kmpsql/KotlinCpp
+"/Users/kgalligan/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/183.5153.40/CLion.app/Contents/bin/cmake/mac/bin/cmake" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/kgalligan/devel_kmp/kmpsql/KotlinCpp
 -- Configuring done
-CMake Error at CMakeLists.txt:11 (add_executable):
-  Cannot find source file:
-
-    knarch/src/main/cpp/android_database_CursorWindow.cpp
-
-  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .m .M .mm .h .hh .h++ .hm
-  .hpp .hxx .in .txx
-
-
-CMake Error at CMakeLists.txt:11 (add_executable):
-  No SOURCES given to target: cpp
-
-
--- Build files have been written to: /Users/kgalligan/temp6/kmpsql/KotlinCpp/cmake-build-debug
+-- Generating done
+-- Build files have been written to: /Users/kgalligan/devel_kmp/kmpsql/KotlinCpp/cmake-build-debug

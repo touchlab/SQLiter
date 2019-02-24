@@ -1,4 +1,4 @@
-# Install script for directory: /Users/kgalligan/temp6/kmpsql/KotlinCpp
+# Install script for directory: /Users/kgalligan/devel_kmp/kmpsql/KotlinCpp
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/kgalligan/temp6/kmpsql/KotlinCpp/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/kgalligan/devel_kmp/kmpsql/KotlinCpp/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
