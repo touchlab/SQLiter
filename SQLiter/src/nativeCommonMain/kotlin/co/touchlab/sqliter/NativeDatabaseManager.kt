@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package co.touchlab.sqliter
 
 import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
