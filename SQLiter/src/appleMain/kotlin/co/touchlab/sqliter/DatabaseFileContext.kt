@@ -15,7 +15,6 @@
  */
 
 package co.touchlab.sqliter
-
 import co.touchlab.sqliter.internal.File
 import co.touchlab.sqliter.internal.FileFilter
 import platform.Foundation.NSApplicationSupportDirectory

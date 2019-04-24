@@ -95,8 +95,12 @@ kotlin {
         nativeCommonMain { }
         nativeCommonTest { }
 
-        configure([iosX64Main, iosArm64Main, macosMain, iosArm32Main]) {
+        appleMain {
             dependsOn nativeCommonMain
+        }
+
+        configure([iosX64Main, iosArm64Main, macosMain, iosArm32Main]) {
+            dependsOn appleMain
         }
 
         configure([iosX64Test, iosArm64Test, macosTest, iosArm32Test]) {
