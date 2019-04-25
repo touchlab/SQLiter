@@ -13,7 +13,6 @@ buildscript {
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 repositories {
-//    mavenLocal()
     mavenCentral()
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
@@ -36,6 +35,16 @@ kotlin {
             }
             compilations.test {
                 it.extraOpts("-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc")
+            }
+        }
+
+        fromPreset(presets.mingwX64, 'mingw'){
+            compilations.each {
+                it.extraOpts("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
+                it.extraOpts("-linker-options", "-lsqlite3")
+            }
+            compilations.test {
+                it.extraOpts("-native-library", "../KotlinCpp/bcdist/mingw_x64/tlruntime.bc")
             }
         }
 
@@ -91,6 +100,11 @@ kotlin {
                 implementation 'org.jetbrains.kotlin:kotlin-test-junit'
             }
         }
+        mingwMain {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+            }
+        }
 
         nativeCommonMain { }
         nativeCommonTest { }
@@ -99,11 +113,15 @@ kotlin {
             dependsOn nativeCommonMain
         }
 
+        configure([mingwMain]) {
+            dependsOn nativeCommonMain
+        }
+
         configure([iosX64Main, iosArm64Main, macosMain, iosArm32Main]) {
             dependsOn appleMain
         }
 
-        configure([iosX64Test, iosArm64Test, macosTest, iosArm32Test]) {
+        configure([iosX64Test, iosArm64Test, macosTest, iosArm32Test, mingwTest]) {
             dependsOn nativeCommonTest
         }
     }
@@ -133,6 +151,7 @@ task mergeCppAll(dependsOn:build) {
         mergeCppOutput("iosArm64", "ios_arm64")
         mergeCppOutput("iosX64", "ios_x64")
         mergeCppOutput("macos", "macos_x64")
+        mergeCppOutput("mingw", "mingw_x64")
     }
 }
 
