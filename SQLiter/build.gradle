@@ -31,37 +31,29 @@ kotlin {
 //                fromPreset(presets.macosX64, 'nativeCommon')
         
         fromPreset(presets.macosX64, 'macos'){
-            compilations.each {
-                it.extraOpts("-linker-options", "-lsqlite3")
-            }
             compilations.test {
+                it.extraOpts("-linker-options", "-lsqlite3")
                 it.extraOpts("-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc")
             }
         }
 
         fromPreset(presets.iosX64, 'iosX64'){
-            compilations.each {
-                it.extraOpts("-linker-options", "-lsqlite3")
-            }
             compilations.test {
+                it.extraOpts("-linker-options", "-lsqlite3")
                 it.extraOpts("-native-library", "../KotlinCpp/bcdist/ios_x64/tlruntime.bc")
             }
         }
         
         fromPreset(presets.iosArm64, 'iosArm64'){
-            compilations.each {
-                it.extraOpts("-linker-options", "-lsqlite3")
-            }
             compilations.test {
+                it.extraOpts("-linker-options", "-lsqlite3")
                 it.extraOpts("-native-library", "../KotlinCpp/bcdist/ios_arm64/tlruntime.bc")
             }
         }
         
         fromPreset(presets.iosArm32, 'iosArm32'){
-            compilations.each {
-                it.extraOpts("-linker-options", "-lsqlite3")
-            }
             compilations.test {
+                it.extraOpts("-linker-options", "-lsqlite3")
                 it.extraOpts("-native-library", "../KotlinCpp/bcdist/ios_arm32/tlruntime.bc")
             }
         }
