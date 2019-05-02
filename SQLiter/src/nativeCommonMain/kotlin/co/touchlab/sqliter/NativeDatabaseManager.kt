@@ -18,13 +18,13 @@ package co.touchlab.sqliter
 
 import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
 import co.touchlab.sqliter.concurrency.SingleThreadDatabaseConnection
-import platform.Foundation.NSLock
+import co.touchlab.stately.concurrency.Lock
 import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.freeze
 
 class NativeDatabaseManager(private val path:String,
                             override val configuration: DatabaseConfiguration
-                            ):DatabaseManager{
+):DatabaseManager{
     override fun createMultiThreadedConnection(): DatabaseConnection {
         return ConcurrentDatabaseConnection(createConnection()).freeze()
     }
@@ -33,7 +33,7 @@ class NativeDatabaseManager(private val path:String,
         return SingleThreadDatabaseConnection(createConnection())
     }
 
-    val lock = NSLock()
+    val lock = Lock()
 
     companion object {
         val CREATE_IF_NECESSARY = 0x10000000
@@ -58,13 +58,23 @@ class NativeDatabaseManager(private val path:String,
 
             if(connectionCount.value == 0){
                 conn.updateJournalMode(configuration.journalMode)
-                conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.version)
+
+                try {
+                    conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.version)
+                } catch (e: Exception) {
+
+                    // If this failed, we have to close the connection or we will end up leaking it.
+                    println("attempted to run migration and failed. closing connection.")
+                    conn.close()
+                    throw e
+                }
             }
+
+            connectionCount.increment()
 
             return conn
         }
         finally {
-            connectionCount.increment()
             lock.unlock()
         }
     }
