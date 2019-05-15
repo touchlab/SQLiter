@@ -20,14 +20,18 @@ import org.jetbrains.kotlin.CompileCppToBitcode
 
 targetList.each { targetName ->
     if(
-    targetName.contains("ios") || targetName.contains("macos")
+    targetName.contains("ios") || targetName.contains("macos") || targetName.contains("mingw")
     ) {
         task("${targetName}TLRuntime", type: CompileCppToBitcode) {
             name "tlruntime"
             srcRoot file('src/main')
             target targetName
-            if (!isWindows())
+            if (!isWindows()) {
                 compilerArgs '-fPIC'
+            } else {
+                // When compiling on windows you need to have installed msys2, then use that to install sqlite3
+                compilerArgs '-Ic:\\msys64\\mingw64\\include'
+            }
             compilerArgs '-I' + project.file("${konanDevPath}/common/src/hash/headers")
             compilerArgs '-I' + project.file("${konanDevPath}/runtime/src/main/cpp")
             if (rootProject.hasProperty("${targetName}LibffiDir"))
@@ -37,7 +41,8 @@ targetList.each { targetName ->
 }
 
 task distTlRuntime(type: Copy) {
-    dependsOn.addAll(targetList.findAll {it.contains("ios") || it.contains("macos")}.collect { "${it}TLRuntime" })
+    dependsOn.addAll(targetList.findAll {it.contains("ios") || it.contains("macos") || it.contains("mingw")}
+             .collect { "${it}TLRuntime" })
 }
 
 

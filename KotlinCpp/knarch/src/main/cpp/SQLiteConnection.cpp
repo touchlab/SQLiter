@@ -26,7 +26,6 @@
 #include "utf8.h"
 
 #include <stdlib.h>
-#include <sys/mman.h>
 
 #include <string.h>
 #include <unistd.h>
@@ -314,6 +313,10 @@ KLong SQLiter_SQLiteConnection_nativeOpen(KString pathStr, KInt openFlags,
     } else {
         sqliteFlags = SQLITE_OPEN_READWRITE;
     }
+
+    // This ensures that regardless of how sqlite was compiled it will support uri file paths.
+    // this is important for using in memory databases.
+    sqliteFlags |= SQLITE_OPEN_URI;
 
     size_t utf8Size;
     char * path = CreateCStringFromStringWithSize(pathStr, &utf8Size);

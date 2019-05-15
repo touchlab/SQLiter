@@ -16,6 +16,7 @@
 
 package co.touchlab.sqliter
 
+import co.touchlab.sqliter.DatabaseFileContext.deleteDatabase
 import kotlin.native.concurrent.AtomicInt
 import kotlin.test.*
 
@@ -101,9 +102,13 @@ class DatabaseManagerTest : BaseDatabaseTest(){
         assertEquals(0, upgradeCalled.value)
         createDatabaseManager(config1.copy(version = 2)).withConnection {  }
         assertEquals(1, upgradeCalled.value)
+
+        var conn: DatabaseConnection? = null
         assertFails {
-            createDatabaseManager(config1.copy(version = 1)).withConnection {  }
+            conn = createDatabaseManager(config1.copy(version = 1)).createSingleThreadedConnection()
         }
+
+        conn?.close()
     }
 
     @Test
@@ -131,7 +136,12 @@ class DatabaseManagerTest : BaseDatabaseTest(){
             }
         )
 
-        assertFails { createDatabaseManager(configFail).withConnection {  } }
+        var conn: DatabaseConnection? = null
+        assertFails {
+            conn = createDatabaseManager(configFail).createSingleThreadedConnection()
+        }
+        conn?.close()
+
         createDatabaseManager(configOk).withConnection {  }
         assertTrue(createCalled)
     }
