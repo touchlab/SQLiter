@@ -62,6 +62,7 @@ class ConcurrentDatabaseConnectionTest {
             totalTime = currentTimeMillis() - start
 
             assertEquals((INSERT_COUNT * INSERT_LOOP_COUNT).toLong(), conn.longForQuery("select count(*) from test"))
+            conn.close()
         }
 
         return totalTime
@@ -71,7 +72,14 @@ class ConcurrentDatabaseConnectionTest {
     @Test
     fun singleThreadedConnectionFreezeFails() {
         basicTestDb(TWO_COL) {
-            assertFails { it.createSingleThreadedConnection().freeze() }
+            var conn = it.createSingleThreadedConnection()
+            try {
+                assertFails { conn.freeze() }
+            } catch (assertion: AssertionError) {
+                throw assertion
+            } finally {
+                conn.close()
+            }
         }
     }
 
@@ -129,6 +137,8 @@ class ConcurrentDatabaseConnectionTest {
             ops.exe(queryProc)
 
             ops.run(3)
+
+            conn.close()
         }
     }
 }

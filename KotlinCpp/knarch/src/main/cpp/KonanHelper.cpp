@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <stdarg.h>
 
 #include <iterator>
 #include <string>
@@ -41,8 +41,6 @@
 #include "Types.h"
 
 #include "utf8.h"
-
-#include <dispatch/dispatch.h>
 
 extern "C" {
 //TODO: Review everything that uses this and make sure we need

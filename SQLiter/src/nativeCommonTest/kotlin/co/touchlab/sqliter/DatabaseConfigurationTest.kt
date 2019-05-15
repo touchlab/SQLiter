@@ -16,7 +16,6 @@
 
 package co.touchlab.sqliter
 
-import platform.Foundation.NSFileManager
 import kotlin.test.*
 
 class DatabaseConfigurationTest : BaseDatabaseTest(){
@@ -69,12 +68,6 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     @Test
     fun nameWithSpace(){
         checkFilePath("ar st", null)
-    }
-
-    @Test
-    fun dbWithBasePath(){
-        val basePath = DatabaseFileContext.iosDirPath("notdatabases")
-        checkFilePath("arst", basePath)
     }
 
     @Test

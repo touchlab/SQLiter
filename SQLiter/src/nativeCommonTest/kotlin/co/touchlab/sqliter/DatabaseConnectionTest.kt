@@ -326,7 +326,9 @@ class DatabaseConnectionTest {
                 dbFileExists = DatabaseFileContext.databaseFile(memoryName, null).exists()
             }
         } finally {
-            DatabaseFileContext.deleteDatabase(memoryName)
+            if (!mem) {
+                DatabaseFileContext.deleteDatabase(memoryName)
+            }
         }
         return dbFileExists
     }
