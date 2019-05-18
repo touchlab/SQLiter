@@ -40,7 +40,6 @@ task distTlRuntime(type: Copy) {
     dependsOn.addAll(targetList.findAll {it.contains("ios") || it.contains("macos")}.collect { "${it}TLRuntime" })
 }
 
-
 task build {
     dependsOn 'distTlRuntime'
 }

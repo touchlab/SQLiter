@@ -19,10 +19,8 @@ import org.jetbrains.kotlin.konan.properties.*
 import org.jetbrains.kotlin.konan.util.*
 
 buildscript {
-    apply from: "gradle/kotlinGradlePlugin.gradle"
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-native-shared:$konanVersion"
-    }
+  apply from: "gradle/kotlinGradlePlugin.gradle"
+  apply from: "gradle/kotlinNativeShared.gradle"
 }
 import org.jetbrains.kotlin.konan.*
 
@@ -31,15 +29,9 @@ convention.plugins.platformInfo = new PlatformInfo()
 ext {
     distDir = file('dist')
     dependenciesDir = DependencyProcessor.defaultDependenciesRoot
-    platformManager = new PlatformManager(DistributionKt.buildDistribution("${konanDevPath}"))
-
-    kotlinCompilerModule="org.jetbrains.kotlin:kotlin-compiler:${kotlinVersion}"
-    kotlinStdLibModule="org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
-    kotlinReflectModule="org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
-    kotlinScriptRuntimeModule="org.jetbrains.kotlin:kotlin-script-runtime:${kotlinVersion}"
-
-    konanVersionFull = KonanVersion.Companion.CURRENT
-    gradlePluginVersion = konanVersionFull.toString()
+    experimentalEnabled = project.hasProperty("org.jetbrains.kotlin.native.experimentalTargets")
+    platformManager = new PlatformManager(DistributionKt.buildDistribution(konanDevPath),
+            ext.experimentalEnabled)
 }
 
 allprojects {
@@ -56,8 +48,6 @@ allprojects {
     }
 
     setupHostAndTarget()
-    loadCommandLineProperties()
-    loadLocalProperties()
     setupClang(project)
 }
 
@@ -113,23 +103,6 @@ void setupClang(Project project) {
     }
 }
 
-void loadLocalProperties() {
-    if (new File("$project.rootDir/local.properties").exists()) {
-        Properties props = new Properties()
-        props.load(new FileInputStream("$project.rootDir/local.properties"))
-        props.each { prop -> project.ext.set(prop.key, prop.value) }
-    }
-}
-
-void loadCommandLineProperties() {
-    if (project.hasProperty("konanc_flags")) {
-        throw new Error("Specify either -Ptest_flags or -Pbuild_flags.")
-    }
-    ext.globalBuildArgs = project.hasProperty("build_flags") ? ext.build_flags.split() : []
-    ext.globalTestArgs = project.hasProperty("test_flags") ? ext.test_flags.split() : []
-    ext.testTarget = project.hasProperty("test_target") ? ext.test_target : null
-}
-
 class PlatformInfo {
     boolean isMac() {
         return HostManager.hostIsMac
@@ -148,9 +121,7 @@ class PlatformInfo {
     }
 }
 
-
 def stdlib = 'klib/common/stdlib'
-
 
 task clean {
     //dependsOn subprojects.collect { it.tasks.matching { it.name == "clean" } }

@@ -16,9 +16,6 @@
 
 enableFeaturePreview('GRADLE_METADATA')
 include ':knarch'
-//include ':knarch-common'
-//include ':knarch-ios'
-//include ':knarch-android'
 
 include ':dependencies'
 project(':dependencies').projectDir = new File(new File(konanDevPath), "dependencies")

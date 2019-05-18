@@ -2,9 +2,18 @@ if (!hasProperty('buildKotlinVersion')) {
     throw new GradleException('Please ensure the "buildKotlinVersion" property is defined before applying this script.')
 }
 
+if (!hasProperty('buildKotlinCompilerRepo')) {
+    throw new GradleException('Please ensure the "buildKotlinCompilerRepo" property is defined before applying this script.')
+}
+
 project.buildscript.repositories {
-    mavenCentral()
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-dev/' }
+
+    maven {
+        url buildKotlinCompilerRepo
+    }
+    maven {
+        url 'https://cache-redirector.jetbrains.com/maven-central'
+    }
 }
 
 project.buildscript.dependencies {
