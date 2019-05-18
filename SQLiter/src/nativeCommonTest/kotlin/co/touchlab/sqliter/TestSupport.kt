@@ -16,7 +16,6 @@
 
 package co.touchlab.sqliter
 
-import platform.Foundation.NSThread
 import kotlin.native.concurrent.Future
 import kotlin.native.concurrent.TransferMode
 import kotlin.native.concurrent.Worker
@@ -41,10 +40,6 @@ class MPFuture<T>(private val future: Future<T>) {
 }
 
 fun createWorker():MPWorker = MPWorker()
-
-fun sleep(time: Long) {
-    NSThread.sleepForTimeInterval(time.toDouble()/1000.toDouble())
-}
 
 class ThreadOps<C>(val producer:()->C){
     private val exes = mutableListOf<(C)->Unit>()
