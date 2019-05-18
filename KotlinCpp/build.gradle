@@ -13,24 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import groovy.io.FileType
-import org.jetbrains.kotlin.konan.target.*
-import org.jetbrains.kotlin.konan.properties.*
-import org.jetbrains.kotlin.konan.util.*
+
+import org.jetbrains.kotlin.DistroHelper
+import org.jetbrains.kotlin.konan.target.DistributionKt
+import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.konan.target.PlatformManager
+import org.jetbrains.kotlin.konan.target.TargetSupportException
 
 buildscript {
   apply from: "gradle/kotlinGradlePlugin.gradle"
   apply from: "gradle/kotlinNativeShared.gradle"
 }
-import org.jetbrains.kotlin.konan.*
+
+
+import org.jetbrains.kotlin.konan.util.DependencyProcessor
 
 convention.plugins.platformInfo = new PlatformInfo()
 
 ext {
+    if(!rootProject.hasProperty('konanDevPath')){
+        konanPath = new File(buildDir, "kndist").path
+    } else {
+        konanPath = konanDevPath
+    }
     distDir = file('dist')
     dependenciesDir = DependencyProcessor.defaultDependenciesRoot
     experimentalEnabled = project.hasProperty("org.jetbrains.kotlin.native.experimentalTargets")
-    platformManager = new PlatformManager(DistributionKt.buildDistribution(konanDevPath),
+    platformManager = new PlatformManager(DistributionKt.buildDistribution(konanPath),
             ext.experimentalEnabled)
 }
 

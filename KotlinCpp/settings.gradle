@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.DistroHelper
+import org.jetbrains.kotlin.DistroHelperKt
+
 /*
  * Copyright 2010-2017 JetBrains s.r.o.
  *
@@ -17,11 +20,31 @@
 enableFeaturePreview('GRADLE_METADATA')
 include ':knarch'
 
-include ':dependencies'
-project(':dependencies').projectDir = new File(new File(konanDevPath), "dependencies")
+String konanPath = null
 
-includeBuild "${konanDevPath}/shared"
-includeBuild "${konanDevPath}/tools/kotlin-native-gradle-plugin"
+if (!rootProject.hasProperty('konanDevPath')) {
+    File buildDir = new File(rootProject.getProjectDir(), "build")
+    File distFolder = new File(buildDir, "kndist")
+    
+    if (!distFolder.exists()) {
+        File zipFile = new File(buildDir, "kndist.zip")
+        File unzipFolder = new File(buildDir, "distextract")
+        
+        DistroHelperKt.downloadKotlinNativeDistro(kotlinNativeArchive, zipFile)
+        DistroHelperKt.unzipFileToFolder(zipFile, unzipFolder)
+        DistroHelperKt.distroPath(unzipFolder).renameTo(distFolder)
+    }
+    
+    konanPath = distFolder.path
+} else {
+    konanPath = konanDevPath
+}
+
+include ':dependencies'
+project(':dependencies').projectDir = new File(new File(konanPath), "dependencies")
+
+includeBuild "${konanPath}/shared"
+includeBuild "${konanPath}/tools/kotlin-native-gradle-plugin"
 
 if (hasProperty("kotlinProjectPath")) {
     includeBuild(kotlinProjectPath) {
