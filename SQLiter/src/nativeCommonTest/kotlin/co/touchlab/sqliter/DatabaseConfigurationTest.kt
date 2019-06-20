@@ -81,9 +81,9 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
             }))
 
         val conn = manager.surpriseMeConnection()
-        println("tr 0")
+
         assertEquals(conn.journalMode, JournalMode.WAL)
-        println("tr 1")
+
         println("Update journal to DELETE result ${conn.updateJournalMode(JournalMode.DELETE)}")
         assertEquals(conn.journalMode, JournalMode.DELETE)
         println("Update journal to WAL result ${conn.updateJournalMode(JournalMode.WAL)}")
@@ -109,5 +109,73 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         conn2.close()
     }
 
+    @Test
+    fun foreignKeyConstraintsSetting(){
+        runFkTest("fkoff", false)
+        runFkTest("fkon", true)
+    }
 
+    private fun runFkTest(dbname: String, enableFK: Boolean){
+        var bookId = 1
+        fun makeBookWithoutTransaction(conn: DatabaseConnection) =
+            conn.withStatement("insert into book(id, name, author_id)values(${bookId++}, 'Hello Book', 5)") { executeInsert() }
+
+        fun makeBook(conn: DatabaseConnection) {
+            conn.withTransaction { conn ->
+                makeBookWithoutTransaction(conn)
+            }
+        }
+        fun checkAB(conn:DatabaseConnection, expectBooks: Int, expectAuthors: Int){
+            val books = conn.longForQuery("select count(*) from book").toInt()
+            val authors = conn.longForQuery("select count(*) from author").toInt()
+
+            assertEquals(expectBooks, books)
+            assertEquals(expectAuthors, authors)
+        }
+
+        val manager = createDatabaseManager(DatabaseConfiguration(
+            name = dbname,
+            version = 1,
+            journalMode = JournalMode.WAL,
+            foreignKeyConstraints = enableFK,
+            create = { db ->
+                db.withStatement(AUTHOR) {
+                    execute()
+                }
+                db.withStatement(BOOK) {
+                    execute()
+                }
+            }))
+
+        val conn = manager.createMultiThreadedConnection()
+
+        try {
+            checkAB(conn, 0, 0)
+
+            if(enableFK){
+                assertFails { makeBook(conn) }
+                assertFails { makeBookWithoutTransaction(conn) }
+                checkAB(conn, 0, 0)
+            }else{
+                makeBook(conn)
+                makeBookWithoutTransaction(conn)
+                checkAB(conn, 2, 0)
+            }
+        } finally {
+            conn.close()
+            DatabaseFileContext.deleteDatabase(dbname)
+        }
+    }
+
+    private val AUTHOR = """CREATE TABLE author (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL
+    );"""
+
+    private val BOOK = """CREATE TABLE book (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    author_id INTEGER NOT NULL,
+    FOREIGN KEY (author_id) REFERENCES author(id) ON DELETE CASCADE
+    );"""
 }

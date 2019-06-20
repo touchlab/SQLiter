@@ -56,6 +56,10 @@ class NativeDatabaseManager(private val path:String,
                 configuration.busyTimeout
             ))
 
+            if(configuration.foreignKeyConstraints){
+                conn.updateForeignKeyConstraints(true)
+            }
+
             if(connectionCount.value == 0){
                 conn.updateJournalMode(configuration.journalMode)
 

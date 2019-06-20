@@ -3,6 +3,7 @@ buildscript {
         jcenter()
         google()
         gradlePluginPortal()
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
 
     dependencies {
@@ -14,6 +15,8 @@ apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 repositories {
     mavenCentral()
+    mavenLocal()
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
     }
@@ -64,7 +67,7 @@ kotlin {
             dependencies {
                 implementation 'org.jetbrains.kotlin:kotlin-test-common'
                 implementation 'org.jetbrains.kotlin:kotlin-test-annotations-common'
-                implementation "co.touchlab:testhelp"
+                implementation "co.touchlab:testhelp:$TESTHELP_VERSION"
             }
         }
         /*jvmMain {

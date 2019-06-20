@@ -80,3 +80,8 @@ fun DatabaseConnection.updateJournalMode(value: JournalMode):JournalMode{
         value
     }
 }
+
+fun DatabaseConnection.updateForeignKeyConstraints(enabled: Boolean){
+    val newValue = if(enabled){1}else{0}
+    withStatement("PRAGMA foreign_keys=$newValue") { execute() }
+}
