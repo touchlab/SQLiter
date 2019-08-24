@@ -19,4 +19,5 @@ Kotlin code for the library.
 
 ## [SQLager](SQLager)
 
+*Note: This part of the library is under review and may be removed in the future.*
 SQLiter is a lower level library. You can do dangerous things. SQLager lets you kick back and relax.
