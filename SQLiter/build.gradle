@@ -20,7 +20,7 @@ buildscript {
         google()
         gradlePluginPortal()
         mavenLocal()
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+//        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
 
     dependencies {
@@ -33,7 +33,7 @@ apply plugin: 'org.jetbrains.kotlin.multiplatform'
 repositories {
     mavenCentral()
     mavenLocal()
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+//    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
 }
 
 group = GROUP
@@ -46,41 +46,41 @@ kotlin {
         
 //                fromPreset(presets.macosX64, 'nativeCommon')
         
-        /*fromPreset(presets.macosX64, 'macos'){
+        fromPreset(presets.macosX64, 'macos'){
             compilations.test {
-                it.extraOpts("-linker-options", "-lsqlite3")
-                it.extraOpts("-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc")
+                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc"]
             }
-        }*/
+        }
 
         fromPreset(presets.mingwX64, 'mingw'){
             compilations.each {
-                it.extraOpts("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
-                it.extraOpts("-linker-options", "-lsqlite3")
+                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-Lc:\\msys64\\mingw64\\lib"]
+                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
             }
             compilations.test {
-                it.extraOpts("-native-library", "../KotlinCpp/bcdist/mingw_x64/tlruntime.bc")
+//                it.kotlinOptions.freeCompilerArgs("-native-library", "../KotlinCpp/bcdist/mingw_x64/tlruntime.bc")
             }
         }
 
         fromPreset(presets.iosX64, 'iosX64'){
             compilations.test {
-                it.extraOpts("-linker-options", "-lsqlite3")
-                it.extraOpts("-native-library", "../KotlinCpp/bcdist/ios_x64/tlruntime.bc")
+                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+//                it.kotlinOptions.freeCompilerArgs("-native-library", "../KotlinCpp/bcdist/ios_x64/tlruntime.bc")
             }
         }
         
         fromPreset(presets.iosArm64, 'iosArm64'){
             compilations.test {
-                it.extraOpts("-linker-options", "-lsqlite3")
-                it.extraOpts("-native-library", "../KotlinCpp/bcdist/ios_arm64/tlruntime.bc")
+                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+//                it.kotlinOptions.freeCompilerArgs("-native-library", "../KotlinCpp/bcdist/ios_arm64/tlruntime.bc")
             }
         }
         
         fromPreset(presets.iosArm32, 'iosArm32'){
             compilations.test {
-                it.extraOpts("-linker-options", "-lsqlite3")
-                it.extraOpts("-native-library", "../KotlinCpp/bcdist/ios_arm32/tlruntime.bc")
+                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+//                it.kotlinOptions.freeCompilerArgs("-native-library", "../KotlinCpp/bcdist/ios_arm32/tlruntime.bc")
             }
         }
         
@@ -126,11 +126,11 @@ kotlin {
             dependsOn nativeCommonMain
         }
 
-        configure([iosX64Main, iosArm64Main, /*macosMain, */iosArm32Main]) {
+        configure([iosX64Main, iosArm64Main, macosMain, iosArm32Main]) {
             dependsOn appleMain
         }
 
-        configure([iosX64Test, iosArm64Test, /*macosTest, */iosArm32Test, mingwTest]) {
+        configure([iosX64Test, iosArm64Test, macosTest, iosArm32Test, mingwTest]) {
             dependsOn nativeCommonTest
         }
     }
@@ -159,7 +159,7 @@ task mergeCppAll(dependsOn:build) {
         mergeCppOutput("iosArm32", "ios_arm32")
         mergeCppOutput("iosArm64", "ios_arm64")
         mergeCppOutput("iosX64", "ios_x64")
-//        mergeCppOutput("macos", "macos_x64")
+        mergeCppOutput("macos", "macos_x64")
 //        mergeCppOutput("mingw", "mingw_x64")
     }
 }
