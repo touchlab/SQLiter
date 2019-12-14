@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.DistroHelper
-import org.jetbrains.kotlin.DistroHelperKt
 
 /*
  * Copyright 2010-2017 JetBrains s.r.o.
@@ -20,10 +18,11 @@ import org.jetbrains.kotlin.DistroHelperKt
 enableFeaturePreview('GRADLE_METADATA')
 include ':knarch'
 
-String konanPath = null
+String konanPath = konanDevPath
 
-if (!rootProject.hasProperty('konanDevPath')) {
-    File buildDir = new File(rootProject.getProjectDir(), "build")
+/*if (!rootProject.hasProperty('konanDevPath')) {
+  throw new IllegalStateException("Har har")
+    *//*File buildDir = new File(rootProject.getProjectDir(), "build")
     File distFolder = new File(buildDir, "kndist")
     
     if (!distFolder.exists()) {
@@ -35,21 +34,22 @@ if (!rootProject.hasProperty('konanDevPath')) {
         DistroHelperKt.distroPath(unzipFolder).renameTo(distFolder)
     }
     
-    konanPath = distFolder.path
+    konanPath = distFolder.path*//*
 } else {
     konanPath = konanDevPath
-}
+}*/
 
 include ':dependencies'
 project(':dependencies').projectDir = new File(new File(konanPath), "dependencies")
 
+includeBuild "${konanPath}/build-tools"
 includeBuild "${konanPath}/shared"
 includeBuild "${konanPath}/tools/kotlin-native-gradle-plugin"
 
-if (hasProperty("kotlinProjectPath")) {
+/*if (hasProperty("kotlinProjectPath")) {
     includeBuild(kotlinProjectPath) {
         dependencySubstitution {
             substitute module('org.jetbrains.kotlin:kotlin-compiler') with project(':include:kotlin-compiler')
         }
     }
-}
+}*/

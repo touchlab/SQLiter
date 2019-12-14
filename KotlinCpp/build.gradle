@@ -14,21 +14,30 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.DistroHelper
-import org.jetbrains.kotlin.konan.target.DistributionKt
-import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.konan.target.PlatformManager
-import org.jetbrains.kotlin.konan.target.TargetSupportException
+import kotlin.text.Regex
+import org.jetbrains.kotlin.PlatformInfo
+import org.jetbrains.kotlin.konan.target.*
+import org.jetbrains.kotlin.konan.util.*
+import org.jetbrains.kotlin.konan.util.DependencyProcessor
 
 buildscript {
   apply from: "gradle/kotlinGradlePlugin.gradle"
-  apply from: "gradle/kotlinNativeShared.gradle"
+  repositories {
+    maven { url kotlinCompilerRepo }
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+    maven { url "https://cache-redirector.jetbrains.com/maven-central" }
+    jcenter()
+  }
+
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-native-utils:$kotlinVersion"
+    classpath "org.jetbrains.kotlin:kotlin-native-shared:$konanVersion"
+    classpath "org.jetbrains.kotlin:kotlin-native-build-tools:$konanVersion"
+    classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+  }
 }
 
-
-import org.jetbrains.kotlin.konan.util.DependencyProcessor
-
-convention.plugins.platformInfo = new PlatformInfo()
+convention.plugins.platformInfo = PlatformInfo
 
 ext {
     if(!rootProject.hasProperty('konanDevPath')){
@@ -41,29 +50,56 @@ ext {
     experimentalEnabled = project.hasProperty("org.jetbrains.kotlin.native.experimentalTargets")
     platformManager = new PlatformManager(DistributionKt.buildDistribution(konanPath),
             ext.experimentalEnabled)
+
+  kotlinCompilerModule="org.jetbrains.kotlin:kotlin-compiler:${kotlinVersion}"
+  kotlinStdLibModule="org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+  kotlinCommonStdlibModule="org.jetbrains.kotlin:kotlin-stdlib-common:${kotlinStdlibVersion}:sources"
+  kotlinTestCommonModule="org.jetbrains.kotlin:kotlin-test-common:${kotlinStdlibVersion}:sources"
+  kotlinTestAnnotationsCommonModule="org.jetbrains.kotlin:kotlin-test-annotations-common:${kotlinStdlibVersion}:sources"
+  kotlinReflectModule="org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
+  kotlinScriptRuntimeModule="org.jetbrains.kotlin:kotlin-script-runtime:${kotlinVersion}"
+  kotlinNativeUtilsModule="org.jetbrains.kotlin:kotlin-native-utils:${kotlinVersion}"
+  kotlinUtilKliMetadatabModule="org.jetbrains.kotlin:kotlin-util-klib-metadata:${kotlinVersion}"
+
+//  konanVersionFull = CompilerVersionGeneratedKt.getCurrentCompilerVersion()
+//  gradlePluginVersion = konanVersionFull
 }
 
 allprojects {
-    if (path != ":dependencies") {
-        evaluationDependsOn(":dependencies")
-    }
-
+  buildscript {
     repositories {
-        mavenCentral()
-        maven {
-            url kotlinCompilerRepo
-        }
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev/' }
+      maven {
+        url 'https://cache-redirector.jetbrains.com/jcenter'
+      }
     }
+  }
+  if (path != ":dependencies") {
+    evaluationDependsOn(":dependencies")
+  }
+
+  repositories {
+    maven {
+      url 'https://cache-redirector.jetbrains.com/maven-central'
+    }
+    maven {
+      url kotlinStdlibRepo
+    }
+    maven {
+      url kotlinCompilerRepo
+    }
+    maven {
+      url "https://dl.bintray.com/kotlin/kotlin-dev"
+    }
+  }
 
     setupHostAndTarget()
     setupClang(project)
 }
 
 void setupHostAndTarget() {
-    ext.hostName = platformManager.hostName
-    ext.targetList = platformManager.enabled.collect { it.visibleName } as List
-    ext.konanTargetList = platformManager.enabled as List
+  ext.hostName = platformManager.hostName
+  ext.targetList = platformManager.filteredOutEnabledButNotSupported.collect { it.visibleName } as List
+  ext.konanTargetList = platformManager.enabled as List
 }
 
 void setupClang(Project project) {
@@ -109,24 +145,6 @@ void setupClang(Project project) {
                 }
             }
         }
-    }
-}
-
-class PlatformInfo {
-    boolean isMac() {
-        return HostManager.hostIsMac
-    }
-
-    boolean isWindows() {
-        return HostManager.hostIsMingw
-    }
-
-    boolean isLinux() {
-        return HostManager.hostIsLinux
-    }
-
-    Throwable unsupportedPlatformException() {
-        return new TargetSupportException()
     }
 }
 

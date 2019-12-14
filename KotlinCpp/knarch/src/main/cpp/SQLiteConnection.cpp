@@ -16,7 +16,7 @@
 
 #define LOG_TAG "SQLiteConnection"
 
-#include "Assert.h"
+#include "KAssert.h"
 #include "Memory.h"
 #include "Natives.h"
 #include "KString.h"

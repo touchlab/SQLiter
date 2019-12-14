@@ -15,7 +15,6 @@
  */
 
 import org.jetbrains.kotlin.CompileCppToBitcode
-import org.jetbrains.kotlin.DistroHelper
 
 // TODO: consider using some Gradle plugins to build and test
 
@@ -41,11 +40,20 @@ targetList.each { targetName ->
 
 boolean isValidTarget(targetName){
     return (isWindows() && targetName.contains("mingw")) ||
-        (!isWindows() && (targetName.contains("ios") || targetName.contains("macos")))
+        (!isWindows()
+            && (
+            targetName.contains("ios")
+                || targetName.contains("macos")
+                || targetName.contains("watchos")
+                || targetName.contains("tvos")
+        ))
 }
 
 task distTlRuntime(type: Copy) {
-    dependsOn.addAll(targetList.findAll {isValidTarget(it)}
+    dependsOn.addAll(targetList.findAll {
+      println("is valid ${it}, ${isValidTarget(it)}")
+      isValidTarget(it)
+    }
              .collect { "${it}TLRuntime" })
 }
 

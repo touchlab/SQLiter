@@ -27,7 +27,7 @@
 
 #include <pthread.h>
 
-#include "Assert.h"
+#include "KAssert.h"
 #include "Alloc.h"
 #include "Exceptions.h"
 #include "Memory.h"
@@ -61,7 +61,7 @@ void DisposeCStringHelper(char *cstring) {
 }
 
 void knarchLog(const char* tag, const char* format, ...){
-    printf(tag);
+    printf("%s", tag);
     printf(" - ");
     va_list args;
     va_start(args, format);
