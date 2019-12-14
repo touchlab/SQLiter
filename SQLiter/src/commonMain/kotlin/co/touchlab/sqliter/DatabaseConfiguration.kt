@@ -27,7 +27,9 @@ data class DatabaseConfiguration(
     val busyTimeout: Int = 2500,
     val pageSize: Int? = null,
     val inMemory: Boolean = false,
-    val basePath: String? = null
+    val basePath: String? = null,
+    val key: String? = null,
+    val rekey: String? = null
 ) {
     init {
         checkFilename(name)
