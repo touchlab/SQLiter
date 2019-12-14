@@ -55,6 +55,26 @@ fun DatabaseConnection.stringForQuery(sql:String):String = withStatement(sql){
 }
 
 /**
+ * Sets the database cipher key.
+ *
+ * @param cipherKey the database cipher key
+ */
+fun DatabaseConnection.setCipherKey(cipherKey: String) {
+    withStatement("PRAGMA key = \"$cipherKey\";") { execute() }
+}
+
+/**
+ * Resets the database cipher key.
+ *
+ * @param oldKey the old database cipher key
+ * @param newKey the new database cipher key
+ */
+fun DatabaseConnection.resetCipherKey(oldKey: String, newKey: String) {
+    setCipherKey(oldKey)
+    withStatement("PRAGMA rekey = \"$newKey\";") { execute() }
+}
+
+/**
  * Gets the database version.
  *
  * @return the database version

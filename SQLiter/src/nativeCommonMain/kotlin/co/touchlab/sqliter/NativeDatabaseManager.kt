@@ -48,13 +48,24 @@ class NativeDatabaseManager(private val path:String,
             val conn = NativeDatabaseConnection(this, nativeOpen(
                 path,
                 CREATE_IF_NECESSARY,
-                "asdf",
+                "sqliter",
                 false,
                 false,
                 -1,
                 -1,
                 configuration.busyTimeout
             ))
+
+            if (configuration.rekey == null) {
+                configuration.key?.let { conn.setCipherKey(it) }
+            } else {
+                if (configuration.key == null) {
+                    // If executed here, it indicate that setCipherKey to `rekey` due to the old key is not set yet.
+                    conn.setCipherKey(configuration.rekey)
+                } else {
+                    conn.resetCipherKey(configuration.key, configuration.rekey)
+                }
+            }
 
             if(configuration.foreignKeyConstraints){
                 conn.updateForeignKeyConstraints(true)
