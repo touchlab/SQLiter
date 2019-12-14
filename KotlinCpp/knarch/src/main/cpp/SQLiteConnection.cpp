@@ -69,18 +69,28 @@ struct SQLiteConnection {
     }
 };
 
-// Called each time a statement begins execution, when tracing is enabled.
-static void sqliteTraceCallback(void *data, const char *sql) {
-    SQLiteConnection* connection = static_cast<SQLiteConnection*>(data);
-    ALOGV("%s: \"%s\"\n",
-            connection->label, sql);
-}
-
-// Called each time a statement finishes execution, when profiling is enabled.
-static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm) {
-    SQLiteConnection* connection = static_cast<SQLiteConnection*>(data);
-    ALOGV("%s: \"%s\" took %0.3f ms\n",
-            connection->label, sql, tm * 0.000001f);
+static int sqliteTraceV2Callback(unsigned event, void *pCtx/*origin context*/, void *pd/*primary data*/, void *xd/*extra data*/)
+{
+    SQLiteConnection *connection = static_cast<SQLiteConnection *>(pCtx);
+    sqlite3_stmt *stmt = static_cast<sqlite3_stmt *>(pd);
+    sqlite3_uint64 *tm = static_cast<sqlite3_uint64 *>(xd);
+    const char *sql = sqlite3_sql(stmt);
+    switch (event)
+    {
+    // Called each time a statement begins execution, when tracing is enabled.
+    case SQLITE_TRACE_STMT:
+        ALOGV("%s: \"%s\"\n",
+              connection->label, sql);
+        break;
+    // Called each time a statement finishes execution, when profiling is enabled.
+    case SQLITE_TRACE_PROFILE:
+        ALOGV("%s: \"%s\" took %0.3f ms\n",
+              connection->label, sql, *tm * 0.000001f);
+        break;
+    default:
+        break;
+    }
+    return 0;
 }
 
 static int executeNonQuery(SQLiteConnection* connection, sqlite3_stmt* statement) {
@@ -359,10 +369,10 @@ KLong SQLiter_SQLiteConnection_nativeOpen(KString pathStr, KInt openFlags,
 
     // Enable tracing and profiling if requested.
     if (enableTrace) {
-        sqlite3_trace(db, &sqliteTraceCallback, connection);
+        sqlite3_trace_v2(db, SQLITE_TRACE_STMT, &sqliteTraceV2Callback, connection);
     }
     if (enableProfile) {
-        sqlite3_profile(db, &sqliteProfileCallback, connection);
+        sqlite3_trace_v2(db, SQLITE_TRACE_PROFILE, &sqliteTraceV2Callback, connection);
     }
 
     ALOGV("Opened connection %p with label '%s'", db, label);
