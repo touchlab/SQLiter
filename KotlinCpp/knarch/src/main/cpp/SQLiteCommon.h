@@ -30,7 +30,7 @@
 #define SQLITE_PROFILE_TAG "SQLiteTime"
 #define ALOGE(...) knarchLog("ERROR", __VA_ARGS__)
 #define ALOGW(...) knarchLog("WARN", __VA_ARGS__)
-#define ALOGV(...) knarchLog("VERBOSE", __VA_ARGS__)
+#define ALOGV(...) //knarchLog("VERBOSE", __VA_ARGS__) Need a way to turn log levels on/off that doesn't require compiling...
 #define ALOG(tag, ...) knarchLog(tag, __VA_ARGS__)
 
 extern "C" {

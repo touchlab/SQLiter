@@ -113,7 +113,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation "co.touchlab:stately:$STATELY_VERSION"
+                implementation "co.touchlab:stately-common:$STATELY_VERSION"
+                implementation "co.touchlab:stately-concurrency:$STATELY_VERSION"
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
             }
         }
@@ -191,7 +192,7 @@ task mergeCppAll(dependsOn:build) {
         mergeCppOutput("macos", "macos_x64")
         mergeCppOutput("watchosArm32", "watchos_arm32")
         mergeCppOutput("watchosArm64", "watchos_arm64")
-        mergeCppOutput("mawatchosX86cos", "watchos_x86")
+        mergeCppOutput("watchosX86", "watchos_x86")
         mergeCppOutput("tvosArm64", "tvos_arm64")
         mergeCppOutput("tvosX64", "tvos_x64")
         mergeCppOutput("mingw", "mingw_x64")
