@@ -179,7 +179,7 @@ void mergeCppOutput(String archFolder, String archZip){
             }
         }
     } catch (Throwable t) {
-
+        t.printStackTrace()
     }
 }
 
