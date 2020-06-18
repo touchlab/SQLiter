@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.DistroHelperKt
 
 //There are dependency issues with native, so we're back to local-only builds for a bit
 String konanPath = "/Users/kgalligan/temp/kotlin-native-master-hold"
+//String konanPath = "C:\\Users\\kgalligan\\devel\\kotlin-native"
 
 if (konanPath == null) {
     File buildDir = new File(rootProject.getProjectDir(), "build")
