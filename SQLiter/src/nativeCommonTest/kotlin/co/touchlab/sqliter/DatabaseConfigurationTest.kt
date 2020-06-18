@@ -71,6 +71,27 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     }
 
     @Test
+    fun configConnection(){
+        var called = false
+        val config = DatabaseConfiguration(name = "configConnection", version = 1, create = { _ -> }, configConnection = { c, ptr ->
+            assertNotEquals(0L, ptr)
+            assertNotNull(c)
+            called = true
+        })
+
+        var conn: DatabaseConnection? = null
+        try {
+            val manager = createDatabaseManager(config)
+            conn = manager.createMultiThreadedConnection()
+
+            assertTrue(called)
+        } finally {
+            conn?.close()
+            DatabaseFileContext.deleteDatabase(config)
+        }
+    }
+
+    @Test
     fun journalModeSetting()
     {
         val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,

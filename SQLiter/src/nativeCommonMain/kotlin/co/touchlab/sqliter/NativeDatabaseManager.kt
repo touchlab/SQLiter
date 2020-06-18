@@ -45,16 +45,18 @@ class NativeDatabaseManager(private val path:String,
         lock.lock()
 
         try {
-            val conn = NativeDatabaseConnection(this, nativeOpen(
-                path,
-                CREATE_IF_NECESSARY,
-                "sqliter",
-                false,
-                false,
-                -1,
-                -1,
-                configuration.busyTimeout
-            ))
+            val connectionPtrArg = nativeOpen(
+                    path,
+                    CREATE_IF_NECESSARY,
+                    "sqliter",
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    configuration.busyTimeout
+            )
+            val conn = NativeDatabaseConnection(this, connectionPtrArg)
+            configuration.configConnection(conn, connectionPtrArg)
 
             if (configuration.rekey == null) {
                 configuration.key?.let { conn.setCipherKey(it) }
