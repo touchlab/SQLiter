@@ -57,7 +57,7 @@ kotlin {
 
         fromPreset(presets.mingwX64, 'mingw'){
             compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/mingw_x64/tlruntime.bc"]
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "C:\\Users\\kgalligan\\devel\\SQLiter\\KotlinCpp\\bcdist\\mingw_x64\\tlruntime.bc"]
             }
             compilations.each {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-Lc:\\msys64\\mingw64\\lib"]
