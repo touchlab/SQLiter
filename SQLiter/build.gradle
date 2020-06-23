@@ -20,7 +20,7 @@ buildscript {
         google()
         gradlePluginPortal()
         mavenLocal()
-//        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
 
     dependencies {
@@ -33,7 +33,7 @@ apply plugin: 'org.jetbrains.kotlin.multiplatform'
 repositories {
     mavenCentral()
     mavenLocal()
-//    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
 }
 
 group = GROUP
@@ -41,70 +41,93 @@ version = VERSION_NAME
 
 kotlin {
     targets {
-        
+
         fromPreset(presets.jvm, 'jvm')
-        
+
 //                fromPreset(presets.macosX64, 'nativeCommon')
 
         fromPreset(presets.macosX64, 'macos'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc"]
+            }
             compilations.test {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc"]
             }
         }
 
         fromPreset(presets.mingwX64, 'mingw'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/mingw_x64/tlruntime.bc"]
+            }
             compilations.each {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-Lc:\\msys64\\mingw64\\lib"]
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
             }
-            compilations.test {
-//                it.kotlinOptions.freeCompilerArgs("-native-library", "../KotlinCpp/bcdist/mingw_x64/tlruntime.bc")
-            }
         }
 
         fromPreset(presets.iosX64, 'iosX64'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/ios_x64/tlruntime.bc"]
+            }
             compilations.test {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-//                it.kotlinOptions.freeCompilerArgs("-native-library", "../KotlinCpp/bcdist/ios_x64/tlruntime.bc")
             }
         }
-        
+
         fromPreset(presets.iosArm64, 'iosArm64'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/ios_arm64/tlruntime.bc"]
+            }
             compilations.test {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-//                it.kotlinOptions.freeCompilerArgs("-native-library", "../KotlinCpp/bcdist/ios_arm64/tlruntime.bc")
             }
         }
-        
+
         fromPreset(presets.iosArm32, 'iosArm32'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/ios_arm32/tlruntime.bc"]
+            }
             compilations.test {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-//                it.kotlinOptions.freeCompilerArgs("-native-library", "../KotlinCpp/bcdist/ios_arm32/tlruntime.bc")
             }
         }
 
         fromPreset(presets.watchosArm32, 'watchosArm32'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/watchos_arm32/tlruntime.bc"]
+            }
             compilations.test {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
             }
         }
         fromPreset(presets.watchosArm64, 'watchosArm64'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/watchos_arm64/tlruntime.bc"]
+            }
             compilations.test {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
             }
         }
         fromPreset(presets.watchosX86, 'watchosX86'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/watchos_x86/tlruntime.bc"]
+            }
             compilations.test {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
             }
         }
         fromPreset(presets.tvosArm64, 'tvosArm64'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/tvos_arm64/tlruntime.bc"]
+            }
             compilations.test {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
             }
         }
         fromPreset(presets.tvosX64, 'tvosX64'){
+            compilations.main {
+                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/tvos_x64/tlruntime.bc"]
+            }
             compilations.test {
                 it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
             }
@@ -166,40 +189,4 @@ configurations {
     compileClasspath
 }
 
-void mergeCppOutput(String archFolder, String archZip){
-    try {
-        ant.zip(
-                update: "true",
-                destfile: "${project.buildDir}/classes/kotlin/$archFolder/main/sqliter.klib"
-        ) {
-            zipfileset(
-                    dir: "${project.projectDir}/../KotlinCpp/bcdist/$archZip",
-                    prefix: "targets/$archZip/native"
-            ) {
-                include(name: '**.bc')
-            }
-        }
-    } catch (Throwable t) {
-        t.printStackTrace()
-    }
-}
-
-task mergeCppAll(dependsOn:build) {
-    doLast {
-        mergeCppOutput("iosArm32", "ios_arm32")
-        mergeCppOutput("iosArm64", "ios_arm64")
-        mergeCppOutput("iosX64", "ios_x64")
-        mergeCppOutput("macos", "macos_x64")
-        mergeCppOutput("watchosArm32", "watchos_arm32")
-        mergeCppOutput("watchosArm64", "watchos_arm64")
-        mergeCppOutput("watchosX86", "watchos_x86")
-        mergeCppOutput("tvosArm64", "tvos_arm64")
-        mergeCppOutput("tvosX64", "tvos_x64")
-        mergeCppOutput("mingw", "mingw_x64")
-    }
-}
-
 apply from: "$rootDir/gradle/gradle-mvn-mpp-push.gradle"
-
-tasks.findByName("publish").dependsOn("mergeCppAll")
-tasks.findByName("publishToMavenLocal").dependsOn("mergeCppAll")
