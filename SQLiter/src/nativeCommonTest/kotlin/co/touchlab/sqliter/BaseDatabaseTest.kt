@@ -17,16 +17,16 @@
 package co.touchlab.sqliter
 
 import co.touchlab.sqliter.DatabaseFileContext.deleteDatabase
-import kotlin.test.AfterEach
-import kotlin.test.BeforeEach
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 
 abstract class BaseDatabaseTest{
-    @BeforeEach
+    @BeforeTest
     fun before(){
         deleteDatabase(TEST_DB_NAME)
     }
 
-    @AfterEach
+    @AfterTest
     fun after(){
         deleteDatabase(TEST_DB_NAME)
     }

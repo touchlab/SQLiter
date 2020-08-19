@@ -341,6 +341,9 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
         val conn = manager.createMultiThreadedConnection()
         val stmt = conn.createStatement("select * from test")
+
+        //FYI: This will log an error, but that's OK. We're doing the logging ourselves.
+        //ERROR - sqlite3_close(0x[whatever]) failed: 5
         assertFails { conn.close() }
         assertFalse(conn.closed)
         stmt.finalizeStatement()

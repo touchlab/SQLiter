@@ -27,7 +27,7 @@ class DatabaseStatementTest{
             return false
         }
 
-    @BeforeEach
+    @BeforeTest
     protected fun setUp() {
         DatabaseFileContext.deleteDatabase(DATABASE_NAME)
         mDatabase = createDatabaseManager(DatabaseConfiguration(
@@ -37,7 +37,7 @@ class DatabaseStatementTest{
         )).surpriseMeConnection()
     }
 
-    @AfterEach
+    @AfterTest
     protected fun tearDown() {
         mDatabase.close()
         DatabaseFileContext.deleteDatabase(DATABASE_NAME)

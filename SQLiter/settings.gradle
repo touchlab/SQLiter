@@ -16,4 +16,3 @@
 
 rootProject.name = 'sqliter'
 enableFeaturePreview('GRADLE_METADATA')
-enableFeaturePreview('STABLE_PUBLISHING')
