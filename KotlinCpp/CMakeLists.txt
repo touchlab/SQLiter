@@ -4,7 +4,7 @@ project(cpp)
 set(CMAKE_CXX_STANDARD 11)
 
 
-include_directories(/Users/kgalligan/devel_kmp/kotlin-native-latest/runtime/src/main/cpp)
+include_directories(/Users/kgalligan/devel_kmp/kotlin-native-again/runtime/src/main/cpp)
 
 include_directories(knarch/src/main/cpp)
 

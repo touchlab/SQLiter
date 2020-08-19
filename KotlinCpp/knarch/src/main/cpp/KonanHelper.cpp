@@ -60,7 +60,10 @@ void DisposeCStringHelper(char *cstring) {
     if (cstring) konan::free(cstring);
 }
 
-void knarchLog(const char* tag, const char* format, ...){
+int globalLogLevel = LOG_NEVER;
+
+void knarchLog(int logLevel, const char* tag, const char* format, ...){
+  if(logLevel >= globalLogLevel) {
     printf("%s", tag);
     printf(" - ");
     va_list args;
@@ -68,6 +71,7 @@ void knarchLog(const char* tag, const char* format, ...){
     vprintf(format, args);
     va_end(args);
     printf("\n");
+  }
 }
 
 } // extern "C"
