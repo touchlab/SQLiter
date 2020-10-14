@@ -7,7 +7,7 @@ Minimal sqlite for Kotlin multiplatform
 > Touchlab is looking for Android-focused mobile engineers, experienced with Kotlin and 
 > looking to get involved with Kotlin Multiplatorm in the near future. [More info here](https://on.touchlab.co/2HkwRfy).
 
-## [KotlinCPP](KotlinCPP)
+## [KotlinCPP](KotlinCpp)
 
 C++ code that interacts directly with sqlite3 C APIs.
 
