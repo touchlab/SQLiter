@@ -17,8 +17,7 @@
 package co.touchlab.sqliter
 
 data class DatabaseConfiguration(
-
-    val name: String,
+    val name: String?,
     val version: Int,
     val create: (DatabaseConnection) -> Unit,
     val upgrade: (DatabaseConnection, Int, Int) -> Unit = { _, _, _ -> },
@@ -37,8 +36,8 @@ data class DatabaseConfiguration(
     }
 }
 
-private fun checkFilename(name: String) {
-    if (name.contains("/")) {
+private fun checkFilename(name: String?) {
+    if (name != null && name.contains("/")) {
         throw IllegalArgumentException(
             "File $name contains a path separator"
         )

@@ -22,13 +22,37 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
 
     @Test
     fun pathTest(){
-        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, false, null)
+        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, null)
         assertTrue(dbPathString.endsWith(TEST_DB_NAME))
     }
 
     @Test
+    fun memoryOnlyTest(){
+        val conf = DatabaseConfiguration(
+            name = null,
+            basePath = null,
+            inMemory = true,
+            version = 1, create = { db ->
+            db.withStatement(TWO_COL) {
+                execute()
+            }
+        })
+        val dbPathString = diskOrMemoryPath(conf)
+        assertEquals(":memory:", dbPathString)
+    }
+
+    @Test
     fun memoryPathTest(){
-        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, true, null)
+        val conf = DatabaseConfiguration(
+            name = TEST_DB_NAME,
+            basePath = null,
+            inMemory = true,
+            version = 1, create = { db ->
+            db.withStatement(TWO_COL) {
+                execute()
+            }
+        })
+        val dbPathString = diskOrMemoryPath(conf)
         assertEquals("file:$TEST_DB_NAME?mode=memory&cache=shared", dbPathString)
     }
 

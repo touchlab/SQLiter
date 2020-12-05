@@ -17,6 +17,17 @@
 package co.touchlab.sqliter
 
 fun createDatabaseManager(configuration: DatabaseConfiguration): DatabaseManager {
-    val databasePath = DatabaseFileContext.databasePath(configuration.name, configuration.inMemory, configuration.basePath)
+    val databasePath = diskOrMemoryPath(configuration)
     return NativeDatabaseManager(databasePath, configuration)
+}
+
+internal fun diskOrMemoryPath(configuration: DatabaseConfiguration) = if (configuration.inMemory) {
+    if (configuration.name == null) {
+        ":memory:"
+    } else {
+        "file:${configuration.name}?mode=memory&cache=shared"
+    }
+} else {
+    val dbName = configuration.name ?: throw NullPointerException("Database name cannot be null")
+    DatabaseFileContext.databasePath(dbName, configuration.basePath)
 }

@@ -39,97 +39,100 @@ repositories {
 group = GROUP
 version = VERSION_NAME
 
+def ideaActive = System.getProperty("idea.active") == "true"
+
 kotlin {
     targets {
 
-        fromPreset(presets.jvm, 'jvm')
+        if (ideaActive) {
+            macosX64("nativeCommon")
+        } else {
+            fromPreset(presets.jvm, 'jvm')
+            fromPreset(presets.macosX64, 'macos') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc"]
+                }
+                compilations.test {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
+            }
 
-//                fromPreset(presets.macosX64, 'nativeCommon')
+            fromPreset(presets.mingwX64, 'mingw') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "C:\\Users\\kgalligan\\devel\\SQLiter\\KotlinCpp\\bcdist\\mingw_x64\\tlruntime.bc"]
+                }
+                compilations.each {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-Lc:\\msys64\\mingw64\\lib"]
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
+            }
 
-        fromPreset(presets.macosX64, 'macos'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc"]
+            fromPreset(presets.iosX64, 'iosX64') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/ios_x64/tlruntime.bc"]
+                }
+                compilations.test {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
             }
-            compilations.test {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-            }
-        }
 
-        fromPreset(presets.mingwX64, 'mingw'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "C:\\Users\\kgalligan\\devel\\SQLiter\\KotlinCpp\\bcdist\\mingw_x64\\tlruntime.bc"]
+            fromPreset(presets.iosArm64, 'iosArm64') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/ios_arm64/tlruntime.bc"]
+                }
+                compilations.test {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
             }
-            compilations.each {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-Lc:\\msys64\\mingw64\\lib"]
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-            }
-        }
 
-        fromPreset(presets.iosX64, 'iosX64'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/ios_x64/tlruntime.bc"]
+            fromPreset(presets.iosArm32, 'iosArm32') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/ios_arm32/tlruntime.bc"]
+                }
+                compilations.test {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
             }
-            compilations.test {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-            }
-        }
 
-        fromPreset(presets.iosArm64, 'iosArm64'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/ios_arm64/tlruntime.bc"]
+            fromPreset(presets.watchosArm32, 'watchosArm32') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/watchos_arm32/tlruntime.bc"]
+                }
+                compilations.test {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
             }
-            compilations.test {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+            fromPreset(presets.watchosArm64, 'watchosArm64') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/watchos_arm64/tlruntime.bc"]
+                }
+                compilations.test {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
             }
-        }
-
-        fromPreset(presets.iosArm32, 'iosArm32'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/ios_arm32/tlruntime.bc"]
+            fromPreset(presets.watchosX86, 'watchosX86') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/watchos_x86/tlruntime.bc"]
+                }
+                compilations.test {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
             }
-            compilations.test {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+            fromPreset(presets.tvosArm64, 'tvosArm64') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/tvos_arm64/tlruntime.bc"]
+                }
+                compilations.test {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
             }
-        }
-
-        fromPreset(presets.watchosArm32, 'watchosArm32'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/watchos_arm32/tlruntime.bc"]
-            }
-            compilations.test {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-            }
-        }
-        fromPreset(presets.watchosArm64, 'watchosArm64'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/watchos_arm64/tlruntime.bc"]
-            }
-            compilations.test {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-            }
-        }
-        fromPreset(presets.watchosX86, 'watchosX86'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/watchos_x86/tlruntime.bc"]
-            }
-            compilations.test {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-            }
-        }
-        fromPreset(presets.tvosArm64, 'tvosArm64'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/tvos_arm64/tlruntime.bc"]
-            }
-            compilations.test {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
-            }
-        }
-        fromPreset(presets.tvosX64, 'tvosX64'){
-            compilations.main {
-                it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/tvos_x64/tlruntime.bc"]
-            }
-            compilations.test {
-                it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+            fromPreset(presets.tvosX64, 'tvosX64') {
+                compilations.main {
+                    it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/tvos_x64/tlruntime.bc"]
+                }
+                compilations.test {
+                    it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
+                }
             }
         }
     }
@@ -190,3 +193,51 @@ configurations {
 }
 
 apply from: "$rootDir/gradle/gradle-mvn-mpp-push.gradle"
+
+task mergeLldbTask() {
+    doLast {
+        mergeLldb()
+    }
+}
+
+void mergeLldb(){
+    try {
+        ant.zip(
+                update: "true",
+                destfile: "/Users/kgalligan/Downloads/kmm/lib/kmm.jar"
+        ) {
+            zipfileset(
+                    dir: "${project.projectDir}",
+                    prefix: "scripts"
+            ) {
+                include(name: 'konan_lldb.py')
+            }
+        }
+    } catch (Throwable t) {
+        t.printStackTrace()
+    }
+}
+
+task mergeToZipTask() {
+    doLast {
+        mergeLldb()
+    }
+}
+
+void mergeToZip(){
+    try {
+        ant.zip(
+                update: "true",
+                destfile: "/Users/kgalligan/Downloads/kmm-plugin-0.1.2-release-53-Studio4.0.zip"
+        ) {
+            zipfileset(
+                    dir: "/Users/kgalligan/Downloads/kmm/lib/",
+                    prefix: "kmm/lib"
+            ) {
+                include(name: 'kmm.jar')
+            }
+        }
+    } catch (Throwable t) {
+        t.printStackTrace()
+    }
+}

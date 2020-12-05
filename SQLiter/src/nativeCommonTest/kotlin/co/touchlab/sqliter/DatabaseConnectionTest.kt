@@ -235,7 +235,74 @@ class DatabaseConnectionTest {
     @Test
     fun memoryDatabase() {
         assertFalse(checkDbIsFile("chevychasevoicemail", true))
+        assertFalse(checkDbIsFile(null, true))
         assertTrue(checkDbIsFile("heyfile", false))
+    }
+
+    @Test
+    fun memoryDatabaseNoNameMultipleConnections(){
+        val conf = DatabaseConfiguration(
+            name = null,
+            version = 1,
+            create = {
+                it.withStatement(TWO_COL) {
+                    execute()
+                }
+            },
+            inMemory = true
+        )
+        val man = createDatabaseManager(
+            conf
+        )
+
+        val conn1 = man.surpriseMeConnection()
+
+        conn1.withTransaction {
+            it.withStatement("insert into test(num, str)values(?,?)") {
+                bindLong(1, 232)
+                bindString(2, "asdf")
+                executeInsert()
+            }
+        }
+
+        assertEquals(1, conn1.longForQuery("select count(*) from test"))
+
+        assertFails {
+            val connFail = man.surpriseMeConnection()
+            connFail.withTransaction {
+                it.withStatement("insert into test(num, str)values(?,?)") {
+                    bindLong(1, 232)
+                    bindString(2, "asdf")
+                    executeInsert()
+                }
+            }
+        }
+
+        val man2 = createDatabaseManager(
+            conf
+        )
+        val conn2 = man2.surpriseMeConnection()
+        conn2.withTransaction {
+            it.withStatement("insert into test(num, str)values(?,?)") {
+                bindLong(1, 232)
+                bindString(2, "asdf")
+                executeInsert()
+            }
+        }
+
+        assertEquals(1, conn2.longForQuery("select count(*) from test"))
+
+        conn1.close()
+
+        assertEquals(1, conn2.longForQuery("select count(*) from test"))
+
+        conn2.close()
+
+        assertFails {
+            man.withConnection {
+                assertEquals(0, it.longForQuery("select count(*) from test"))
+            }
+        }
     }
 
     @Test
@@ -298,8 +365,9 @@ class DatabaseConnectionTest {
         }
     }
 
-    private fun checkDbIsFile(memoryName: String, mem:Boolean): Boolean {
+    private fun checkDbIsFile(memoryName: String?, mem:Boolean): Boolean {
         var dbFileExists = false
+        val checkName = memoryName ?: ":memory:"
         try {
             val man = createDatabaseManager(
                 DatabaseConfiguration(
@@ -323,11 +391,11 @@ class DatabaseConnectionTest {
                     }
                 }
 
-                dbFileExists = DatabaseFileContext.databaseFile(memoryName, null).exists()
+                dbFileExists = DatabaseFileContext.databaseFile(checkName, null).exists()
             }
         } finally {
             if (!mem) {
-                DatabaseFileContext.deleteDatabase(memoryName)
+                DatabaseFileContext.deleteDatabase(checkName)
             }
         }
         return dbFileExists

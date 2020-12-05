@@ -9,12 +9,8 @@ actual object DatabaseFileContext {
         deleteDatabaseFile(databaseFile(name, basePath))
     }
 
-    internal fun databasePath(databaseName:String, inMemory:Boolean, datapathPath:String?):String {
-        return if(inMemory) {
-            "file:$databaseName?mode=memory&cache=shared"
-        } else {
-            databaseFile(databaseName, datapathPath).path
-        }
+    internal fun databasePath(databaseName:String, datapathPath:String?):String {
+        return databaseFile(databaseName, datapathPath).path
     }
 
     internal fun databaseFile(databaseName:String, datapathPath:String?):File {
