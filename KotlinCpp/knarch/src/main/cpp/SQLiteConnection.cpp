@@ -309,8 +309,10 @@ void SQLiter_SQLiteConnection_nativeClose(KLong connectionPtr) {
 }
 
 KLong SQLiter_SQLiteConnection_nativeOpen(KString pathStr, KInt openFlags,
-                        KString labelStr, KBoolean enableTrace, KBoolean enableProfile, KInt lookasideSz,
-                        KInt lookasideCnt, KInt busyTimeout) {
+                        KString labelStr, KBoolean enableTrace, KBoolean enableProfile,
+                        KInt lookasideSz,
+                        KInt lookasideCnt,
+                        KInt busyTimeout) {
 
     RuntimeAssert(pathStr->type_info() == theStringTypeInfo, "Must use a string");
     RuntimeAssert(labelStr->type_info() == theStringTypeInfo, "Must use a string");
