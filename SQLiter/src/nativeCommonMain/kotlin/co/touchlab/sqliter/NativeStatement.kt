@@ -16,9 +16,11 @@
 
 package co.touchlab.sqliter
 
+import sql.*
+
 class NativeStatement(
     internal val connection: NativeDatabaseConnection,
-    nativePointer:Long):NativePointer(nativePointer), Statement {
+    nativePointer:SqliteStatement):NativePointer<SqliteStatement>(nativePointer), Statement {
     
 
     override fun execute() {
@@ -50,7 +52,7 @@ class NativeStatement(
         closeNativePointer()
     }
 
-    override fun actualClose(nativePointerArg: Long) {
+    override fun actualClose(nativePointerArg: SqliteStatement) {
         nativeFinalizeStatement(connection.nativePointer, nativePointerArg)
     }
 
@@ -89,42 +91,3 @@ class NativeStatement(
         return index
     }
 }
-
-@SymbolName("SQLiter_SQLiteStatement_nativeFinalizeStatement")
-private external fun nativeFinalizeStatement(connectionPtr:Long, nativePointer:Long)
-
-@SymbolName("SQLiter_SQLiteConnection_nativeBindParameterIndex")
-private external fun nativeBindParameterIndex(nativePointer:Long, paramName:String):Int
-
-@SymbolName("SQLiter_SQLiteConnection_nativeResetStatement")
-private external fun nativeResetStatement(connectionPtr:Long, nativePointer:Long)
-
-@SymbolName("SQLiter_SQLiteConnection_nativeClearBindings")
-private external fun nativeClearBindings(connectionPtr:Long, nativePointer:Long)
-
-@SymbolName("SQLiter_SQLiteStatement_nativeExecute")
-private external fun nativeExecute(connectionPtr:Long, nativePointer:Long)
-
-@SymbolName("SQLiter_SQLiteStatement_nativeExecuteForChangedRowCount")
-private external fun nativeExecuteForChangedRowCount(connectionPtr:Long, nativePointer:Long):Int
-
-@SymbolName("SQLiter_SQLiteStatement_nativeExecuteForLastInsertedRowId")
-private external fun nativeExecuteForLastInsertedRowId(
-    connectionPtr:Long, nativePointer:Long):Long
-
-@SymbolName("SQLiter_SQLiteStatement_nativeBindNull")
-private external fun nativeBindNull(connectionPtr:Long, nativePointer:Long,
-                                    index:Int)
-
-@SymbolName("SQLiter_SQLiteStatement_nativeBindLong")
-private external fun nativeBindLong(connectionPtr:Long, nativePointer:Long,
-                                    index:Int, value:Long)
-@SymbolName("SQLiter_SQLiteStatement_nativeBindDouble")
-private external fun nativeBindDouble(connectionPtr:Long, nativePointer:Long,
-                                      index:Int, value:Double)
-@SymbolName("SQLiter_SQLiteStatement_nativeBindString")
-private external fun nativeBindString(connectionPtr:Long, nativePointer:Long,
-                                      index:Int, value:String)
-@SymbolName("SQLiter_SQLiteStatement_nativeBindBlob")
-private external fun nativeBindBlob(connectionPtr:Long, nativePointer:Long,
-                                    index:Int, value:ByteArray)

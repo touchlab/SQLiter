@@ -19,6 +19,8 @@ package co.touchlab.sqliter
 import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
 import co.touchlab.sqliter.concurrency.SingleThreadDatabaseConnection
 import co.touchlab.stately.concurrency.Lock
+import sql.OpenFlags
+import sql.nativeOpen
 import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.freeze
 
@@ -35,10 +37,6 @@ class NativeDatabaseManager(private val path:String,
 
     val lock = Lock()
 
-    companion object {
-        val CREATE_IF_NECESSARY = 0x10000000
-    }
-
     internal val connectionCount = AtomicInt(0)
 
     private fun createConnection(): DatabaseConnection {
@@ -47,7 +45,7 @@ class NativeDatabaseManager(private val path:String,
         try {
             val connectionPtrArg = nativeOpen(
                     path,
-                    CREATE_IF_NECESSARY,
+                    listOf(OpenFlags.CREATE_IF_NECESSARY),
                     "sqliter",
                     false,
                     false,
@@ -56,7 +54,7 @@ class NativeDatabaseManager(private val path:String,
                     configuration.busyTimeout
             )
             val conn = NativeDatabaseConnection(this, connectionPtrArg)
-            configuration.configConnection(conn, connectionPtrArg)
+//            configuration.configConnection(conn, connectionPtrArg)
 
             if (configuration.rekey == null) {
                 configuration.key?.let { conn.setCipherKey(it) }
@@ -100,8 +98,3 @@ class NativeDatabaseManager(private val path:String,
         connectionCount.decrement()
     }
 }
-
-@SymbolName("SQLiter_SQLiteConnection_nativeOpen")
-private external fun nativeOpen(path:String, openFlags:Int, label:String,
-                                enableTrace:Boolean, enableProfile:Boolean,
-                                lookasideSlotSize:Int, lookasideSlotCount:Int, busyTimeout:Int):Long

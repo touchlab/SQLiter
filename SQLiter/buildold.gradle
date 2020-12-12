@@ -47,17 +47,17 @@ kotlin {
         if (ideaActive) {
             macosX64("nativeCommon")
         } else {
-            fromPreset(presets.jvm, 'jvm')
+//            fromPreset(presets.jvm, 'jvm')
             fromPreset(presets.macosX64, 'macos') {
-                compilations.main {
+                /*compilations.main {
                     it.kotlinOptions.freeCompilerArgs += ["-native-library", "../KotlinCpp/bcdist/macos_x64/tlruntime.bc"]
-                }
+                }*/
                 compilations.test {
                     it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
                 }
             }
 
-            fromPreset(presets.mingwX64, 'mingw') {
+            /*fromPreset(presets.mingwX64, 'mingw') {
                 compilations.main {
                     it.kotlinOptions.freeCompilerArgs += ["-native-library", "C:\\Users\\kgalligan\\devel\\SQLiter\\KotlinCpp\\bcdist\\mingw_x64\\tlruntime.bc"]
                 }
@@ -133,7 +133,7 @@ kotlin {
                 compilations.test {
                     it.kotlinOptions.freeCompilerArgs += ["-linker-options", "-lsqlite3"]
                 }
-            }
+            }*/
         }
     }
     sourceSets {
@@ -142,6 +142,7 @@ kotlin {
                 implementation "co.touchlab:stately-common:$STATELY_VERSION"
                 implementation "co.touchlab:stately-concurrency:$STATELY_VERSION"
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
+                implementation project(':ksqlite')
             }
         }
         commonTest {
@@ -150,7 +151,7 @@ kotlin {
                 implementation 'org.jetbrains.kotlin:kotlin-test-annotations-common'
             }
         }
-        jvmMain {
+       /* jvmMain {
             dependencies {
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib'
             }
@@ -165,7 +166,7 @@ kotlin {
             dependencies {
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib'
             }
-        }
+        }*/
 
         nativeCommonMain { }
         nativeCommonTest { }
@@ -174,15 +175,15 @@ kotlin {
             dependsOn nativeCommonMain
         }
 
-        configure([mingwMain]) {
+        /*configure([mingwMain]) {
             dependsOn nativeCommonMain
-        }
+        }*/
 
-        configure([iosX64Main, iosArm64Main, macosMain, iosArm32Main, watchosArm32Main, watchosArm64Main, watchosX86Main, tvosArm64Main, tvosX64Main]) {
+        configure([/*iosX64Main, iosArm64Main,*/ macosMain/*, iosArm32Main, watchosArm32Main, watchosArm64Main, watchosX86Main, tvosArm64Main, tvosX64Main*/]) {
             dependsOn appleMain
         }
 
-        configure([iosX64Test, iosArm64Test, macosTest, iosArm32Test, watchosArm32Test, watchosArm64Test, watchosX86Test, tvosArm64Test, tvosX64Test, mingwTest]) {
+        configure([/*iosX64Test, iosArm64Test, */macosTest/*, iosArm32Test, watchosArm32Test, watchosArm64Test, watchosX86Test, tvosArm64Test, tvosX64Test, mingwTest*/]) {
             dependsOn nativeCommonTest
         }
     }
@@ -194,50 +195,3 @@ configurations {
 
 apply from: "$rootDir/gradle/gradle-mvn-mpp-push.gradle"
 
-task mergeLldbTask() {
-    doLast {
-        mergeLldb()
-    }
-}
-
-void mergeLldb(){
-    try {
-        ant.zip(
-                update: "true",
-                destfile: "/Users/kgalligan/Downloads/kmm/lib/kmm.jar"
-        ) {
-            zipfileset(
-                    dir: "${project.projectDir}",
-                    prefix: "scripts"
-            ) {
-                include(name: 'konan_lldb.py')
-            }
-        }
-    } catch (Throwable t) {
-        t.printStackTrace()
-    }
-}
-
-task mergeToZipTask() {
-    doLast {
-        mergeLldb()
-    }
-}
-
-void mergeToZip(){
-    try {
-        ant.zip(
-                update: "true",
-                destfile: "/Users/kgalligan/Downloads/kmm-plugin-0.1.2-release-53-Studio4.0.zip"
-        ) {
-            zipfileset(
-                    dir: "/Users/kgalligan/Downloads/kmm/lib/",
-                    prefix: "kmm/lib"
-            ) {
-                include(name: 'kmm.jar')
-            }
-        }
-    } catch (Throwable t) {
-        t.printStackTrace()
-    }
-}

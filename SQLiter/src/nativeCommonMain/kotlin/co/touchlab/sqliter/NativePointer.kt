@@ -18,19 +18,16 @@ package co.touchlab.sqliter
 
 import co.touchlab.stately.concurrency.Lock
 import co.touchlab.stately.concurrency.withLock
-import kotlin.native.concurrent.AtomicLong
+import kotlin.native.concurrent.AtomicReference
 
-abstract class NativePointer(nativePointerArg: Long) {
+abstract class NativePointer<T:Any>(nativePointerArg: T) {
     //Hold connection pointer in atomic and guard access to connection
-    private val nativePointerActual = AtomicLong(nativePointerArg)
+    private val nativePointerActual = AtomicReference<T?>(nativePointerArg)
 
     private val pointerLock = Lock()
-    internal val nativePointer: Long
+    internal val nativePointer: T
         get() = pointerLock.withLock {
-            val now = nativePointerActual.value
-            if (now == 0L)
-                throw IllegalStateException("Pointer closed")
-            return now
+            nativePointerActual.value!!
         }
 
     /**
@@ -38,13 +35,13 @@ abstract class NativePointer(nativePointerArg: Long) {
      * the pointer as closed
      */
     fun closeNativePointer() = pointerLock.withLock {
-        val local = nativePointerActual.value
+        val local = nativePointerActual.value!!
         actualClose(local)
-        nativePointerActual.value = 0
+        nativePointerActual.value = null
     }
 
     val pointerClosed: Boolean
-        get() = nativePointerActual.value == 0L
+        get() = nativePointerActual.value == null
 
-    abstract fun actualClose(nativePointerArg: Long)
+    abstract fun actualClose(nativePointerArg: T)
 }

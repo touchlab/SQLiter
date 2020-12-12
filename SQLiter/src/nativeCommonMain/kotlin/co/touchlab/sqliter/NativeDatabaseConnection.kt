@@ -18,18 +18,20 @@ package co.touchlab.sqliter
 
 import co.touchlab.stately.concurrency.Lock
 import co.touchlab.stately.concurrency.withLock
+import sql.SqliteDatabase
+import sql.nativeClose
+import sql.nativePrepareStatement
 import kotlin.native.concurrent.AtomicReference
 import kotlin.native.concurrent.freeze
 
 class NativeDatabaseConnection(
     private val dbManager: NativeDatabaseManager,
-    connectionPtrArg: Long
-) : NativePointer(connectionPtrArg), DatabaseConnection {
+    connectionPtrArg: SqliteDatabase
+) : NativePointer<SqliteDatabase>(connectionPtrArg), DatabaseConnection {
     override val closed: Boolean
         get() = pointerClosed
 
     private val transLock = Lock()
-
 
     internal val transaction = AtomicReference<Transaction?>(null)
 
@@ -76,7 +78,7 @@ class NativeDatabaseConnection(
         closeNativePointer()
     }
 
-    override fun actualClose(nativePointerArg: Long) {
+    override fun actualClose(nativePointerArg: SqliteDatabase) {
         nativeClose(nativePointerArg) //Call this first, in case it fails
         dbManager.decrementConnectionCount()
     }
@@ -103,10 +105,3 @@ class NativeDatabaseConnection(
         }
     }
 }
-
-@SymbolName("SQLiter_SQLiteConnection_nativePrepareStatement")
-private external fun nativePrepareStatement(connectionPtr: Long, sql: String): Long
-
-@SymbolName("SQLiter_SQLiteConnection_nativeClose")
-private external fun nativeClose(connectionPtr: Long)
-

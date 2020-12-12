@@ -116,7 +116,7 @@ fun nativeColumnGetDouble(statement: SqliteStatement, columnIndex: Int): Double 
     sqlite3_column_double(statement, columnIndex)
 
 fun nativeColumnGetString(statement: SqliteStatement, columnIndex: Int): String =
-    sqlite3_column_text(statement, columnIndex)!!.reinterpret<ByteVar>().toKStringFromUtf8()
+    sqlite3_column_text(statement, columnIndex)?.reinterpret<ByteVar>()?.toKStringFromUtf8() ?: ""
 
 fun nativeColumnGetBlob(statement: SqliteStatement, columnIndex: Int): ByteArray {
     val blobSize = sqlite3_column_bytes(statement, columnIndex)

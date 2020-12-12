@@ -16,6 +16,8 @@
 
 package co.touchlab.sqliter
 
+import sql.*
+
 class NativeCursor(override val statement: NativeStatement) : Cursor {
     override fun next(): Boolean {
         return nativeStep(statement.connection.nativePointer, statement.nativePointer)
@@ -39,30 +41,3 @@ class NativeCursor(override val statement: NativeStatement) : Cursor {
         map
     }
 }
-
-@SymbolName("SQLiter_SQLiteConnection_nativeColumnIsNull")
-private external fun nativeIsNull(statementPtr: Long, index: Int): Boolean
-
-@SymbolName("SQLiter_SQLiteConnection_nativeColumnGetLong")
-private external fun nativeColumnGetLong(statementPtr: Long, index: Int): Long
-
-@SymbolName("SQLiter_SQLiteConnection_nativeColumnGetDouble")
-private external fun nativeColumnGetDouble(statementPtr: Long, index: Int): Double
-
-@SymbolName("SQLiter_SQLiteConnection_nativeColumnGetString")
-private external fun nativeColumnGetString(statementPtr: Long, index: Int): String
-
-@SymbolName("SQLiter_SQLiteConnection_nativeColumnGetBlob")
-private external fun nativeColumnGetBlob(statementPtr: Long, index: Int): ByteArray
-
-@SymbolName("SQLiter_SQLiteConnection_nativeColumnCount")
-private external fun nativeColumnCount(statementPtr: Long): Int
-
-@SymbolName("SQLiter_SQLiteConnection_nativeColumnName")
-private external fun nativeColumnName(statementPtr: Long, index: Int): String
-
-@SymbolName("SQLiter_SQLiteConnection_nativeColumnType")
-private external fun nativeColumnType(statementPtr: Long, index: Int): Int
-
-@SymbolName("SQLiter_SQLiteConnection_nativeStep")
-internal external fun nativeStep(connectionPtr: Long, statementPtr: Long): Boolean

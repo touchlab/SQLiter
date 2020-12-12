@@ -28,8 +28,9 @@ data class DatabaseConfiguration(
     val inMemory: Boolean = false,
     val basePath: String? = null,
     val key: String? = null,
-    val rekey: String? = null,
-    val configConnection: (DatabaseConnection, Long) -> Unit = { _, _ -> }
+    val rekey: String? = null
+//    ,
+//    val configConnection: (DatabaseConnection, Long) -> Unit = { _, _ -> }
 ) {
     init {
         checkFilename(name)
