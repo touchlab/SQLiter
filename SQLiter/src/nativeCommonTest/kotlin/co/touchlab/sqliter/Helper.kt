@@ -26,13 +26,22 @@ fun createTestDb(
     name:String = TEST_DB_NAME,
     version:Int = 1,
     update:(DatabaseConnection, Int, Int)->Unit = {_,_,_->},
+    onCreateConnection: (DatabaseConnection) -> Unit = { _ -> },
+    onCloseConnection: (DatabaseConnection) -> Unit = { _ -> },
     create:(DatabaseConnection)->Unit
     ):DatabaseManager{
     try {
         deleteDatabase(name)
     } catch (e: Exception) {
     }
-    return createDatabaseManager(DatabaseConfiguration(name, version, create, update))
+    return createDatabaseManager(DatabaseConfiguration(
+        name,
+        version,
+        create,
+        update,
+        onCreateConnection = onCreateConnection,
+        onCloseConnection = onCloseConnection
+    ))
 }
 
 inline fun deleteAfter(name: String, manager: DatabaseManager, block:(DatabaseManager)->Unit){
@@ -52,10 +61,18 @@ val FOUR_COL = "CREATE TABLE test (num INTEGER NOT NULL, " +
         "anotherStr TEXT," +
         "rrr TEST NOT NULL)"
 
-inline fun basicTestDb(createSql:String = FOUR_COL, block:(DatabaseManager)->Unit){
+fun basicTestDb(
+    createSql: String = FOUR_COL,
+    onCreateConnection: (DatabaseConnection) -> Unit = { _ -> },
+    onCloseConnection: (DatabaseConnection) -> Unit = { _ -> },
+    block: (DatabaseManager) -> Unit
+) {
     val dbname = TEST_DB_NAME
-    val dbManager = createTestDb {db ->
-        db.withStatement(createSql){
+    val dbManager = createTestDb(
+        onCreateConnection = onCreateConnection,
+        onCloseConnection = onCloseConnection
+    ) { db ->
+        db.withStatement(createSql) {
             execute()
         }
     }

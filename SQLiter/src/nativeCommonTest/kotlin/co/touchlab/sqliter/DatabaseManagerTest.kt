@@ -24,15 +24,19 @@ class DatabaseManagerTest : BaseDatabaseTest(){
 
     @Test
     fun connectionCount(){
-        basicTestDb {man ->
+        val connectionCount = AtomicInt(0)
+        basicTestDb(
+            onCreateConnection = {connectionCount.increment()},
+            onCloseConnection = {connectionCount.decrement()}
+        ) {man ->
             val conn = man.surpriseMeConnection()
-            assertEquals(1, countLiveConnections(man))
+            assertEquals(1, connectionCount.value)
             man.withConnection {
-                assertEquals(2, countLiveConnections(man))
+                assertEquals(2, connectionCount.value)
             }
-            assertEquals(1, countLiveConnections(man))
+            assertEquals(1, connectionCount.value)
             conn.close()
-            assertEquals(0, countLiveConnections(man))
+            assertEquals(0, connectionCount.value)
         }
     }
 
@@ -193,6 +197,3 @@ class DatabaseManagerTest : BaseDatabaseTest(){
         }
     }
 }
-
-fun countLiveConnections(man:DatabaseManager):Int =
-    (man as NativeDatabaseManager).connectionCount.value

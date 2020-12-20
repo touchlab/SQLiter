@@ -12,17 +12,21 @@ version = VERSION_NAME
 val ideaActive = System.getProperty("idea.active") == "true"
 
 kotlin {
-	val knTargets = listOf(
-		macosX64(),
-		iosX64(),
-		iosArm64(),
-		iosArm32(),
-		watchosArm32(),
-		watchosArm64(),
-		watchosX86(),
-		tvosArm64(),
-		tvosX64()
-	)
+	val knTargets = if (ideaActive) {
+		listOf(macosX64("nativeCommon"))
+	} else {
+		listOf(
+			macosX64(),
+			iosX64(),
+			iosArm64(),
+			iosArm32(),
+			watchosArm32(),
+			watchosArm64(),
+			watchosX86(),
+			tvosArm64(),
+			tvosX64()
+		)
+	}
 
 	knTargets.forEach { target ->
 		val test by target.compilations.getting
@@ -58,9 +62,11 @@ kotlin {
             dependsOn nativeCommonMain
         }*/
 
-		knTargets.forEach { target ->
-			target.compilations.getByName("main").source(appleMain)
-			target.compilations.getByName("test").source(nativeCommonTest)
+		if(!ideaActive) {
+			knTargets.forEach { target ->
+				target.compilations.getByName("main").source(appleMain)
+				target.compilations.getByName("test").source(nativeCommonTest)
+			}
 		}
 
 //		macosMain.dependsOn(appleMain)

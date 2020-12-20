@@ -36,9 +36,6 @@ class ConcurrentDatabaseConnection(private val delegateConnection:DatabaseConnec
 
     override fun close() = accessLock.withLock { delegateConnection.close() }
 
-    override val closed: Boolean
-        get() = accessLock.withLock { delegateConnection.closed }
-
     inner class ConcurrentCursor(private val delegateCursor: Cursor):Cursor{
         override fun next(): Boolean = accessLock.withLock { delegateCursor.next() }
 

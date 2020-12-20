@@ -20,27 +20,28 @@ import sql.*
 
 class NativeStatement(
     internal val connection: NativeDatabaseConnection,
-    nativePointer:SqliteStatement):NativePointer<SqliteStatement>(nativePointer), Statement {
-    
+    internal val sqliteStatement: SqliteStatement
+) : Statement {
+
 
     override fun execute() {
         try {
-            nativeExecute(connection.nativePointer, nativePointer)
+            sqliteStatement.nativeExecute()
         } finally {
             resetStatement()
             clearBindings()
         }
     }
 
-    override fun executeInsert():Long = try {
-        nativeExecuteForLastInsertedRowId(connection.nativePointer, nativePointer)
+    override fun executeInsert(): Long = try {
+        sqliteStatement.nativeExecuteForLastInsertedRowId()
     } finally {
         resetStatement()
         clearBindings()
     }
 
-    override fun executeUpdateDelete():Int = try {
-        nativeExecuteForChangedRowCount(connection.nativePointer, nativePointer)
+    override fun executeUpdateDelete(): Int = try {
+        sqliteStatement.nativeExecuteForChangedRowCount()
     } finally {
         resetStatement()
         clearBindings()
@@ -49,44 +50,40 @@ class NativeStatement(
     override fun query(): Cursor = NativeCursor(this)
 
     override fun finalizeStatement() {
-        closeNativePointer()
-    }
-
-    override fun actualClose(nativePointerArg: SqliteStatement) {
-        nativeFinalizeStatement(connection.nativePointer, nativePointerArg)
+        sqliteStatement.nativeFinalizeStatement()
     }
 
     override fun resetStatement() {
-        nativeResetStatement(connection.nativePointer, nativePointer)
+        sqliteStatement.nativeResetStatement()
     }
 
     override fun clearBindings() {
-        nativeClearBindings(connection.nativePointer, nativePointer)
+        sqliteStatement.nativeClearBindings()
     }
 
     override fun bindNull(index: Int) {
-        nativeBindNull(connection.nativePointer, nativePointer, index)
+        sqliteStatement.nativeBindNull(index)
     }
 
     override fun bindLong(index: Int, value: Long) {
-        nativeBindLong(connection.nativePointer, nativePointer, index, value)
+        sqliteStatement.nativeBindLong(index, value)
     }
 
     override fun bindDouble(index: Int, value: Double) {
-        nativeBindDouble(connection.nativePointer, nativePointer, index, value)
+        sqliteStatement.nativeBindDouble(index, value)
     }
 
     override fun bindString(index: Int, value: String) {
-        nativeBindString(connection.nativePointer, nativePointer, index, value)
+        sqliteStatement.nativeBindString(index, value)
     }
 
     override fun bindBlob(index: Int, value: ByteArray) {
-        nativeBindBlob(connection.nativePointer, nativePointer, index, value)
+        sqliteStatement.nativeBindBlob(index, value)
     }
 
     override fun bindParameterIndex(paramName: String): Int {
-        val index = nativeBindParameterIndex(nativePointer, paramName)
-        if(index == 0)
+        val index = sqliteStatement.nativeBindParameterIndex(paramName)
+        if (index == 0)
             throw IllegalArgumentException("Statement parameter $paramName not found")
         return index
     }

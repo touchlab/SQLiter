@@ -19,17 +19,13 @@ package co.touchlab.sqliter
 import co.touchlab.stately.concurrency.Lock
 import co.touchlab.stately.concurrency.withLock
 import sql.SqliteDatabase
-import sql.nativeClose
-import sql.nativePrepareStatement
 import kotlin.native.concurrent.AtomicReference
 import kotlin.native.concurrent.freeze
 
 class NativeDatabaseConnection(
-    private val dbManager: NativeDatabaseManager,
-    connectionPtrArg: SqliteDatabase
-) : NativePointer<SqliteDatabase>(connectionPtrArg), DatabaseConnection {
-    override val closed: Boolean
-        get() = pointerClosed
+    val dbManager: NativeDatabaseManager,
+    val sqliteDatabase: SqliteDatabase
+) : DatabaseConnection {
 
     private val transLock = Lock()
 
@@ -38,7 +34,7 @@ class NativeDatabaseConnection(
     data class Transaction(val successful: Boolean)
 
     override fun createStatement(sql: String): Statement {
-        val statementPtr = nativePrepareStatement(nativePointer, sql)
+        val statementPtr = sqliteDatabase.nativePrepareStatement(sql)
         val statement = NativeStatement(this, statementPtr)
 
         return statement
@@ -75,12 +71,8 @@ class NativeDatabaseConnection(
     }
 
     override fun close() {
-        closeNativePointer()
-    }
-
-    override fun actualClose(nativePointerArg: SqliteDatabase) {
-        nativeClose(nativePointerArg) //Call this first, in case it fails
-        dbManager.decrementConnectionCount()
+        sqliteDatabase.nativeClose()
+        dbManager.closeConnection(this)
     }
 
     fun migrateIfNeeded(

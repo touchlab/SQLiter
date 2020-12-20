@@ -309,7 +309,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         assertFalse(threadWait(5000, manager, block))
     }
 
-    @Test
+    /*@Test
     fun testClosedThrows(){
         val man = createDb()
         val conn = man.surpriseMeConnection()
@@ -322,7 +322,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         conn.withStatement(insertSql, goInsert)
         conn.close()
         assertFails { conn.withStatement(insertSql, goInsert) }
-    }
+    }*/
 
     @Test
     fun testFailedCloseRecall(){
@@ -345,7 +345,6 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         //FYI: This will log an error, but that's OK. We're doing the logging ourselves.
         //ERROR - sqlite3_close(0x[whatever]) failed: 5
         assertFails { conn.close() }
-        assertFalse(conn.closed)
         stmt.finalizeStatement()
         conn.close()
     }

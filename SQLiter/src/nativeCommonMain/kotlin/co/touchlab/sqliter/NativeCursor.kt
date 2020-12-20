@@ -20,18 +20,18 @@ import sql.*
 
 class NativeCursor(override val statement: NativeStatement) : Cursor {
     override fun next(): Boolean {
-        return nativeStep(statement.connection.nativePointer, statement.nativePointer)
+        return statement.sqliteStatement.nativeStep()
     }
-    override fun isNull(index: Int): Boolean = nativeIsNull(statement.nativePointer, index)
-    override fun getString(index: Int): String = nativeColumnGetString(statement.nativePointer, index)
-    override fun getLong(index: Int): Long = nativeColumnGetLong(statement.nativePointer, index)
-    override fun getBytes(index: Int): ByteArray = nativeColumnGetBlob(statement.nativePointer, index)
-    override fun getDouble(index: Int): Double = nativeColumnGetDouble(statement.nativePointer, index)
-    override fun getType(index: Int): FieldType = FieldType.forCode(nativeColumnType(statement.nativePointer, index))
+    override fun isNull(index: Int): Boolean = statement.sqliteStatement.nativeIsNull(index)
+    override fun getString(index: Int): String = statement.sqliteStatement.nativeColumnGetString(index)
+    override fun getLong(index: Int): Long = statement.sqliteStatement.nativeColumnGetLong(index)
+    override fun getBytes(index: Int): ByteArray = statement.sqliteStatement.nativeColumnGetBlob(index)
+    override fun getDouble(index: Int): Double = statement.sqliteStatement.nativeColumnGetDouble(index)
+    override fun getType(index: Int): FieldType = FieldType.forCode(statement.sqliteStatement.nativeColumnType(index))
     override val columnCount: Int
-        get() = nativeColumnCount(statement.nativePointer)
+        get() = statement.sqliteStatement.nativeColumnCount()
 
-    override fun columnName(index: Int): String = nativeColumnName(statement.nativePointer, index)
+    override fun columnName(index: Int): String = statement.sqliteStatement.nativeColumnName(index)
 
     override val columnNames: Map<String, Int> by lazy {
         val map = HashMap<String, Int>(this.columnCount)

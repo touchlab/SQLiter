@@ -160,7 +160,7 @@ class NativeStatementTest : BaseDatabaseTest(){
         }
     }
 
-    @Test
+    /*@Test
     fun testClosedThrows(){
         basicTestDb(TWO_COL) {
             it.withConnection {
@@ -181,7 +181,7 @@ class NativeStatementTest : BaseDatabaseTest(){
                 }
             }
         }
-    }
+    }*/
 
     @Test
     fun paramByName() {

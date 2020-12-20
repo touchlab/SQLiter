@@ -37,7 +37,7 @@ class NativeDatabaseManager(private val path:String,
 
     val lock = Lock()
 
-    internal val connectionCount = AtomicInt(0)
+    internal val newConnection = AtomicInt(0)
 
     private fun createConnection(): DatabaseConnection {
         lock.lock()
@@ -54,7 +54,7 @@ class NativeDatabaseManager(private val path:String,
                     configuration.busyTimeout
             )
             val conn = NativeDatabaseConnection(this, connectionPtrArg)
-//            configuration.configConnection(conn, connectionPtrArg)
+            configuration.onCreateConnection(conn)
 
             if (configuration.rekey == null) {
                 configuration.key?.let { conn.setCipherKey(it) }
@@ -71,7 +71,7 @@ class NativeDatabaseManager(private val path:String,
                 conn.updateForeignKeyConstraints(true)
             }
 
-            if(connectionCount.value == 0){
+            if(newConnection.value == 0){
                 conn.updateJournalMode(configuration.journalMode)
 
                 try {
@@ -83,9 +83,8 @@ class NativeDatabaseManager(private val path:String,
                     conn.close()
                     throw e
                 }
+                newConnection.increment()
             }
-
-            connectionCount.increment()
 
             return conn
         }
@@ -94,7 +93,7 @@ class NativeDatabaseManager(private val path:String,
         }
     }
 
-    internal fun decrementConnectionCount(){
-        connectionCount.decrement()
+    internal fun closeConnection(connection:DatabaseConnection){
+        configuration.onCloseConnection(connection)
     }
 }
