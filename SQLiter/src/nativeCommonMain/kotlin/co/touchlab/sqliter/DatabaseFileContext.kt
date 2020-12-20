@@ -16,8 +16,12 @@
 
 package co.touchlab.sqliter
 
-import kotlin.native.internal.ExportForCppRuntime
+expect object DatabaseFileContext{
+    fun deleteDatabase(name: String, basePath:String? = null)
+    fun databasePath(databaseName:String, datapathPath:String?):String
+}
 
-@ExportForCppRuntime
-fun ThrowSql_SQLiteException(exceptionClass:String, message:String): Unit =
-    throw Exception("$exceptionClass - $message")
+fun DatabaseFileContext.deleteDatabase(configuration: DatabaseConfiguration){
+    if(configuration.name != null)
+        deleteDatabase(configuration.name, configuration.basePath)
+}

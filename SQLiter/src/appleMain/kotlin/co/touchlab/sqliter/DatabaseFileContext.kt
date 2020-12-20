@@ -28,7 +28,7 @@ actual object DatabaseFileContext{
         deleteDatabaseFile(databaseFile(name, basePath))
     }
 
-    internal fun databasePath(databaseName:String, datapathPath:String?):String{
+    actual fun databasePath(databaseName:String, datapathPath:String?):String{
         return databaseFile(databaseName, datapathPath).path
     }
 

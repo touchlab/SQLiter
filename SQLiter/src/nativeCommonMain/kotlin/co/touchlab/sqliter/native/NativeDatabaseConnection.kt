@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package co.touchlab.sqliter
+package co.touchlab.sqliter.native
 
+import co.touchlab.sqliter.*
 import co.touchlab.stately.concurrency.Lock
 import co.touchlab.stately.concurrency.withLock
 import sql.SqliteDatabase

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package co.touchlab.sqliter
+package co.touchlab.sqliter.native
 
+import co.touchlab.sqliter.*
 import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
 import co.touchlab.sqliter.concurrency.SingleThreadDatabaseConnection
 import co.touchlab.stately.concurrency.Lock
@@ -26,7 +27,7 @@ import kotlin.native.concurrent.freeze
 
 class NativeDatabaseManager(private val path:String,
                             override val configuration: DatabaseConfiguration
-):DatabaseManager{
+): DatabaseManager {
     override fun createMultiThreadedConnection(): DatabaseConnection {
         return ConcurrentDatabaseConnection(createConnection()).freeze()
     }

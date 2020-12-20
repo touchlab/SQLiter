@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package co.touchlab.sqliter
+package co.touchlab.sqliter.native
 
+import co.touchlab.sqliter.Cursor
+import co.touchlab.sqliter.Statement
 import sql.*
 
 class NativeStatement(

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package co.touchlab.sqliter
+package co.touchlab.sqliter.native
 
-import sql.*
+import co.touchlab.sqliter.Cursor
+import co.touchlab.sqliter.FieldType
 
 class NativeCursor(override val statement: NativeStatement) : Cursor {
     override fun next(): Boolean {
