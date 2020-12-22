@@ -17,7 +17,7 @@
 package co.touchlab.sqliter.concurrency
 
 import co.touchlab.sqliter.DatabaseConnection
-import co.touchlab.stately.ensureNeverFrozen
+import kotlin.native.concurrent.ensureNeverFrozen
 
 class SingleThreadDatabaseConnection(delegateConnection: DatabaseConnection):DatabaseConnection by delegateConnection
 {

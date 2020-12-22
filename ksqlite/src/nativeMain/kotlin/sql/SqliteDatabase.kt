@@ -5,7 +5,7 @@ import cnames.structs.sqlite3_stmt
 import kotlinx.cinterop.*
 import sqlite3.*
 
-class SqliteDatabase(path:String, label:String, internal val logging: Logger, internal val dbPointer:SqliteDatabasePointer) {
+class SqliteDatabase(path:String, label:String, val logger: Logger, internal val dbPointer:SqliteDatabasePointer) {
     val config = SqliteDatabaseConfig(path, label)
 
     fun prepareStatement(sqlString: String): SqliteStatement {
@@ -19,24 +19,24 @@ class SqliteDatabase(path:String, label:String, internal val logging: Logger, in
             )
 
             if (err != SQLITE_OK) {
-                throw sqlException(logging, config, "error while compiling: $sqlString", err)
+                throw sqlException(logger, config, "error while compiling: $sqlString", err)
             }
 
             statementPtr.value!!
         }
 
-        logging.v { "prepareStatement for [$statement] on $config" }
+        logger.v { "prepareStatement for [$statement] on $config" }
 
         return SqliteStatement(this, statement)
     }
 
     fun close(){
-        logging.v { "close $config" }
+        logger.v { "close $config" }
 
         val err = sqlite3_close(dbPointer)
         if (err != SQLITE_OK) {
             // This can happen if sub-objects aren't closed first.  Make sure the caller knows.
-            throw sqlException(logging, config, "sqlite3_close($dbPointer) failed", err)
+            throw sqlException(logger, config, "sqlite3_close($dbPointer) failed", err)
         }
     }
 }

@@ -18,8 +18,9 @@ package co.touchlab.sqliter.native
 
 import co.touchlab.sqliter.*
 import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
+import co.touchlab.sqliter.concurrency.Lock
 import co.touchlab.sqliter.concurrency.SingleThreadDatabaseConnection
-import co.touchlab.stately.concurrency.Lock
+import co.touchlab.sqliter.concurrency.withLock
 import sql.OpenFlags
 import sql.dbOpen
 import kotlin.native.concurrent.AtomicInt
@@ -36,23 +37,21 @@ class NativeDatabaseManager(private val path:String,
         return SingleThreadDatabaseConnection(createConnection())
     }
 
-    val lock = Lock()
+    private val lock = Lock()
 
-    internal val newConnection = AtomicInt(0)
+    private val newConnection = AtomicInt(0)
 
     private fun createConnection(): DatabaseConnection {
-        lock.lock()
-
-        try {
+        return lock.withLock {
             val connectionPtrArg = dbOpen(
-                    path,
-                    listOf(OpenFlags.CREATE_IF_NECESSARY),
-                    "sqliter",
-                    false,
-                    false,
-                    -1,
-                    -1,
-                    configuration.busyTimeout,
+                path,
+                listOf(OpenFlags.CREATE_IF_NECESSARY),
+                "sqliter",
+                false,
+                false,
+                -1,
+                -1,
+                configuration.busyTimeout,
                 configuration.logger
             )
             val conn = NativeDatabaseConnection(this, connectionPtrArg)
@@ -88,10 +87,7 @@ class NativeDatabaseManager(private val path:String,
                 newConnection.increment()
             }
 
-            return conn
-        }
-        finally {
-            lock.unlock()
+            conn
         }
     }
 

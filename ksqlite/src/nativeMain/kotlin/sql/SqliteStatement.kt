@@ -24,7 +24,7 @@ class SqliteStatement(private val db: SqliteDatabase, internal val stmtPointer: 
         val blob = sqlite3_column_blob(stmtPointer, columnIndex)
 
         if (blobSize < 0 || blob == null)
-            throw sqlException(db.logging, db.config, "Byte array size/type issue col $columnIndex")
+            throw sqlException(db.logger, db.config, "Byte array size/type issue col $columnIndex")
 
         return blob.readBytes(blobSize)
     }
@@ -52,11 +52,11 @@ class SqliteStatement(private val db: SqliteDatabase, internal val stmtPointer: 
                 trace_log("Database locked, retrying")
                 usleep(1000);
             } else {
-                throw sqlException(db.logging, db.config, "sqlite3_step failed", err)
+                throw sqlException(db.logger, db.config, "sqlite3_step failed", err)
             }
         }
 
-        throw sqlException(db.logging, db.config, "sqlite3_step retry count exceeded")
+        throw sqlException(db.logger, db.config, "sqlite3_step retry count exceeded")
     }
 
     //Statement methods
@@ -125,16 +125,16 @@ class SqliteStatement(private val db: SqliteDatabase, internal val stmtPointer: 
     private inline fun opResult(db: SqliteDatabase, block: () -> Int) {
         val err = block()
         if (err != SQLITE_OK) {
-            throw sqlException(db.logging, db.config, "Sqlite operation failure", err)
+            throw sqlException(db.logger, db.config, "Sqlite operation failure", err)
         }
     }
 
     internal fun executeNonQuery(): Int {
         val err = sqlite3_step(stmtPointer)
         if (err == SQLITE_ROW) {
-            throw sqlException(db.logging, db.config, "Queries can be performed using SQLiteDatabase query or rawQuery methods only.")
+            throw sqlException(db.logger, db.config, "Queries can be performed using SQLiteDatabase query or rawQuery methods only.")
         } else if (err != SQLITE_DONE) {
-            throw sqlException(db.logging, db.config, "executeNonQuery error", err)
+            throw sqlException(db.logger, db.config, "executeNonQuery error", err)
         }
         return err
     }

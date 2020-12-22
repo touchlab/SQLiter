@@ -51,13 +51,6 @@ internal object WarningLogger : Logger {
         println(message)
     }
 
-    override val wActive: Boolean = true
-
-    override fun wWrite(message: String, exception: Throwable?) {
-        println(message)
-        exception?.printStackTrace()
-    }
-
     override val eActive: Boolean = true
 
     override fun eWrite(message: String, exception: Throwable?) {

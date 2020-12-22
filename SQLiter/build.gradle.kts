@@ -4,7 +4,6 @@ plugins {
 
 val GROUP:String by project
 val VERSION_NAME:String by project
-val STATELY_VERSION:String by project
 
 group = GROUP
 version = VERSION_NAME
@@ -36,8 +35,6 @@ kotlin {
 	sourceSets {
 		commonMain {
 			dependencies {
-				implementation("co.touchlab:stately-common:$STATELY_VERSION")
-				implementation("co.touchlab:stately-concurrency:$STATELY_VERSION")
 				implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
 				implementation(project(":ksqlite"))
 			}

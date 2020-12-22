@@ -17,7 +17,7 @@
 package co.touchlab.sqliter.concurrency
 
 import co.touchlab.sqliter.*
-import co.touchlab.stately.freeze
+import kotlin.native.concurrent.freeze
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails

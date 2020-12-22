@@ -16,8 +16,8 @@
 
 package co.touchlab.sqliter
 
-interface DatabaseConnection{
-    fun createStatement(sql:String):Statement
+interface DatabaseConnection {
+    fun createStatement(sql: String): Statement
     fun beginTransaction()
     fun setTransactionSuccessful()
     fun endTransaction()
@@ -26,30 +26,29 @@ interface DatabaseConnection{
 
 fun <R> DatabaseConnection.withStatement(sql: String, proc: Statement.() -> R): R {
     val statement = createStatement(sql)
-    try{
+    try {
         return statement.proc()
-    }
-    finally {
+    } finally {
         statement.finalizeStatement()
     }
 }
 
 fun <R> DatabaseConnection.withTransaction(proc: (DatabaseConnection) -> R): R {
     beginTransaction()
-    try{
+    try {
         val result = proc(this)
         setTransactionSuccessful()
         return result
-    }finally {
+    } finally {
         endTransaction()
     }
 }
 
-fun DatabaseConnection.longForQuery(sql:String):Long = withStatement(sql){
+fun DatabaseConnection.longForQuery(sql: String): Long = withStatement(sql) {
     longForQuery()
 }
 
-fun DatabaseConnection.stringForQuery(sql:String):String = withStatement(sql){
+fun DatabaseConnection.stringForQuery(sql: String): String = withStatement(sql) {
     stringForQuery()
 }
 
@@ -59,7 +58,9 @@ fun DatabaseConnection.stringForQuery(sql:String):String = withStatement(sql){
  * @param cipherKey the database cipher key
  */
 fun DatabaseConnection.setCipherKey(cipherKey: String) {
-    stringForQuery("PRAGMA key = \"$cipherKey\";")
+    withStatement("PRAGMA key = ?;"){
+        bindString(1, cipherKey)
+    }
 }
 
 /**
@@ -68,9 +69,13 @@ fun DatabaseConnection.setCipherKey(cipherKey: String) {
  * @param oldKey the old database cipher key
  * @param newKey the new database cipher key
  */
+//TODO: Testing for sqlcipher
+//TODO: Maybe figure out key suppress in log?
 fun DatabaseConnection.resetCipherKey(oldKey: String, newKey: String) {
     setCipherKey(oldKey)
-    stringForQuery("PRAGMA rekey = \"$newKey\";")
+    withStatement("PRAGMA rekey = ?;"){
+        bindString(1, newKey)
+    }
 }
 
 /**
@@ -92,15 +97,19 @@ fun DatabaseConnection.setVersion(version: Int) {
 val DatabaseConnection.journalMode: JournalMode
     get() = JournalMode.forString(stringForQuery("PRAGMA journal_mode"))
 
-fun DatabaseConnection.updateJournalMode(value: JournalMode):JournalMode{
-    return if(journalMode != value) {
+fun DatabaseConnection.updateJournalMode(value: JournalMode): JournalMode {
+    return if (journalMode != value) {
         JournalMode.forString(stringForQuery("PRAGMA journal_mode=${value.name}").toUpperCase())
-    }else{
+    } else {
         value
     }
 }
 
-fun DatabaseConnection.updateForeignKeyConstraints(enabled: Boolean){
-    val newValue = if(enabled){1}else{0}
+fun DatabaseConnection.updateForeignKeyConstraints(enabled: Boolean) {
+    val newValue = if (enabled) {
+        1
+    } else {
+        0
+    }
     withStatement("PRAGMA foreign_keys=$newValue") { execute() }
 }

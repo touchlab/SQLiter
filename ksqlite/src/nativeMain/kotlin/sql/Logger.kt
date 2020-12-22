@@ -13,23 +13,16 @@ interface Logger {
     fun trace(message: String)
     val vActive:Boolean
     fun vWrite(message: String)
-    val wActive:Boolean
-    fun wWrite(message: String, exception: Throwable? = null)
     val eActive:Boolean
     fun eWrite(message: String, exception: Throwable? = null)
 }
 
-inline fun Logger.v(block:()->String){
+internal inline fun Logger.v(block:()->String){
     if(vActive)
         vWrite(block())
 }
 
-inline fun Logger.w(block:()->String){
-    if(wActive)
-        wWrite(block())
-}
-
-inline fun Logger.e(exception: Throwable?, block:()->String){
+internal inline fun Logger.e(exception: Throwable?, block:()->String){
     if(eActive)
         eWrite(block(), exception)
 }

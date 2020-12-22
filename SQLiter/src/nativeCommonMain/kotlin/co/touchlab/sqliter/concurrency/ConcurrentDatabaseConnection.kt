@@ -20,8 +20,6 @@ import co.touchlab.sqliter.Cursor
 import co.touchlab.sqliter.DatabaseConnection
 import co.touchlab.sqliter.FieldType
 import co.touchlab.sqliter.Statement
-import co.touchlab.stately.concurrency.Lock
-import co.touchlab.stately.concurrency.withLock
 
 class ConcurrentDatabaseConnection(private val delegateConnection:DatabaseConnection):DatabaseConnection{
     private val accessLock = Lock()
