@@ -28,7 +28,7 @@ class NativeStatement(
 
     override fun execute() {
         try {
-            sqliteStatement.nativeExecute()
+            sqliteStatement.execute()
         } finally {
             resetStatement()
             clearBindings()
@@ -36,14 +36,14 @@ class NativeStatement(
     }
 
     override fun executeInsert(): Long = try {
-        sqliteStatement.nativeExecuteForLastInsertedRowId()
+        sqliteStatement.executeForLastInsertedRowId()
     } finally {
         resetStatement()
         clearBindings()
     }
 
     override fun executeUpdateDelete(): Int = try {
-        sqliteStatement.nativeExecuteForChangedRowCount()
+        sqliteStatement.executeForChangedRowCount()
     } finally {
         resetStatement()
         clearBindings()
@@ -52,39 +52,39 @@ class NativeStatement(
     override fun query(): Cursor = NativeCursor(this)
 
     override fun finalizeStatement() {
-        sqliteStatement.nativeFinalizeStatement()
+        sqliteStatement.finalizeStatement()
     }
 
     override fun resetStatement() {
-        sqliteStatement.nativeResetStatement()
+        sqliteStatement.resetStatement()
     }
 
     override fun clearBindings() {
-        sqliteStatement.nativeClearBindings()
+        sqliteStatement.clearBindings()
     }
 
     override fun bindNull(index: Int) {
-        sqliteStatement.nativeBindNull(index)
+        sqliteStatement.bindNull(index)
     }
 
     override fun bindLong(index: Int, value: Long) {
-        sqliteStatement.nativeBindLong(index, value)
+        sqliteStatement.bindLong(index, value)
     }
 
     override fun bindDouble(index: Int, value: Double) {
-        sqliteStatement.nativeBindDouble(index, value)
+        sqliteStatement.bindDouble(index, value)
     }
 
     override fun bindString(index: Int, value: String) {
-        sqliteStatement.nativeBindString(index, value)
+        sqliteStatement.bindString(index, value)
     }
 
     override fun bindBlob(index: Int, value: ByteArray) {
-        sqliteStatement.nativeBindBlob(index, value)
+        sqliteStatement.bindBlob(index, value)
     }
 
     override fun bindParameterIndex(paramName: String): Int {
-        val index = sqliteStatement.nativeBindParameterIndex(paramName)
+        val index = sqliteStatement.bindParameterIndex(paramName)
         if (index == 0)
             throw IllegalArgumentException("Statement parameter $paramName not found")
         return index

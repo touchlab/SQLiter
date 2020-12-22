@@ -16,6 +16,8 @@
 
 package co.touchlab.sqliter
 
+import sql.Logger
+
 data class DatabaseConfiguration(
     val name: String?,
     val version: Int,
@@ -31,10 +33,38 @@ data class DatabaseConfiguration(
     val rekey: String? = null,
     val onCreateConnection: (DatabaseConnection) -> Unit = { _ -> },
     val onCloseConnection: (DatabaseConnection) -> Unit = { _ -> },
+    val logger: Logger = WarningLogger
 ) {
     init {
         checkFilename(name)
     }
+}
+
+internal object WarningLogger : Logger {
+    override fun trace(message: String) {
+        println(message)
+    }
+
+    override val vActive: Boolean = false
+
+    override fun vWrite(message: String) {
+        println(message)
+    }
+
+    override val wActive: Boolean = true
+
+    override fun wWrite(message: String, exception: Throwable?) {
+        println(message)
+        exception?.printStackTrace()
+    }
+
+    override val eActive: Boolean = true
+
+    override fun eWrite(message: String, exception: Throwable?) {
+        println(message)
+        exception?.printStackTrace()
+    }
+
 }
 
 private fun checkFilename(name: String?) {

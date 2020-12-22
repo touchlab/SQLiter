@@ -5,8 +5,10 @@ import cnames.structs.sqlite3_stmt
 import kotlinx.cinterop.*
 import sqlite3.*
 
-class SqliteDatabase(private val path:String, private val label:String, internal val dbPointer:SqliteDatabasePointer) {
-    fun nativePrepareStatement(sqlString: String): SqliteStatement {
+class SqliteDatabase(path:String, label:String, internal val logging: Logger, internal val dbPointer:SqliteDatabasePointer) {
+    val config = SqliteDatabaseConfig(path, label)
+
+    fun prepareStatement(sqlString: String): SqliteStatement {
         val statement = memScoped {
             val statementPtr = alloc<CPointerVar<sqlite3_stmt>>()
             val sqlUgt16 = sqlString.wcstr
@@ -17,33 +19,36 @@ class SqliteDatabase(private val path:String, private val label:String, internal
             )
 
             if (err != SQLITE_OK) {
-                throw SQLiteExceptionHandle(this@SqliteDatabase, " error while compiling: $sqlString")
+                throw sqlException(logging, config, "error while compiling: $sqlString", err)
             }
 
             statementPtr.value!!
         }
 
-        ALOGV("Prepared statement $statement on connection $dbPointer")
+        logging.v { "prepareStatement for [$statement] on $config" }
+
         return SqliteStatement(this, statement)
     }
 
-    fun nativeClose(){
-        ALOGV("Closing connection $dbPointer")
+    fun close(){
+        logging.v { "close $config" }
+
         val err = sqlite3_close(dbPointer)
         if (err != SQLITE_OK) {
             // This can happen if sub-objects aren't closed first.  Make sure the caller knows.
-            ALOGE("sqlite3_close($dbPointer) failed: $err");
-            throw SQLiteExceptionHandle(this, "Could not close db.");
+            throw sqlException(logging, config, "sqlite3_close($dbPointer) failed", err)
         }
     }
 }
+
+data class SqliteDatabaseConfig(val path:String, val label:String)
 
 enum class OpenFlags {
     CREATE_IF_NECESSARY,
     OPEN_READONLY
 }
 
-fun nativeOpen(
+fun dbOpen(
     path: String,
     openFlags: List<OpenFlags>,
     label: String,
@@ -51,7 +56,8 @@ fun nativeOpen(
     enableProfile: Boolean,
     lookasideSlotSize: Int,
     lookasideSlotCount: Int,
-    busyTimeout: Int
+    busyTimeout: Int,
+    logging: Logger
 ): SqliteDatabase {
 
     val sqliteFlags = if (openFlags.contains(OpenFlags.CREATE_IF_NECESSARY)) {
@@ -67,7 +73,7 @@ fun nativeOpen(
         val dbPtr = alloc<CPointerVar<sqlite3>>()
         val openResult = sqlite3_open_v2(path, dbPtr.ptr, sqliteFlags, null)
         if (openResult != SQLITE_OK) {
-            throw SQLiteExceptionErr(openResult, sqlite3_errmsg(dbPtr.value)?.toKString())
+            throw sqlException(logging, SqliteDatabaseConfig(path, label), sqlite3_errmsg(dbPtr.value)?.toKString() ?: "", openResult)
         }
         dbPtr.value!!
     }
@@ -75,25 +81,23 @@ fun nativeOpen(
     if (lookasideSlotSize >= 0 && lookasideSlotCount >= 0) {
         val err = sqlite3_db_config(db, SQLITE_DBCONFIG_LOOKASIDE, null, lookasideSlotSize, lookasideSlotCount);
         if (err != SQLITE_OK) {
-            ALOGE("sqlite3_db_config(..., ${lookasideSlotSize}, %${lookasideSlotCount}) failed: ${err}")
             sqlite3_close(db)
-            throw SQLiteExceptionHandle(SqliteDatabase(path, label, db), "Cannot set lookaside")
+            throw sqlException(logging, SqliteDatabaseConfig(path, label), "Cannot set lookaside : sqlite3_db_config(..., ${lookasideSlotSize}, %${lookasideSlotCount}) failed", err)
         }
     }
 
     // Check that the database is really read/write when that is what we asked for.
     if ((sqliteFlags and SQLITE_OPEN_READWRITE > 0) && sqlite3_db_readonly(db, null) != 0) {
-        sqlite3_close(db);
-        throw SQLiteExceptionHandle(SqliteDatabase(path, label, db), "Could not open the database in read/write mode.");
+        sqlite3_close(db)
+        throw sqlException(logging, SqliteDatabaseConfig(path, label), "Could not open the database in read/write mode")
     }
 
     // Set the default busy handler to retry automatically before returning SQLITE_BUSY.
     val err = sqlite3_busy_timeout(db, busyTimeout)
     if (err != SQLITE_OK) {
-        sqlite3_close(db);
-        throw SQLiteExceptionHandle(SqliteDatabase(path, label, db), "Could not set busy timeout");
+        sqlite3_close(db)
+        throw sqlException(logging, SqliteDatabaseConfig(path, label), "Could not set busy timeout", err)
     }
-
 
     /*// Create wrapper object.
     SQLiteConnection* connection = new SQLiteConnection(db, openFlags, path, label);
@@ -106,7 +110,7 @@ fun nativeOpen(
         sqlite3_trace_v2(db, SQLITE_TRACE_PROFILE, &sqliteTraceV2Callback, connection);
     }*/
 
-    ALOGV("Opened connection $db with label '${label}'");
+    logging.v { "dbOpen path [$path] label [$label] ${SqliteDatabaseConfig(path, label)}" }
 
-    return SqliteDatabase(path, label, db)
+    return SqliteDatabase(path, label, logging, db)
 }

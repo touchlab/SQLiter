@@ -35,7 +35,7 @@ class NativeDatabaseConnection(
     data class Transaction(val successful: Boolean)
 
     override fun createStatement(sql: String): Statement {
-        val statementPtr = sqliteDatabase.nativePrepareStatement(sql)
+        val statementPtr = sqliteDatabase.prepareStatement(sql)
         val statement = NativeStatement(this, statementPtr)
 
         return statement
@@ -72,7 +72,7 @@ class NativeDatabaseConnection(
     }
 
     override fun close() {
-        sqliteDatabase.nativeClose()
+        sqliteDatabase.close()
         dbManager.closeConnection(this)
     }
 

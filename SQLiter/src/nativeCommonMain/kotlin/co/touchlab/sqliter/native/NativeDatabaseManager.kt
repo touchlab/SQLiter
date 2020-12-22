@@ -21,7 +21,7 @@ import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
 import co.touchlab.sqliter.concurrency.SingleThreadDatabaseConnection
 import co.touchlab.stately.concurrency.Lock
 import sql.OpenFlags
-import sql.nativeOpen
+import sql.dbOpen
 import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.freeze
 
@@ -44,7 +44,7 @@ class NativeDatabaseManager(private val path:String,
         lock.lock()
 
         try {
-            val connectionPtrArg = nativeOpen(
+            val connectionPtrArg = dbOpen(
                     path,
                     listOf(OpenFlags.CREATE_IF_NECESSARY),
                     "sqliter",
@@ -52,7 +52,8 @@ class NativeDatabaseManager(private val path:String,
                     false,
                     -1,
                     -1,
-                    configuration.busyTimeout
+                    configuration.busyTimeout,
+                configuration.logger
             )
             val conn = NativeDatabaseConnection(this, connectionPtrArg)
             configuration.onCreateConnection(conn)

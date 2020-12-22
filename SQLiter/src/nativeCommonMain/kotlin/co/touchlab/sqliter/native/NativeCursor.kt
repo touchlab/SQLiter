@@ -21,18 +21,18 @@ import co.touchlab.sqliter.FieldType
 
 class NativeCursor(override val statement: NativeStatement) : Cursor {
     override fun next(): Boolean {
-        return statement.sqliteStatement.nativeStep()
+        return statement.sqliteStatement.step()
     }
-    override fun isNull(index: Int): Boolean = statement.sqliteStatement.nativeIsNull(index)
-    override fun getString(index: Int): String = statement.sqliteStatement.nativeColumnGetString(index)
-    override fun getLong(index: Int): Long = statement.sqliteStatement.nativeColumnGetLong(index)
-    override fun getBytes(index: Int): ByteArray = statement.sqliteStatement.nativeColumnGetBlob(index)
-    override fun getDouble(index: Int): Double = statement.sqliteStatement.nativeColumnGetDouble(index)
-    override fun getType(index: Int): FieldType = FieldType.forCode(statement.sqliteStatement.nativeColumnType(index))
+    override fun isNull(index: Int): Boolean = statement.sqliteStatement.isNull(index)
+    override fun getString(index: Int): String = statement.sqliteStatement.columnGetString(index)
+    override fun getLong(index: Int): Long = statement.sqliteStatement.columnGetLong(index)
+    override fun getBytes(index: Int): ByteArray = statement.sqliteStatement.columnGetBlob(index)
+    override fun getDouble(index: Int): Double = statement.sqliteStatement.columnGetDouble(index)
+    override fun getType(index: Int): FieldType = FieldType.forCode(statement.sqliteStatement.columnType(index))
     override val columnCount: Int
-        get() = statement.sqliteStatement.nativeColumnCount()
+        get() = statement.sqliteStatement.columnCount()
 
-    override fun columnName(index: Int): String = statement.sqliteStatement.nativeColumnName(index)
+    override fun columnName(index: Int): String = statement.sqliteStatement.columnName(index)
 
     override val columnNames: Map<String, Int> by lazy {
         val map = HashMap<String, Int>(this.columnCount)

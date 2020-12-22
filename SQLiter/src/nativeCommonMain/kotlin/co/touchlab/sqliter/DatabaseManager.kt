@@ -32,9 +32,6 @@ interface DatabaseManager{
     val configuration:DatabaseConfiguration
 }
 
-//expect fun createDatabaseManager(configuration: DatabaseConfiguration):DatabaseManager
-//expect fun deleteDatabase(name:String)
-
 fun <R> DatabaseManager.withConnection(block:(DatabaseConnection) -> R):R{
     val connection = createMultiThreadedConnection()
     try {
