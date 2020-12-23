@@ -33,7 +33,8 @@ data class DatabaseConfiguration(
     val rekey: String? = null,
     val onCreateConnection: (DatabaseConnection) -> Unit = { _ -> },
     val onCloseConnection: (DatabaseConnection) -> Unit = { _ -> },
-    val logger: Logger = WarningLogger
+    val logger: Logger = WarningLogger,
+    val verboseDataCalls: Boolean = false
 ) {
     init {
         checkFilename(name)

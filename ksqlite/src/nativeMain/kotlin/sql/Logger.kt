@@ -17,12 +17,12 @@ interface Logger {
     fun eWrite(message: String, exception: Throwable? = null)
 }
 
-internal inline fun Logger.v(block:()->String){
+inline fun Logger.v(block:()->String){
     if(vActive)
         vWrite(block())
 }
 
-internal inline fun Logger.e(exception: Throwable?, block:()->String){
+inline fun Logger.e(exception: Throwable?, block:()->String){
     if(eActive)
         eWrite(block(), exception)
 }

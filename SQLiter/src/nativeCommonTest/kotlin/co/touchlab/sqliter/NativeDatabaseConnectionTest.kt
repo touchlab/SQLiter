@@ -349,6 +349,52 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         conn.close()
     }
 
+   /* @Test
+    fun multipleConnectionsAndVersion() {
+
+        val upgradeCalled = AtomicInt(0)
+        val config1 = DatabaseConfiguration(
+            name = TEST_DB_NAME,
+            version = 1,
+            journalMode = JournalMode.WAL,
+            create = { db ->
+                db.withStatement(TWO_COL) {
+                    execute()
+                }
+            },
+            upgrade = {dc, oldv, newv ->
+                throw IllegalStateException("This shouldn't happen")
+            },
+            busyTimeout = 3000
+        )
+
+        val manager = createDatabaseManager(config1)
+        manager.createMultiThreadedConnection().close()
+
+        val config2 = config1.copy(
+            version = 2,
+            create = { db ->
+                throw IllegalStateException("This shouldn't happen")
+            },
+            upgrade = {dc, oldv, newv ->
+                if(!upgradeCalled.compareAndSet(0, 1))
+                    throw IllegalStateException("Multiple upgrade calls")
+            }
+        )
+
+        val workers = (0 until 20).map { Worker.start(errorReporting = true, name = "Test Worker $it") }
+        val futures = workers.map { it.execute(TransferMode.SAFE, {config2.freeze()}){
+            val manager = createDatabaseManager(it)
+            val conn = manager.createMultiThreadedConnection()
+            conn.close()
+        } }
+
+        futures.forEach {
+            it.result
+            if(it.state == FutureState.THROWN)
+                throw IllegalStateException("db failed")
+        }
+    }*/
 
     private fun threadWait(time: Int, manager: DatabaseManager, block: (DatabaseConnection) -> Unit): Boolean {
         return manager.withConnection {

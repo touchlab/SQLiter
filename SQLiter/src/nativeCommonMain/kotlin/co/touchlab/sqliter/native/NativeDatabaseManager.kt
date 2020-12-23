@@ -52,7 +52,8 @@ class NativeDatabaseManager(private val path:String,
                 -1,
                 -1,
                 configuration.busyTimeout,
-                configuration.logger
+                configuration.logger,
+                configuration.verboseDataCalls
             )
             val conn = NativeDatabaseConnection(this, connectionPtrArg)
             configuration.onCreateConnection(conn)

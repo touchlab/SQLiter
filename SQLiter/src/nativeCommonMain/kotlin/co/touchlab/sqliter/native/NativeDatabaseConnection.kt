@@ -36,7 +36,7 @@ class NativeDatabaseConnection(
 
     override fun createStatement(sql: String): Statement {
         val statementPtr = sqliteDatabase.prepareStatement(sql)
-        val statement = NativeStatement(this, statementPtr)
+        val statement = NativeStatement(this, statementPtr, sql)
 
         return statement
     }
@@ -81,17 +81,15 @@ class NativeDatabaseConnection(
         upgrade: (DatabaseConnection, Int, Int) -> Unit,
         version: Int
     ) {
-        val initialVersion = getVersion()
-        if (initialVersion == 0) {
-            this.withTransaction {
+        this.withTransaction {
+            val initialVersion = getVersion()
+            if (initialVersion == 0) {
                 create(this)
                 setVersion(version)
-            }
-        } else if(initialVersion != version) {
-            if(initialVersion > version)
-                throw IllegalStateException("Database version $initialVersion newer than config version $version")
+            } else if (initialVersion != version) {
+                if (initialVersion > version)
+                    throw IllegalStateException("Database version $initialVersion newer than config version $version")
 
-            this.withTransaction {
                 upgrade(this, initialVersion, version)
                 setVersion(version)
             }

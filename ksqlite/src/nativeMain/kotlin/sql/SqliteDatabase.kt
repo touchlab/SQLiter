@@ -5,7 +5,7 @@ import cnames.structs.sqlite3_stmt
 import kotlinx.cinterop.*
 import sqlite3.*
 
-class SqliteDatabase(path:String, label:String, val logger: Logger, internal val dbPointer:SqliteDatabasePointer) {
+class SqliteDatabase(path:String, label:String, val logger: Logger, private val verboseDataCalls: Boolean, internal val dbPointer:SqliteDatabasePointer) {
     val config = SqliteDatabaseConfig(path, label)
 
     fun prepareStatement(sqlString: String): SqliteStatement {
@@ -27,7 +27,12 @@ class SqliteDatabase(path:String, label:String, val logger: Logger, internal val
 
         logger.v { "prepareStatement for [$statement] on $config" }
 
-        return SqliteStatement(this, statement)
+        val rawStatement = ActualSqliteStatement(this, statement)
+        return if(verboseDataCalls){
+            TracingSqliteStatement(logger, rawStatement)
+        } else {
+            rawStatement
+        }
     }
 
     fun close(){
@@ -57,7 +62,8 @@ fun dbOpen(
     lookasideSlotSize: Int,
     lookasideSlotCount: Int,
     busyTimeout: Int,
-    logging: Logger
+    logging: Logger,
+    verboseDataCalls: Boolean
 ): SqliteDatabase {
 
     val sqliteFlags = if (openFlags.contains(OpenFlags.CREATE_IF_NECESSARY)) {
@@ -112,5 +118,5 @@ fun dbOpen(
 
     logging.v { "dbOpen path [$path] label [$label] ${SqliteDatabaseConfig(path, label)}" }
 
-    return SqliteDatabase(path, label, logging, db)
+    return SqliteDatabase(path, label, logging, verboseDataCalls, db)
 }

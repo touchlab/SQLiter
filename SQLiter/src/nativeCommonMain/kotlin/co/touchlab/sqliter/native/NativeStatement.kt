@@ -22,12 +22,14 @@ import sql.*
 
 class NativeStatement(
     internal val connection: NativeDatabaseConnection,
-    internal val sqliteStatement: SqliteStatement
+    internal val sqliteStatement: SqliteStatement,
+    sql: String
 ) : Statement {
-
-
+    private val logger = connection.dbManager.configuration.logger
+    private val logName:String by lazy { sql.take(40) }
     override fun execute() {
         try {
+            logger.v { "execute() on statement '$logName'" }
             sqliteStatement.execute()
         } finally {
             resetStatement()
@@ -36,6 +38,7 @@ class NativeStatement(
     }
 
     override fun executeInsert(): Long = try {
+        logger.v { "executeInsert() on statement '$logName'" }
         sqliteStatement.executeForLastInsertedRowId()
     } finally {
         resetStatement()
@@ -43,19 +46,25 @@ class NativeStatement(
     }
 
     override fun executeUpdateDelete(): Int = try {
+        logger.v { "executeUpdateDelete() on statement '$logName'" }
         sqliteStatement.executeForChangedRowCount()
     } finally {
         resetStatement()
         clearBindings()
     }
 
-    override fun query(): Cursor = NativeCursor(this)
+    override fun query(): Cursor {
+        logger.v { "query() on statement '$logName'" }
+        return NativeCursor(this)
+    }
 
     override fun finalizeStatement() {
+        logger.v { "finalizeStatement() on statement '$logName'" }
         sqliteStatement.finalizeStatement()
     }
 
     override fun resetStatement() {
+        logger.v { "resetStatement() on statement '$logName'" }
         sqliteStatement.resetStatement()
     }
 
