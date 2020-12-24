@@ -293,7 +293,7 @@ class DatabaseConnectionTest {
         }
     }
 
-    @Test
+//    @Test
     fun memoryDatabaseMultipleConnections(){
         val memoryName = "asdfasdf"
         val man = createDatabaseManager(

@@ -1,6 +1,6 @@
-rootProject.name = "SQLiter"
+rootProject.name = "sqliter"
 
-include(":ksqlite", ":SQLiter")
+include(":SQLiter")
 
 pluginManagement {
     repositories {

@@ -1,0 +1,11 @@
+
+---
+struct ksqlite_vtab {
+  struct sqlite3_vtab vtab;
+  void* userObj;
+};
+
+struct ksqlite_vtab_cursor {
+  struct sqlite3_vtab_cursor vtab_cursor;
+  void* userObj;
+};

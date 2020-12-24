@@ -21,8 +21,8 @@ import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
 import co.touchlab.sqliter.concurrency.Lock
 import co.touchlab.sqliter.concurrency.SingleThreadDatabaseConnection
 import co.touchlab.sqliter.concurrency.withLock
-import sql.OpenFlags
-import sql.dbOpen
+import co.touchlab.sqliter.interop.OpenFlags
+import co.touchlab.sqliter.interop.dbOpen
 import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.freeze
 

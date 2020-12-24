@@ -1,0 +1,32 @@
+apply plugin: 'groovy'
+apply plugin: 'kotlin'
+buildscript {
+//  ext.rootBuildDirectory = "$rootDir/.."
+//  apply from: "$rootBuildDirectory/gradle/loadRootProperties.gradle"
+//  apply from: "$rootBuildDirectory/gradle/kotlinGradlePlugin.gradle"
+  dependencies{
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61"
+  }
+  repositories {
+    jcenter()
+    google()
+    gradlePluginPortal()
+    mavenLocal()
+  }
+
+}
+
+repositories {
+  jcenter()
+  google()
+  mavenLocal()
+}
+
+dependencies {
+  compile gradleApi()
+  compile localGroovy()
+  compile "org.jetbrains.kotlin:kotlin-stdlib:1.3.61"
+  compile "org.jetbrains.kotlin:kotlin-reflect:1.3.61"
+  compile 'commons-io:commons-io:2.6'
+  compile 'org.zeroturnaround:zt-zip:1.13'
+}

@@ -10,6 +10,13 @@ version = VERSION_NAME
 
 val ideaActive = System.getProperty("idea.active") == "true"
 
+fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget) {
+	val main by target.compilations.getting
+	val sqlite3 by main.cinterops.creating {
+		includeDirs("$projectDir/src/include")
+	}
+}
+
 kotlin {
 	val knTargets = if (ideaActive) {
 		listOf(macosX64("nativeCommon"))
@@ -27,6 +34,8 @@ kotlin {
 		)
 	}
 
+	knTargets.forEach { configInterop(it) }
+
 	knTargets.forEach { target ->
 		val test by target.compilations.getting
 		test.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-lsqlite3")
@@ -36,7 +45,6 @@ kotlin {
 		commonMain {
 			dependencies {
 				implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
-				implementation(project(":ksqlite"))
 			}
 		}
 		commonTest {
@@ -158,3 +166,5 @@ kotlin {
 		}*/
 //	}
 //}
+
+apply(from = "../gradle/gradle-mvn-mpp-push.gradle")

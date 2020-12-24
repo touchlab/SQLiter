@@ -19,7 +19,7 @@ package co.touchlab.sqliter.native
 import co.touchlab.sqliter.*
 import co.touchlab.sqliter.concurrency.Lock
 import co.touchlab.sqliter.concurrency.withLock
-import sql.SqliteDatabase
+import co.touchlab.sqliter.interop.SqliteDatabase
 import kotlin.native.concurrent.AtomicReference
 import kotlin.native.concurrent.freeze
 

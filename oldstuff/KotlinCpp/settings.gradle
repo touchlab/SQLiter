@@ -1,0 +1,48 @@
+
+/*
+ * Copyright 2010-2017 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+enableFeaturePreview('GRADLE_METADATA')
+include ':knarch'
+
+import org.jetbrains.kotlin.DistroHelperKt
+
+//There are dependency issues with native, so we're back to local-only builds for a bit
+String konanPath = "/Users/kgalligan/devel_kmp/kotlin-native-again"
+//String konanPath = "C:\\Users\\kgalligan\\devel\\kotlin-native"
+
+if (konanPath == null) {
+    File buildDir = new File(rootProject.getProjectDir(), "build")
+    File distFolder = new File(buildDir, "kndist")
+    
+    if (!distFolder.exists()) {
+        File zipFile = new File(buildDir, "kndist.zip")
+        File unzipFolder = new File(buildDir, "distextract")
+      String kotlinNativeArchive = "https://github.com/JetBrains/kotlin-native/archive/build-${kotlinStdlibVersion}.zip"
+        DistroHelperKt.downloadKotlinNativeDistro(kotlinNativeArchive, zipFile)
+        DistroHelperKt.unzipFileToFolder(zipFile, unzipFolder)
+        DistroHelperKt.distroPath(unzipFolder).renameTo(distFolder)
+    }
+    
+    konanPath = distFolder.path
+}
+
+include ':dependencies'
+project(':dependencies').projectDir = new File(new File(konanPath), "dependencies")
+
+includeBuild "${konanPath}/build-tools"
+includeBuild "${konanPath}/shared"
+includeBuild "${konanPath}/tools/kotlin-native-gradle-plugin"

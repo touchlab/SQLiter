@@ -18,7 +18,7 @@ package co.touchlab.sqliter.native
 
 import co.touchlab.sqliter.Cursor
 import co.touchlab.sqliter.Statement
-import sql.*
+import co.touchlab.sqliter.interop.*
 
 class NativeStatement(
     internal val connection: NativeDatabaseConnection,

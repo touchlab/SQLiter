@@ -1,0 +1,3 @@
+rootProject.name = 'sqlager'
+enableFeaturePreview('GRADLE_METADATA')
+enableFeaturePreview('STABLE_PUBLISHING')

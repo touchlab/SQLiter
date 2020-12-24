@@ -16,7 +16,7 @@
 
 package co.touchlab.sqliter
 
-import sql.Logger
+import co.touchlab.sqliter.interop.Logger
 
 data class DatabaseConfiguration(
     val name: String?,
