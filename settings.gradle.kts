@@ -1,6 +1,6 @@
 rootProject.name = "sqliter"
 
-include(":SQLiter")
+include(":sqliter-driver")
 
 pluginManagement {
     repositories {
