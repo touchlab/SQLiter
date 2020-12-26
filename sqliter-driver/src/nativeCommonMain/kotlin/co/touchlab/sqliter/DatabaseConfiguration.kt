@@ -18,24 +18,41 @@ package co.touchlab.sqliter
 
 import co.touchlab.sqliter.interop.Logger
 
+
 data class DatabaseConfiguration(
     val name: String?,
     val version: Int,
     val create: (DatabaseConnection) -> Unit,
     val upgrade: (DatabaseConnection, Int, Int) -> Unit = { _, _, _ -> },
-    val journalMode: JournalMode = JournalMode.WAL,
     val foreignKeyConstraints: Boolean = false,
-    val busyTimeout: Int = 2500,
-    val pageSize: Int? = null,
-    val inMemory: Boolean = false,
-    val basePath: String? = null,
-    val key: String? = null,
-    val rekey: String? = null,
-    val onCreateConnection: (DatabaseConnection) -> Unit = { _ -> },
-    val onCloseConnection: (DatabaseConnection) -> Unit = { _ -> },
-    val logger: Logger = WarningLogger,
-    val verboseDataCalls: Boolean = false
+
+    val typeConfig: Type = Type(),
+    val extendedConfig:Extended = Extended(),
+    val loggingConfig:Logging = Logging(),
+    val lifecycleConfig:Lifecycle = Lifecycle(),
+    val encryptionConfig:Encryption = Encryption()
 ) {
+    data class Type(
+        val journalMode: JournalMode = JournalMode.WAL,
+        val inMemory: Boolean = false
+    )
+    data class Extended(
+        val busyTimeout: Int = 2500,
+        val pageSize: Int? = null,
+        val basePath: String? = null,
+        )
+    data class Logging(
+        val logger: Logger = WarningLogger,
+        val verboseDataCalls: Boolean = false
+    )
+    data class Lifecycle(
+        val onCreateConnection: (DatabaseConnection) -> Unit = { _ -> },
+        val onCloseConnection: (DatabaseConnection) -> Unit = { _ -> },
+    )
+    data class Encryption(
+        val key: String? = null,
+        val rekey: String? = null,
+    )
     init {
         checkFilename(name)
     }

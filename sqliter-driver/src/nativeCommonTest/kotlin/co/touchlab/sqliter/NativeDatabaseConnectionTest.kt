@@ -23,12 +23,12 @@ import kotlin.test.*
 
 class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
-//    @Test
+    @Test
     fun multithreadedActivityWAL() {
         multithreadedActivity(JournalMode.WAL)
     }
 
-//    @Test
+    @Test
     fun multithreadedActivityDELETE() {
         multithreadedActivity(JournalMode.DELETE)
     }
@@ -38,13 +38,13 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         val manager = createDatabaseManager(
             DatabaseConfiguration(
                 name = TEST_DB_NAME, version = 1,
-                journalMode = mode, create = { db ->
+                create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
-
                     }
-
-                }, busyTimeout = 30000
+                },
+                typeConfig = DatabaseConfiguration.Type(journalMode = mode),
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000)
             )
         )
 
@@ -117,7 +117,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         val manager = createDatabaseManager(
             DatabaseConfiguration(
                 name = TEST_DB_NAME, version = 1,
-                journalMode = JournalMode.WAL, create = { db ->
+                create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
 
@@ -132,7 +132,9 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                         executeInsert()
 
                     }
-                }, busyTimeout = 3000
+                },
+                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000)
             )
         )
 
@@ -170,13 +172,13 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         writer.close()
     }
 
-//    @Test
+    @Test
     fun failTimeoutWriteWhileCursorOpenJournal() {
 
         val manager = createDatabaseManager(
             DatabaseConfiguration(
                 name = TEST_DB_NAME, version = 1,
-                journalMode = JournalMode.DELETE, create = { db ->
+                create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
 
@@ -191,7 +193,9 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                         executeInsert()
 
                     }
-                }, busyTimeout = 1500
+                },
+                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.DELETE),
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 1500)
             )
         )
 
@@ -232,12 +236,12 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         }
     }
 
-//    @Test
+    @Test
     fun testReadWhileWriting() {
         val manager = createDatabaseManager(
             DatabaseConfiguration(
                 name = TEST_DB_NAME, version = 1,
-                journalMode = JournalMode.DELETE, create = { db ->
+                create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
 
@@ -252,7 +256,9 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                         executeInsert()
 
                     }
-                }, busyTimeout = 3000
+                },
+                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.DELETE),
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000)
             )
         )
 
@@ -284,13 +290,13 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         }
     }
 
-//    @Test
+    @Test
     fun testTimeout() {
         val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1, create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
             }
-        }, busyTimeout = 4000))
+        }, extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 4000)))
 
         val block: (DatabaseConnection) -> Unit = {
             it.withTransaction {
@@ -335,7 +341,8 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
                     }
 
-                }, busyTimeout = 15000
+                },
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 15000)
             )
         )
 
@@ -349,14 +356,14 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         conn.close()
     }
 
-   /* @Test
+//    @Test
     fun multipleConnectionsAndVersion() {
 
         val upgradeCalled = AtomicInt(0)
         val config1 = DatabaseConfiguration(
             name = TEST_DB_NAME,
             version = 1,
-            journalMode = JournalMode.WAL,
+            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
             create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
@@ -365,7 +372,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
             upgrade = {dc, oldv, newv ->
                 throw IllegalStateException("This shouldn't happen")
             },
-            busyTimeout = 3000
+            extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000)
         )
 
         val manager = createDatabaseManager(config1)
@@ -394,7 +401,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
             if(it.state == FutureState.THROWN)
                 throw IllegalStateException("db failed")
         }
-    }*/
+    }
 
     private fun threadWait(time: Int, manager: DatabaseManager, block: (DatabaseConnection) -> Unit): Boolean {
         return manager.withConnection {
@@ -436,13 +443,15 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         createDatabaseManager(
             DatabaseConfiguration(
                 name = TEST_DB_NAME, version = 1,
-                journalMode = JournalMode.WAL, create = { db ->
+                create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
 
                     }
 
-                }, busyTimeout = 30000
+                },
+                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000)
             )
         )
 }

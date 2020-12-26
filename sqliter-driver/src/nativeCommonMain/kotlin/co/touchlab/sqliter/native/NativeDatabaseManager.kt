@@ -51,21 +51,21 @@ class NativeDatabaseManager(private val path:String,
                 false,
                 -1,
                 -1,
-                configuration.busyTimeout,
-                configuration.logger,
-                configuration.verboseDataCalls
+                configuration.extendedConfig.busyTimeout,
+                configuration.loggingConfig.logger,
+                configuration.loggingConfig.verboseDataCalls
             )
             val conn = NativeDatabaseConnection(this, connectionPtrArg)
-            configuration.onCreateConnection(conn)
+            configuration.lifecycleConfig.onCreateConnection(conn)
 
-            if (configuration.rekey == null) {
-                configuration.key?.let { conn.setCipherKey(it) }
+            if (configuration.encryptionConfig.rekey == null) {
+                configuration.encryptionConfig.key?.let { conn.setCipherKey(it) }
             } else {
-                if (configuration.key == null) {
+                if (configuration.encryptionConfig.key == null) {
                     // If executed here, it indicate that setCipherKey to `rekey` due to the old key is not set yet.
-                    conn.setCipherKey(configuration.rekey)
+                    conn.setCipherKey(configuration.encryptionConfig.rekey)
                 } else {
-                    conn.resetCipherKey(configuration.key, configuration.rekey)
+                    conn.resetCipherKey(configuration.encryptionConfig.key, configuration.encryptionConfig.rekey)
                 }
             }
 
@@ -74,7 +74,7 @@ class NativeDatabaseManager(private val path:String,
             }
 
             if(newConnection.value == 0){
-                conn.updateJournalMode(configuration.journalMode)
+                conn.updateJournalMode(configuration.typeConfig.journalMode)
 
                 try {
                     conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.version)
@@ -93,6 +93,6 @@ class NativeDatabaseManager(private val path:String,
     }
 
     internal fun closeConnection(connection:DatabaseConnection){
-        configuration.onCloseConnection(connection)
+        configuration.lifecycleConfig.onCloseConnection(connection)
     }
 }

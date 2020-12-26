@@ -25,7 +25,7 @@ class NativeStatement(
     internal val sqliteStatement: SqliteStatement,
     sql: String
 ) : Statement {
-    private val logger = connection.dbManager.configuration.logger
+    private val logger = connection.dbManager.configuration.loggingConfig.logger
     private val logName:String by lazy { sql.take(40) }
     override fun execute() {
         try {

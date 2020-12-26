@@ -23,7 +23,8 @@ class CursorTest:BaseDatabaseTest(){
     @Test
     fun iterator(){
         val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
-            journalMode = JournalMode.WAL, create = { db ->
+            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
+            create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
                 }

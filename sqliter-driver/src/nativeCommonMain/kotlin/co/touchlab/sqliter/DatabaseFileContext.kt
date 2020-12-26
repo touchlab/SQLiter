@@ -23,5 +23,5 @@ expect object DatabaseFileContext{
 
 fun DatabaseFileContext.deleteDatabase(configuration: DatabaseConfiguration){
     if(configuration.name != null)
-        deleteDatabase(configuration.name, configuration.basePath)
+        deleteDatabase(configuration.name, configuration.extendedConfig.basePath)
 }

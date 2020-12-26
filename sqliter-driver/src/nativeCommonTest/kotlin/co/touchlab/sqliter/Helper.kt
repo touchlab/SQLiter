@@ -39,8 +39,10 @@ fun createTestDb(
         version,
         create,
         update,
-        onCreateConnection = onCreateConnection,
-        onCloseConnection = onCloseConnection
+        lifecycleConfig = DatabaseConfiguration.Lifecycle(
+            onCreateConnection = onCreateConnection,
+            onCloseConnection = onCloseConnection
+        )
     ))
 }
 
@@ -81,13 +83,11 @@ fun basicTestDb(
 }
 
 fun <T> Collection<Future<T>>.waitForAllFutures() {
-    var consumed = 0
-    while (consumed < this.size) {
-        val ready = waitForMultipleFutures(this, 10000)
-        ready.forEach {
-            it.consume { result ->
-                consumed++
-            }
+    forEach { f ->
+        try {
+            f.result
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

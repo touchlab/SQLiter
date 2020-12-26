@@ -209,7 +209,7 @@ class DatabaseConnectionTest {
                 name = secondDbName,
                 version = 1,
                 create = {},
-                journalMode = JournalMode.DELETE
+                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.DELETE)
             )
         )
 
@@ -237,7 +237,7 @@ class DatabaseConnectionTest {
                     execute()
                 }
             },
-            inMemory = true
+            typeConfig = DatabaseConfiguration.Type(inMemory = true)
         )
         val man = createDatabaseManager(
             conf
@@ -305,7 +305,7 @@ class DatabaseConnectionTest {
                         execute()
                     }
                 },
-                inMemory = true
+                typeConfig = DatabaseConfiguration.Type(inMemory = true)
             )
         )
 
@@ -364,7 +364,7 @@ class DatabaseConnectionTest {
                             execute()
                         }
                     },
-                    inMemory = mem
+                    typeConfig = DatabaseConfiguration.Type(inMemory = mem)
                 )
             )
 

@@ -9,11 +9,11 @@ class DbPerformanceTest:BaseDatabaseTest() {
     fun bigInsertTest() {
         val manager = createDatabaseManager(
             DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
-            journalMode = JournalMode.WAL, create = { db ->
+            create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
                 }
-            })
+            }, typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL))
         )
 
         val insertList = (0..50_000).map { i ->

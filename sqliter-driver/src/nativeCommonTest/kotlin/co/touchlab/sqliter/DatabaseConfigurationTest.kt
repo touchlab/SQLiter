@@ -30,8 +30,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     fun memoryOnlyTest(){
         val conf = DatabaseConfiguration(
             name = null,
-            basePath = null,
-            inMemory = true,
+            typeConfig = DatabaseConfiguration.Type(inMemory = true),
             version = 1, create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
@@ -45,8 +44,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     fun memoryPathTest(){
         val conf = DatabaseConfiguration(
             name = TEST_DB_NAME,
-            basePath = null,
-            inMemory = true,
+            typeConfig = DatabaseConfiguration.Type(inMemory = true),
             version = 1, create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
@@ -58,7 +56,10 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
 
     fun checkFilePath(name: String, path: String?) {
         var conn: DatabaseConnection? = null
-        val config = DatabaseConfiguration(name = name, basePath = path, version = 1, create = { db ->
+        val config = DatabaseConfiguration(
+            name = name,
+            extendedConfig = DatabaseConfiguration.Extended(basePath = path),
+            version = 1, create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
             }
@@ -97,11 +98,14 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     /*@Test
     fun configConnection(){
         var called = false
-        val config = DatabaseConfiguration(name = "configConnection", version = 1, create = { _ -> }, configConnection = { c, ptr ->
-            assertNotEquals(0L, ptr)
-            assertNotNull(c)
-            called = true
-        })
+        val config = DatabaseConfiguration(name = "configConnection", version = 1, create = { _ -> },
+            lifecycleConfig = DatabaseConfiguration.Lifecycle(
+                onCreateConnection = {conn ->
+                    assertNotNull(conn)
+                    called = true
+                }
+            ),
+         )
 
         var conn: DatabaseConnection? = null
         try {
@@ -119,7 +123,8 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     fun journalModeSetting()
     {
         val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
-            journalMode = JournalMode.WAL, create = { db ->
+            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
+            create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
                 }
@@ -145,7 +150,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         conn.close()
 
         val manager2 = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
-            journalMode = JournalMode.WAL, create = {
+            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL), create = {
                 fail("Same version shouldn't run")
             }))
 
@@ -181,7 +186,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         val manager = createDatabaseManager(DatabaseConfiguration(
             name = dbname,
             version = 1,
-            journalMode = JournalMode.WAL,
+            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
             foreignKeyConstraints = enableFK,
             create = { db ->
                 db.withStatement(AUTHOR) {

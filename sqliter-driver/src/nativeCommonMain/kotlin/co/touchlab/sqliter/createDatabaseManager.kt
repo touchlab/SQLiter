@@ -23,7 +23,7 @@ fun createDatabaseManager(configuration: DatabaseConfiguration): DatabaseManager
     return NativeDatabaseManager(databasePath, configuration)
 }
 
-internal fun diskOrMemoryPath(configuration: DatabaseConfiguration) = if (configuration.inMemory) {
+internal fun diskOrMemoryPath(configuration: DatabaseConfiguration) = if (configuration.typeConfig.inMemory) {
     if (configuration.name == null) {
         ":memory:"
     } else {
@@ -31,5 +31,5 @@ internal fun diskOrMemoryPath(configuration: DatabaseConfiguration) = if (config
     }
 } else {
     val dbName = configuration.name ?: throw NullPointerException("Database name cannot be null")
-    DatabaseFileContext.databasePath(dbName, configuration.basePath)
+    DatabaseFileContext.databasePath(dbName, configuration.extendedConfig.basePath)
 }
