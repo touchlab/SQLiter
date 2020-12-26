@@ -17,6 +17,8 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 	}
 }
 
+val onWindows = org.jetbrains.kotlin.konan.target.HostManager.hostIsMingw
+
 kotlin {
 	val knTargets = if (ideaActive) {
 		listOf(macosX64("nativeCommon"))
@@ -73,13 +75,19 @@ kotlin {
         }*/
 
 		if(!ideaActive) {
-			knTargets.forEach { target ->
-				target.compilations.getByName("main").source(appleMain)
-				target.compilations.getByName("test").source(nativeCommonTest)
-			}
-			sourceSets.maybeCreate("mingwMain").apply {
+			val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
 				dependsOn(sourceSets.maybeCreate("commonMain"))
 			}
+			knTargets.forEach { target ->
+				if (target.name.startsWith("mingw")) {
+					target.compilations.getByName("main").source(mingwMain)
+					target.compilations.getByName("test").source(nativeCommonTest)
+				} else {
+					target.compilations.getByName("main").source(appleMain)
+					target.compilations.getByName("test").source(nativeCommonTest)
+				}
+			}
+
 			/*mingwMain {
 				dependencies {
 					implementation 'org.jetbrains.kotlin:kotlin-stdlib'
