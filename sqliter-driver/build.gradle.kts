@@ -21,7 +21,11 @@ val onWindows = org.jetbrains.kotlin.konan.target.HostManager.hostIsMingw
 
 kotlin {
 	val knTargets = if (ideaActive) {
-		listOf(macosX64("nativeCommon"))
+		listOf(
+			macosX64("nativeCommon"),
+			mingwX64("mingw")
+		)
+
 	} else {
 		listOf(
 			macosX64(),
@@ -76,7 +80,7 @@ kotlin {
 
 		if(!ideaActive) {
 			val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
-				dependsOn(sourceSets.maybeCreate("commonMain"))
+				dependsOn(nativeCommonMain)
 			}
 			knTargets.forEach { target ->
 				if (target.name.startsWith("mingw")) {
