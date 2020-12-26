@@ -78,7 +78,7 @@ kotlin {
 				target.compilations.getByName("test").source(nativeCommonTest)
 			}
 			sourceSets.maybeCreate("mingwMain").apply {
-//				dependsOn(nativeCommonMain)
+				dependsOn(sourceSets.maybeCreate("commonMain"))
 			}
 			/*mingwMain {
 				dependencies {

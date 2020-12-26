@@ -38,16 +38,6 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
 
-      - name: Publish Linux Artifacts
-        if: matrix.os == 'ubuntu-latest'
-        run: ./gradlew publishLinux --no-daemon --stacktrace
-        env:
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          SIGNING_KEYID: ${{ secrets.SIGNING_KEYID }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-
       - name: Publish Windows Artifacts
         if: matrix.os == 'windows-latest'
         run: ./gradlew publishWindows --no-daemon --stacktrace
