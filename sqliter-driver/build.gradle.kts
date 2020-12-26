@@ -65,7 +65,7 @@ kotlin {
 //		val macosTest = sourceSets.maybeCreate("macosTest")
 
 		val appleMain = sourceSets.maybeCreate("appleMain").apply {
-//			dependsOn(nativeCommonMain)
+			dependsOn(nativeCommonMain)
 		}
 
 		/*configure([mingwMain]) {
@@ -78,7 +78,7 @@ kotlin {
 				target.compilations.getByName("test").source(nativeCommonTest)
 			}
 			sourceSets.maybeCreate("mingwMain").apply {
-				dependsOn(nativeCommonMain)
+//				dependsOn(nativeCommonMain)
 			}
 			/*mingwMain {
 				dependencies {
