@@ -36,7 +36,7 @@ jobs:
 
       - name: Publish Mac Artifacts
         if: matrix.os == 'macOS-latest'
-        run: echo ${{ secrets.SONATYPE_NEXUS_USERNAME }};./gradlew publish --no-daemon --stacktrace
+        run: echo ${{ secrets.SONATYPE_NEXUS_USERNAME2 }};./gradlew publish --no-daemon --stacktrace
         env:
           ORG_GRADLE_PROJECT_SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           ORG_GRADLE_PROJECT_SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
