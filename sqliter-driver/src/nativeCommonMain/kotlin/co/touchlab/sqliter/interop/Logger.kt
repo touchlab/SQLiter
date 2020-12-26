@@ -17,6 +17,7 @@ interface Logger {
     fun eWrite(message: String, exception: Throwable? = null)
 }
 
+
 inline fun Logger.v(block:()->String){
     if(vActive)
         vWrite(block())
