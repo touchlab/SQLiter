@@ -1,12 +1,13 @@
 name: deploy
-#on: workflow_dispatch
-on:
-  pull_request:
-    branches:
-      - master
-  push:
-    branches:
-      - master
+on: workflow_dispatch
+#on:
+#  pull_request:
+#    branches:
+#      - master
+#  push:
+#    branches:
+#      - master
+
 jobs:
   build:
     strategy:
@@ -36,7 +37,7 @@ jobs:
 
       - name: Publish Mac Artifacts
         if: matrix.os == 'macOS-latest'
-        run: echo ${{ secrets.SONATYPE_NEXUS_USERNAME2 }};./gradlew publish --no-daemon --stacktrace
+        run: ./gradlew publish --no-daemon --stacktrace
         env:
           ORG_GRADLE_PROJECT_SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           ORG_GRADLE_PROJECT_SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
