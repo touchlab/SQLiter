@@ -19,6 +19,12 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 
 val onWindows = org.jetbrains.kotlin.konan.target.HostManager.hostIsMingw
 
+fun printAllEnv(){
+	System.getenv().keys.forEach { key ->
+		println("map $key: ${System.getenv()[key]}")
+	}
+}
+
 kotlin {
 	val knTargets = if (ideaActive) {
 		listOf(
