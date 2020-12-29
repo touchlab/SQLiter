@@ -39,10 +39,7 @@ def getGpgKey() {
 
 signing {
   required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
-  def signingKey = getGpgKey()
-  if (!signingKey.isEmpty()) {
-    useInMemoryPgpKeys(signingKey, "")
-  }
+  useInMemoryPgpKeys(getGpgKey(), "")
   sign(publishing.publications)
 }
 
