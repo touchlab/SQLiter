@@ -24,7 +24,7 @@ val SONATYPE_NEXUS_PASSWORD:String by project
 val SIGNING_KEY:String by project
 
 
-fun printStuff(){
+/*fun printStuff(){
 	println("-------------------")
 //	secPrintString(SONATYPE_NEXUS_USERNAME)
 //	secPrintString(SONATYPE_NEXUS_PASSWORD)
@@ -45,7 +45,7 @@ fun secPrintString(s:String){
 	}
 }
 
-printStuff()
+printStuff()*/
 
 kotlin {
 	val knTargets = if (ideaActive) {
