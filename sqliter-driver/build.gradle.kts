@@ -25,6 +25,8 @@ fun printAllEnv(){
 	}
 }
 
+printAllEnv()
+
 kotlin {
 	val knTargets = if (ideaActive) {
 		listOf(
