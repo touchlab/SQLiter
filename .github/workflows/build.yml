@@ -19,7 +19,7 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
       - name: Install msys2
-        if: matrix.os == 'macOS-latest'
+        if: matrix.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
