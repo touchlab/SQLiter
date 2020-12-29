@@ -19,7 +19,7 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 
 val onWindows = org.jetbrains.kotlin.konan.target.HostManager.hostIsMingw
 
-val SONATYPE_NEXUS_USERNAME:String by project
+/*val SONATYPE_NEXUS_USERNAME:String by project
 val SONATYPE_NEXUS_PASSWORD:String by project
 val SIGNING_KEY:String by project
 
@@ -43,7 +43,7 @@ fun secPrintString(s:String){
 	}
 }
 
-printStuff()
+printStuff()*/
 
 kotlin {
 	val knTargets = if (ideaActive) {
