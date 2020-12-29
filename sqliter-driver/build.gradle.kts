@@ -23,6 +23,7 @@ val SONATYPE_NEXUS_USERNAME:String by project
 val SONATYPE_NEXUS_PASSWORD:String by project
 val SIGNING_KEY:String by project
 
+
 fun printStuff(){
 	println("-------------------")
 	secPrintString(SONATYPE_NEXUS_USERNAME)
