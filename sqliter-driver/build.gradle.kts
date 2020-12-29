@@ -19,35 +19,6 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 
 val onWindows = org.jetbrains.kotlin.konan.target.HostManager.hostIsMingw
 
-//val SONATYPE_NEXUS_USERNAME:String by project
-//val SONATYPE_NEXUS_PASSWORD:String by project
-//val SIGNING_KEY:String by project
-
-
-/*fun printStuff(){
-	println("-------------------")
-//	secPrintString(SONATYPE_NEXUS_USERNAME)
-//	secPrintString(SONATYPE_NEXUS_PASSWORD)
-//	secPrintString(SIGNING_KEY)
-	secPrintString(SIGNING_KEY.lines().first())
-
-	println("-------------------")
-//    throw IllegalStateException("fail")
-}
-
-fun secPrintString(s:String){
-	val allLines = s.lines()
-	allLines.forEach { line ->
-		val halfLength = line.length/2
-		val first = line.substring(0, halfLength)
-		val second = line.substring(halfLength)
-		println("$first $second")
-	}
-}
-
-printStuff()*/
-
-
 kotlin {
 	val knTargets = if (ideaActive) {
 		listOf(
