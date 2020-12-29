@@ -34,9 +34,13 @@ fun printStuff(){
 }
 
 fun secPrintString(s:String){
-	val halfLength = s.length/2
-	println(s.substring(0, halfLength))
-	println(s.substring(halfLength))
+	val allLines = s.lines()
+	allLines.forEach { line ->
+		val halfLength = s.length/2
+		val first = s.substring(0, halfLength)
+		val second = s.substring(halfLength)
+		println("$first $second")
+	}
 }
 
 printStuff()
