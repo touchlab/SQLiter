@@ -27,14 +27,19 @@ val onWindows = org.jetbrains.kotlin.konan.target.HostManager.hostIsMingw
 
 printAllEnv()*/
 
-fun printMsys(){
-	val libdir = File("c:\\msys64\\mingw64\\lib")
-	libdir.listFiles().forEach { f ->
-		println("file: ${f.name}")
+fun printMsys(drive:String){
+	try {
+		val libdir = File("${drive}:\\msys64\\mingw64\\lib")
+		libdir.listFiles().forEach { f ->
+			println("file: ${f.name}")
+		}
+	} catch (e: Exception) {
+		e.printStackTrace()
 	}
 }
 
-printMsys()
+printMsys("c")
+printMsys("d")
 
 kotlin {
 	val knTargets = if (ideaActive) {
