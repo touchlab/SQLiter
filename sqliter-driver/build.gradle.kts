@@ -19,13 +19,22 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 
 val onWindows = org.jetbrains.kotlin.konan.target.HostManager.hostIsMingw
 
-fun printAllEnv(){
+/*fun printAllEnv(){
 	System.getenv().keys.forEach { key ->
 		println("map $key: ${System.getenv()[key]}")
 	}
 }
 
-printAllEnv()
+printAllEnv()*/
+
+fun printMsys(){
+	val libdir = File("c:\\msys64\\mingw64\\lib")
+	libdir.listFiles().forEach { f ->
+		println("file: ${f.name}")
+	}
+}
+
+printMsys()
 
 kotlin {
 	val knTargets = if (ideaActive) {
