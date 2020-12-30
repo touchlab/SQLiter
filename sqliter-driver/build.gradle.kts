@@ -19,27 +19,13 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 
 val onWindows = org.jetbrains.kotlin.konan.target.HostManager.hostIsMingw
 
-/*fun printAllEnv(){
-	System.getenv().keys.forEach { key ->
-		println("map $key: ${System.getenv()[key]}")
-	}
-}
-
-printAllEnv()*/
-
-fun printMsys(drive:String){
-	try {
+fun msysDir(): String {
+	fun drivePath(drive: String): File? {
 		val libdir = File("${drive}:\\msys64\\mingw64\\lib")
-		libdir.listFiles().forEach { f ->
-			println("file: ${f.name}")
-		}
-	} catch (e: Exception) {
-		e.printStackTrace()
+		return if(libdir.exists()){libdir}else{null}
 	}
+	return drivePath("c")?.path?:(drivePath("d")?.path?:"")
 }
-
-printMsys("c")
-printMsys("d")
 
 kotlin {
 	val knTargets = if (ideaActive) {
@@ -61,7 +47,7 @@ kotlin {
 			tvosX64(),
 			mingwX64("mingw") {
 				compilations.forEach {
-					it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
+					it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-L${msysDir()}")
 				}
 			}
 		)
