@@ -47,7 +47,9 @@ kotlin {
 			tvosX64(),
 			mingwX64("mingw") {
 				compilations.forEach {
-					it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-L${msysDir()}")
+					val msysDir = msysDir()
+					println("msysDir: $msysDir")
+					it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-L$msysDir")
 				}
 			}
 		)
