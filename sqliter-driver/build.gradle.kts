@@ -27,12 +27,12 @@ fun msysDir(): String {
 	return drivePath("c")?.path?:(drivePath("d")?.path?:"")
 }
 
-fun printPathFiles(path:String){
+/*fun printPathFiles(path:String){
 	val dir = File(path)
 	dir.listFiles()?.forEach { file ->
 		println("${path} - ${file.path}")
 	}
-}
+}*/
 
 kotlin {
 	val knTargets = if (ideaActive) {
@@ -56,7 +56,7 @@ kotlin {
 				compilations.forEach {
 					val msysDir = msysDir()
 					println("msysDir: $msysDir")
-					printPathFiles(msysDir)
+//					printPathFiles(msysDir)
 					it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-L$msysDir")
 				}
 			}
