@@ -1,8 +1,6 @@
 package co.touchlab.sqliter.interop
 
 import kotlinx.cinterop.*
-import platform.Foundation.NSString
-import platform.Foundation.create
 import platform.posix.usleep
 import sqlite3.*
 
