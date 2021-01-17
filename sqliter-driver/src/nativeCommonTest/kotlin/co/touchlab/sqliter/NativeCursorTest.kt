@@ -58,7 +58,7 @@ class NativeCursorTest : BaseDatabaseTest(){
                     }
 
                 },
-                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
+                journalMode = JournalMode.WAL,
                 extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000)
             )
         )

@@ -22,6 +22,7 @@ interface DatabaseConnection {
     fun setTransactionSuccessful()
     fun endTransaction()
     fun close()
+    val closed:Boolean
 }
 
 fun <R> DatabaseConnection.withStatement(sql: String, proc: Statement.() -> R): R {

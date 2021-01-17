@@ -23,7 +23,7 @@ fun createDatabaseManager(configuration: DatabaseConfiguration): DatabaseManager
     return NativeDatabaseManager(databasePath, configuration)
 }
 
-internal fun diskOrMemoryPath(configuration: DatabaseConfiguration) = if (configuration.typeConfig.inMemory) {
+internal fun diskOrMemoryPath(configuration: DatabaseConfiguration) = if (configuration.inMemory) {
     if (configuration.name == null) {
         ":memory:"
     } else {

@@ -23,7 +23,7 @@ class CursorTest:BaseDatabaseTest(){
     @Test
     fun iterator(){
         val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
-            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
+            journalMode = JournalMode.WAL,
             create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
@@ -59,4 +59,34 @@ class CursorTest:BaseDatabaseTest(){
 
         connection.close()
     }
+
+    @Test
+    fun testUtf8() {
+        val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
+            journalMode = JournalMode.WAL,
+            create = { db ->
+                db.withStatement(TWO_COL) {
+                    execute()
+                }
+            }))
+
+        val connection = manager.surpriseMeConnection()
+        connection.withStatement("insert into test(num, str)values(?,?)"){
+            bindLong(1, 2)
+            bindString(2, utf8stress)
+            executeInsert()
+        }
+
+        connection.withStatement("select * from test"){
+            query().iterator().next().let {
+                val dbVal = it.values.get(1).second as String
+                assertEquals(dbVal.length, utf8stress.length)
+                assertEquals(dbVal, utf8stress)
+            }
+        }
+
+        connection.close()
+    }
+
+    val utf8stress = """𝚊ḡηӑ 𝑓ṟĭṅᶃℹɬŀā ựᶉπ𝓪 ṗ૦𝓻τṯí𝞃ỡ𝐫 𝓻𝘩ỡ𝙣ϲų𝐬 𝖽𝖔ɭοꝛ ṕü𝘳ũ𝑠. Ł𝝸ճȩⲅò 𝗇ųղ𝑐 сṏդṣẹ𝓺𝓊α𝙩 ᶖηȶ𝖾ṝɖųᵯ 𝞶𝛂яᶖǖ𝗌 𝑠і𝜏 𝝰ṁėτ. Ở𝖽ĭ𝞸 ḟ𝗮ⲥ𝙞ł𝙞ꞩꙇȿ ṁắųɽ𝑖𝓈 𝗌ɪ𝞽 âмę𝓽 ᵯȃꜱƽ𝒂 𝝂íҭấе 𝑡ö𝗿𝗍ȱг ċ𝛔𝝿đ𝜾ṃė𝐧𝞃𝓊м. Ẹẗ м𝝰ḹ𝕖ᵴμ𝑎𝑑а 𝑓àṁ𝓮ş äс 𝛕ṻ𝙧ꝑⅈѕ. 𝛢с ҭ𝛔𝕣𝚝𝓸ɍ 𝚟ɩᵵ𝚊ể 𝜌ứяứ𝑠 𝗳𝖆ǖ𐐽𝗶Ъμṥ ợⲅп𝜶𝑟ẻ şửś𝖕ⱸ𝔫𝒹ⅰş𝓈𝔢 ᵴ𝖊δ 𝗇ıᶊ𝙞. 𝝡ỏŕᖯḭ ƞ𝗼ᶇ ӑ𝙧𝒄ú ṟ𝜄𝑠ȕʂ 𝕢𝘶íṥ 𝝂𝑎яᶖủ𝓈 ԛ𝔲àṁ. 𝒱ị𝞽ăⅇ 𝙟ṹꜱτǒ ӭ𝖌ĕ𝓉 ḿẵǥñӓ ᶂ𝕖гᵯȅṇṫủм îảⲥûḷ𝜾𝙨 𝖊𝑢 𝛑ꝋ𝓃 𝖉𝖎ӑᶆ 𝒑𝐡â𝘀әɬꝉự𝑠. Íȵ 𝘥ì𝔠𝕥ửṁ 𝜋ợ𝗇 ḉⲟ𝐧𝖘єȼȶ𝗲𝗍ừⲅ 𝚊. Ḍıâḿ ɱǡ𝚎𝕔επ𝙖ś 𝙨ξႻ ξղ𝖎ḿ ụʈ"""
 }
