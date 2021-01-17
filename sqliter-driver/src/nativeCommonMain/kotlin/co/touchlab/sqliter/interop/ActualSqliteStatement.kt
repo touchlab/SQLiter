@@ -37,7 +37,7 @@ class ActualSqliteStatement(private val db: SqliteDatabase, internal val stmtPoi
         sqlite3_column_count(stmtPointer)
 
     override fun columnName(columnIndex: Int): String =
-        sqlite3_column_name(stmtPointer, columnIndex)!!.toKStringFromUtf8()
+        bytesToString(sqlite3_column_name(stmtPointer, columnIndex)!!)
 
     override fun columnType(columnIndex: Int): Int =
         sqlite3_column_type(stmtPointer, columnIndex)
