@@ -30,7 +30,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     fun memoryOnlyTest(){
         val conf = DatabaseConfiguration(
             name = null,
-            typeConfig = DatabaseConfiguration.Type(inMemory = true),
+            inMemory = true,
             version = 1, create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
@@ -44,7 +44,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     fun memoryPathTest(){
         val conf = DatabaseConfiguration(
             name = TEST_DB_NAME,
-            typeConfig = DatabaseConfiguration.Type(inMemory = true),
+            inMemory = true,
             version = 1, create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
@@ -123,7 +123,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     fun journalModeSetting()
     {
         val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
-            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
+            journalMode = JournalMode.WAL,
             create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
@@ -150,7 +150,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         conn.close()
 
         val manager2 = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
-            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL), create = {
+            journalMode = JournalMode.WAL, create = {
                 fail("Same version shouldn't run")
             }))
 
@@ -186,8 +186,8 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         val manager = createDatabaseManager(DatabaseConfiguration(
             name = dbname,
             version = 1,
-            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
-            foreignKeyConstraints = enableFK,
+            journalMode = JournalMode.WAL,
+            extendedConfig = DatabaseConfiguration.Extended(foreignKeyConstraints = enableFK),
             create = { db ->
                 db.withStatement(AUTHOR) {
                     execute()

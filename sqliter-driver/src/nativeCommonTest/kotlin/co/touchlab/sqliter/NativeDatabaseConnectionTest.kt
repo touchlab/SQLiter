@@ -38,12 +38,12 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         val manager = createDatabaseManager(
             DatabaseConfiguration(
                 name = TEST_DB_NAME, version = 1,
+                journalMode = mode,
                 create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
                     }
                 },
-                typeConfig = DatabaseConfiguration.Type(journalMode = mode),
                 extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000)
             )
         )
@@ -117,6 +117,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         val manager = createDatabaseManager(
             DatabaseConfiguration(
                 name = TEST_DB_NAME, version = 1,
+                journalMode = JournalMode.WAL,
                 create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
@@ -133,7 +134,6 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
                     }
                 },
-                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
                 extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000)
             )
         )
@@ -194,7 +194,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
                     }
                 },
-                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.DELETE),
+                journalMode = JournalMode.DELETE,
                 extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 1500)
             )
         )
@@ -257,7 +257,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
                     }
                 },
-                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.DELETE),
+                journalMode = JournalMode.DELETE,
                 extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000)
             )
         )
@@ -301,8 +301,6 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         val block: (DatabaseConnection) -> Unit = {
             it.withTransaction {
                 it.withStatement("insert into test(num, str)values(?,?)") {
-
-
                     for (i in 0 until 10_000) {
                         bindLong(1, i.toLong())
                         bindString(2, "Oh $i")
@@ -332,38 +330,51 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
     @Test
     fun testFailedCloseRecall(){
-        val manager = createDatabaseManager(
-            DatabaseConfiguration(
-                name = TEST_DB_NAME, version = 1,
-                create = { db ->
-                    db.withStatement(TWO_COL) {
-                        execute()
-
-                    }
-
-                },
-                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 15000)
-            )
-        )
+        val manager = basicDb()
 
         val conn = manager.createMultiThreadedConnection()
         val stmt = conn.createStatement("select * from test")
 
         //FYI: This will log an error, but that's OK. We're doing the logging ourselves.
         //ERROR - sqlite3_close(0x[whatever]) failed: 5
-        assertFails { conn.close() }
-        stmt.finalizeStatement()
         conn.close()
+        stmt.finalizeStatement()
+        assertFails { conn.close() }
     }
 
-//    @Test
+    @Test
+    fun lateQueryCloseSucceeds(){
+        val manager = basicDb()
+
+        val conn = manager.createMultiThreadedConnection()
+        val stmt = conn.createStatement("select * from test")
+        val cursor = stmt.query()
+
+        //After connection close, we should still be able to finalize statements
+        conn.close()
+        stmt.finalizeStatement()
+    }
+
+    private fun basicDb() = createDatabaseManager(
+        DatabaseConfiguration(
+            name = TEST_DB_NAME, version = 1,
+            create = { db ->
+                db.withStatement(TWO_COL) {
+                    execute()
+                }
+            },
+            extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 15000)
+        )
+    )
+
+    //    @Test
     fun multipleConnectionsAndVersion() {
 
         val upgradeCalled = AtomicInt(0)
         val config1 = DatabaseConfiguration(
             name = TEST_DB_NAME,
             version = 1,
-            typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
+            journalMode = JournalMode.WAL,
             create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
@@ -450,7 +461,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                     }
 
                 },
-                typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL),
+                journalMode = JournalMode.WAL,
                 extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000)
             )
         )

@@ -38,7 +38,7 @@ class SqliteDatabase(path:String, label:String, val logger: Logger, private val 
     fun close(){
         logger.v { "close $config" }
 
-        val err = sqlite3_close(dbPointer)
+        val err = sqlite3_close_v2(dbPointer)
         if (err != SQLITE_OK) {
             // This can happen if sub-objects aren't closed first.  Make sure the caller knows.
             throw sqlException(logger, config, "sqlite3_close($dbPointer) failed", err)

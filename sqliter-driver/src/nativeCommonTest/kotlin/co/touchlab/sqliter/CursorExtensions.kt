@@ -16,7 +16,6 @@
 
 package co.touchlab.sqliter
 
-//TODO: Remove this. Just adding extra code
 fun Cursor.iterator():CursorIterator = CursorIterator(this)
 
 class Row{

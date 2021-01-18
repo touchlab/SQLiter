@@ -69,12 +69,12 @@ class NativeDatabaseManager(private val path:String,
                 }
             }
 
-            if(configuration.foreignKeyConstraints){
+            if(configuration.extendedConfig.foreignKeyConstraints){
                 conn.updateForeignKeyConstraints(true)
             }
 
             if(newConnection.value == 0){
-                conn.updateJournalMode(configuration.typeConfig.journalMode)
+                conn.updateJournalMode(configuration.journalMode)
 
                 try {
                     conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.version)

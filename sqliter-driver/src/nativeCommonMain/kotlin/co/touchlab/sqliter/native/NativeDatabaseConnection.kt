@@ -20,6 +20,7 @@ import co.touchlab.sqliter.*
 import co.touchlab.sqliter.concurrency.Lock
 import co.touchlab.sqliter.concurrency.withLock
 import co.touchlab.sqliter.interop.SqliteDatabase
+import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.AtomicReference
 import kotlin.native.concurrent.freeze
 
@@ -31,6 +32,7 @@ class NativeDatabaseConnection(
     private val transLock = Lock()
 
     internal val transaction = AtomicReference<Transaction?>(null)
+    private val closedFlag = AtomicInt(0)
 
     data class Transaction(val successful: Boolean)
 
@@ -72,9 +74,13 @@ class NativeDatabaseConnection(
     }
 
     override fun close() {
+        closedFlag.value = 1
         sqliteDatabase.close()
         dbManager.closeConnection(this)
     }
+
+    override val closed: Boolean
+        get() = closedFlag.value != 0
 
     fun migrateIfNeeded(
         create: (DatabaseConnection) -> Unit,

@@ -4,6 +4,8 @@ import kotlinx.cinterop.*
 import platform.posix.usleep
 import sqlite3.*
 
+expect inline fun bytesToString(bv:CPointer<ByteVar>):String
+
 class ActualSqliteStatement(private val db: SqliteDatabase, internal val stmtPointer: SqliteStatementPointer) :
     SqliteStatement {
 
@@ -18,7 +20,8 @@ class ActualSqliteStatement(private val db: SqliteDatabase, internal val stmtPoi
         sqlite3_column_double(stmtPointer, columnIndex)
 
     override fun columnGetString(columnIndex: Int): String =
-        sqlite3_column_text(stmtPointer, columnIndex)?.reinterpret<ByteVar>()?.toKStringFromUtf8() ?: ""
+        sqlite3_column_text(stmtPointer, columnIndex)?.reinterpret<ByteVar>()?.let { bytesToString(it) }
+            ?: ""
 
     override fun columnGetBlob(columnIndex: Int): ByteArray {
         val blobSize = sqlite3_column_bytes(stmtPointer, columnIndex)
@@ -34,7 +37,7 @@ class ActualSqliteStatement(private val db: SqliteDatabase, internal val stmtPoi
         sqlite3_column_count(stmtPointer)
 
     override fun columnName(columnIndex: Int): String =
-        sqlite3_column_name(stmtPointer, columnIndex)!!.toKStringFromUtf8()
+        bytesToString(sqlite3_column_name(stmtPointer, columnIndex)!!)
 
     override fun columnType(columnIndex: Int): Int =
         sqlite3_column_type(stmtPointer, columnIndex)
@@ -116,7 +119,7 @@ class ActualSqliteStatement(private val db: SqliteDatabase, internal val stmtPoi
 
     override fun bindString(index: Int, value: String) = opResult(db) {
         //TODO: Was using UTF 16 function previously. Do a little research.
-        sqlite3_bind_text(stmtPointer, index, value, value.length, SQLITE_TRANSIENT)
+        sqlite3_bind_text(stmtPointer, index, value, -1, SQLITE_TRANSIENT)
     }
 
     override fun bindBlob(index: Int, value: ByteArray) = opResult(db) {

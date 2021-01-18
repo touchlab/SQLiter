@@ -24,20 +24,16 @@ data class DatabaseConfiguration(
     val version: Int,
     val create: (DatabaseConnection) -> Unit,
     val upgrade: (DatabaseConnection, Int, Int) -> Unit = { _, _, _ -> },
-    val foreignKeyConstraints: Boolean = false,
-
-    val typeConfig: Type = Type(),
+    val inMemory: Boolean = false,
+    val journalMode: JournalMode = JournalMode.WAL,
     val extendedConfig:Extended = Extended(),
     val loggingConfig:Logging = Logging(),
     val lifecycleConfig:Lifecycle = Lifecycle(),
     val encryptionConfig:Encryption = Encryption()
 ) {
-    data class Type(
-        val journalMode: JournalMode = JournalMode.WAL,
-        val inMemory: Boolean = false
-    )
     data class Extended(
-        val busyTimeout: Int = 2500,
+        val foreignKeyConstraints: Boolean = false,
+        val busyTimeout: Int = 5000,
         val pageSize: Int? = null,
         val basePath: String? = null,
         )

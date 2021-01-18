@@ -13,7 +13,7 @@ class DbPerformanceTest:BaseDatabaseTest() {
                 db.withStatement(TWO_COL) {
                     execute()
                 }
-            }, typeConfig = DatabaseConfiguration.Type(journalMode = JournalMode.WAL))
+            }, journalMode = JournalMode.WAL)
         )
 
         val insertList = (0..50_000).map { i ->
