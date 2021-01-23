@@ -29,4 +29,8 @@ class TracingSqliteStatement(private val logger: Logger, private val delegate:Sq
     override fun bindString(index: Int, value: String)  = logWrapper("bindString", listOf(index, value)) {delegate.bindString(index, value)}
     override fun bindBlob(index: Int, value: ByteArray)  = logWrapper("bindBlob", listOf(index, value)) {delegate.bindBlob(index, value)}
     override fun executeNonQuery(): Int = logWrapper("executeNonQuery", emptyList()) {delegate.executeNonQuery()}
+    override fun traceLogCallback(message: String) {
+        logger.vWrite(message)
+        delegate.traceLogCallback(message)
+    }
 }

@@ -26,4 +26,6 @@ interface SqliteStatement {
     fun bindString(index: Int, value: String)
     fun bindBlob(index: Int, value: ByteArray)
     fun executeNonQuery(): Int
+
+    fun traceLogCallback(message:String)
 }

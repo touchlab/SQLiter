@@ -53,7 +53,7 @@ class ActualSqliteStatement(private val db: SqliteDatabase, internal val stmtPoi
                 return false;
             } else if (err == SQLITE_LOCKED || err == SQLITE_BUSY) {
                 // The table is locked, retry
-                trace_log("Database locked, retrying")
+                traceLogCallback("Database locked, retrying")
                 usleep(1000);
             } else {
                 throw sqlException(db.logger, db.config, "sqlite3_step failed", err)
@@ -141,5 +141,9 @@ class ActualSqliteStatement(private val db: SqliteDatabase, internal val stmtPoi
             throw sqlException(db.logger, db.config, "executeNonQuery error", err)
         }
         return err
+    }
+
+    override fun traceLogCallback(message: String) {
+        //No logging
     }
 } 

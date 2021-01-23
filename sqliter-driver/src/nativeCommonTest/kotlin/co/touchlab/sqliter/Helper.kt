@@ -25,6 +25,7 @@ val TEST_DB_NAME = "testdb"
 fun createTestDb(
     name:String = TEST_DB_NAME,
     version:Int = 1,
+    timeout:Int? = null,
     update:(DatabaseConnection, Int, Int)->Unit = {_,_,_->},
     onCreateConnection: (DatabaseConnection) -> Unit = { _ -> },
     onCloseConnection: (DatabaseConnection) -> Unit = { _ -> },
@@ -34,6 +35,10 @@ fun createTestDb(
         deleteDatabase(name)
     } catch (e: Exception) {
     }
+    var extended = DatabaseConfiguration.Extended()
+    if(timeout != null)
+        extended = extended.copy(busyTimeout = timeout)
+
     return createDatabaseManager(DatabaseConfiguration(
         name,
         version,
@@ -42,7 +47,8 @@ fun createTestDb(
         lifecycleConfig = DatabaseConfiguration.Lifecycle(
             onCreateConnection = onCreateConnection,
             onCloseConnection = onCloseConnection
-        )
+        ),
+        extendedConfig = extended
     ))
 }
 
@@ -65,12 +71,14 @@ val FOUR_COL = "CREATE TABLE test (num INTEGER NOT NULL, " +
 
 fun basicTestDb(
     createSql: String = FOUR_COL,
+    timeout: Int? = null,
     onCreateConnection: (DatabaseConnection) -> Unit = { _ -> },
     onCloseConnection: (DatabaseConnection) -> Unit = { _ -> },
     block: (DatabaseManager) -> Unit
 ) {
     val dbname = TEST_DB_NAME
     val dbManager = createTestDb(
+        timeout = timeout,
         onCreateConnection = onCreateConnection,
         onCloseConnection = onCloseConnection
     ) { db ->

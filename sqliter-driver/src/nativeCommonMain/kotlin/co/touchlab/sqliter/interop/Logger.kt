@@ -2,13 +2,6 @@ package co.touchlab.sqliter.interop
 
 internal const val LOG_TRACE = true
 
-internal inline fun trace_log(s: String) {
-    if (LOG_TRACE) {
-        print("trace - ")
-        println(s)
-    }
-}
-
 interface Logger {
     fun trace(message: String)
     val vActive:Boolean
@@ -16,7 +9,6 @@ interface Logger {
     val eActive:Boolean
     fun eWrite(message: String, exception: Throwable? = null)
 }
-
 
 inline fun Logger.v(block:()->String){
     if(vActive)
