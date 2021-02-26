@@ -12,7 +12,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macOS-latest, windows-latest]
+        os: [ macOS-latest, windows-latest, ubuntu-latest ]
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout the repo
@@ -24,6 +24,10 @@ jobs:
           msystem: MINGW64
           update: true
           install: git mingw-w64-x86_64-toolchain libsqlite
+      - name: Install libsqlite3-dev
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update && sudo apt-get install -y libsqlite3-dev
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
       - name: Cache gradle
