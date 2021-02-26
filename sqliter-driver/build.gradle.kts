@@ -24,7 +24,7 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
                 "-linker-options",
                 "-lsqlite3 -L/usr/lib/x86_64-linux-gnu" //just /usr/lib for arch
             )
-            HostManager.hostIsMingw -> listOf("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
+            HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
             else -> listOf("-linker-options", "-lsqlite3")
         }
     }
