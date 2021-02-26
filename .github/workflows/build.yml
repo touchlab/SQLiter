@@ -27,7 +27,7 @@ jobs:
       - name: Install libsqlite3-dev
         if: matrix.os == 'ubuntu-latest'
         run: |
-          sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+          sudo apt-get update && sudo apt-get install -y libsqlite3-dev && locate sqlite3
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
       - name: Cache gradle

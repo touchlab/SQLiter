@@ -43,7 +43,7 @@ kotlin {
 		val test by target.compilations.getting
 
 		if (target.name.startsWith("linux")) {
-			test.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-lsqlite3 -L/usr/lib")
+			test.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-lsqlite3 -L/usr/lib/x86_64-linux-gnu")
 		} else {
 			test.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-lsqlite3")
 		}
