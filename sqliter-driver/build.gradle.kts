@@ -1,3 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
+
 plugins {
     kotlin("multiplatform") version "1.5.0"
 }
@@ -13,13 +17,21 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
     val sqlite3 by main.cinterops.creating {
         includeDirs("$projectDir/src/include")
     }
+
+    target.compilations.forEach { kotlinNativeCompilation ->
+        kotlinNativeCompilation.kotlinOptions.freeCompilerArgs += when {
+            HostManager.hostIsLinux -> listOf(
+                "-linker-options",
+                "-lsqlite3 -L/usr/lib/x86_64-linux-gnu" //just /usr/lib for arch
+            )
+            HostManager.hostIsMingw -> listOf("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
+            else -> listOf("-linker-options", "-lsqlite3")
+        }
+    }
 }
 
-val onWindows = org.jetbrains.kotlin.konan.target.HostManager.hostIsMingw
-
 kotlin {
-    val knTargets =
-        listOf(
+    val knTargets = listOf(
             macosX64(),
             iosX64(),
             iosArm64(),
@@ -43,16 +55,11 @@ kotlin {
                 }
             }
         )
-    knTargets.forEach { configInterop(it) }
+    }
 
     knTargets
         .forEach { target ->
             configInterop(target)
-            val test by target.compilations.getting
-
-            if (!target.name.startsWith("mingw") && !target.name.startsWith("linux")) {
-                test.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-lsqlite3")
-            }
         }
 
     sourceSets {
