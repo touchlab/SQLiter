@@ -103,22 +103,6 @@ publishing {
   }
 }
 
-tasks.register('publishMac') {
-  dependsOn 'publishIosArm32PublicationToMavenRepository'
-  dependsOn 'publishIosArm64PublicationToMavenRepository'
-  dependsOn 'publishIosX64PublicationToMavenRepository'
-  dependsOn 'publishMacosX64PublicationToMavenRepository'
-
-  dependsOn 'publishTvosArm64PublicationToMavenRepository'
-  dependsOn 'publishTvosX64PublicationToMavenRepository'
-  dependsOn 'publishWatchosArm32PublicationToMavenRepository'
-  dependsOn 'publishWatchosArm64PublicationToMavenRepository'
-  dependsOn 'publishWatchosX86PublicationToMavenRepository'
-
-  dependsOn 'publishMetadataPublicationToMavenRepository'
-  dependsOn 'publishKotlinMultiplatformPublicationToMavenRepository'
-}
-
 tasks.register('publishWindows') {
   dependsOn 'publishMingwPublicationToMavenRepository'
 }
