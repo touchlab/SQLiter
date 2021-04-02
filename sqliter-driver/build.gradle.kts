@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "1.4.31"
+    kotlin("multiplatform") version "1.4.21"
 }
 
 val GROUP: String by project
