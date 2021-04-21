@@ -5,7 +5,7 @@ import cnames.structs.sqlite3_stmt
 import kotlinx.cinterop.*
 import sqlite3.*
 
-class SqliteDatabase(path:String, label:String, val logger: Logger, private val verboseDataCalls: Boolean, internal val dbPointer:SqliteDatabasePointer) {
+class SqliteDatabase(path:String, label:String, val logger: Logger, private val verboseDataCalls: Boolean, val dbPointer:SqliteDatabasePointer) {
     val config = SqliteDatabaseConfig(path, label)
 
     fun prepareStatement(sqlString: String): SqliteStatement {
