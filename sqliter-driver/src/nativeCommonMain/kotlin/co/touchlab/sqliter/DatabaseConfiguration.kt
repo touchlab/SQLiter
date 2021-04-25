@@ -36,7 +36,9 @@ data class DatabaseConfiguration(
         val busyTimeout: Int = 5000,
         val pageSize: Int? = null,
         val basePath: String? = null,
-        )
+        val synchronousFlag: SynchronousFlag? = null,
+        val recursiveTriggers: Boolean = false
+    )
     data class Logging(
         val logger: Logger = WarningLogger,
         val verboseDataCalls: Boolean = false
@@ -93,4 +95,8 @@ enum class JournalMode {
                 DELETE
             }
     }
+}
+
+enum class SynchronousFlag(val value: Int) {
+    OFF(0), NORMAL(1), FULL(2), EXTRA(3);
 }

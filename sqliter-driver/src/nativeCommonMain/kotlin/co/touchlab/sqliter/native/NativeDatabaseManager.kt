@@ -58,6 +58,10 @@ class NativeDatabaseManager(private val path:String,
             val conn = NativeDatabaseConnection(this, connectionPtrArg)
             configuration.lifecycleConfig.onCreateConnection(conn)
 
+            if (configuration.extendedConfig.synchronousFlag != null) {
+                conn.updateSynchronousFlag(configuration.extendedConfig.synchronousFlag)
+            }
+
             if (configuration.encryptionConfig.rekey == null) {
                 configuration.encryptionConfig.key?.let { conn.setCipherKey(it) }
             } else {
@@ -69,9 +73,15 @@ class NativeDatabaseManager(private val path:String,
                 }
             }
 
-            if(configuration.extendedConfig.foreignKeyConstraints){
-                conn.updateForeignKeyConstraints(true)
-            }
+            // These flags should be explicitly set on each connection at all times.
+            //
+            // "should set the foreign key enforcement flag [...] and not depend on the default setting."
+            // https://www.sqlite.org/pragma.html#pragma_foreign_keys
+            // "Recursive triggers may be turned on by default in future versions of SQLite."
+            // https://www.sqlite.org/pragma.html#pragma_recursive_triggers
+            conn.updateForeignKeyConstraints(configuration.extendedConfig.foreignKeyConstraints)
+            conn.updateRecursiveTriggers(configuration.extendedConfig.recursiveTriggers)
+
 
             if(newConnection.value == 0){
                 conn.updateJournalMode(configuration.journalMode)
