@@ -20,7 +20,7 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
         kotlinNativeCompilation.kotlinOptions.freeCompilerArgs += when {
             HostManager.hostIsLinux -> listOf(
                 "-linker-options",
-                "-lsqlite3 -L/usr/lib/x86_64-linux-gnu" //just /usr/lib for arch
+                "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib"
             )
             HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
             else -> listOf("-linker-options", "-lsqlite3")
@@ -30,23 +30,8 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 
 kotlin {
     val knTargets = when {
-        HostManager.hostIsMingw -> listOf(
-            mingwX64("mingw") {
-                compilations.forEach {
-                    it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
-                }
-            }
-        )
-        HostManager.hostIsLinux -> listOf(
-            linuxX64 {
-                compilations.forEach {
-                    it.kotlinOptions.freeCompilerArgs += listOf(
-                        "-linker-options",
-                        "-lsqlite3 -L/usr/lib/x86_64-linux-gnu" //just /usr/lib for arch
-                    )
-                }
-            }
-        )
+        HostManager.hostIsMingw -> listOf(mingwX64("mingw"))
+        HostManager.hostIsLinux -> listOf(linuxX64())
         else -> listOf(
             macosX64(),
             iosX64(),
