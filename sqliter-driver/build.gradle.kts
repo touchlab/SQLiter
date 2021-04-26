@@ -29,30 +29,36 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 }
 
 kotlin {
-    val knTargets = listOf(
-        macosX64(),
-        iosX64(),
-        iosArm64(),
-        iosArm32(),
-        watchosArm32(),
-        watchosArm64(),
-        watchosX86(),
-        watchosX64(),tvosArm64(),
-        tvosX64(),
-        mingwX64("mingw") {
-            compilations.forEach {
-                it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
+    val knTargets = when {
+        HostManager.hostIsMingw -> listOf(
+            mingwX64("mingw") {
+                compilations.forEach {
+                    it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
+                }
             }
-        },
-        linuxX64 {
-            compilations.forEach {
-                it.kotlinOptions.freeCompilerArgs += listOf(
-                    "-linker-options",
-                    "-lsqlite3 -L/usr/lib/x86_64-linux-gnu" //just /usr/lib for arch
-                )
+        )
+        HostManager.hostIsLinux -> listOf(
+            linuxX64 {
+                compilations.forEach {
+                    it.kotlinOptions.freeCompilerArgs += listOf(
+                        "-linker-options",
+                        "-lsqlite3 -L/usr/lib/x86_64-linux-gnu" //just /usr/lib for arch
+                    )
+                }
             }
-        }
-    )
+        )
+        else -> listOf(
+            macosX64(),
+            iosX64(),
+            iosArm64(),
+            iosArm32(),
+            watchosArm32(),
+            watchosArm64(),
+            watchosX86(),
+            tvosArm64(),
+            tvosX64()
+        )
+    }
 
     knTargets
         .forEach { target ->
