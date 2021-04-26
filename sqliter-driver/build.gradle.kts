@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
@@ -32,30 +30,29 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 
 kotlin {
     val knTargets = listOf(
-            macosX64(),
-            iosX64(),
-            iosArm64(),
-            iosArm32(),
-            watchosArm32(),
-            watchosArm64(),
-            watchosX86(),
-            watchosX64(),tvosArm64(),
-            tvosX64(),
-            mingwX64("mingw") {
-                compilations.forEach {
-                    it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
-                }
-            },
-            linuxX64 {
-                compilations.forEach {
-                    it.kotlinOptions.freeCompilerArgs += listOf(
-                        "-linker-options",
-                        "-lsqlite3 -L/usr/lib/x86_64-linux-gnu" //just /usr/lib for arch
-                    )
-                }
+        macosX64(),
+        iosX64(),
+        iosArm64(),
+        iosArm32(),
+        watchosArm32(),
+        watchosArm64(),
+        watchosX86(),
+        watchosX64(),tvosArm64(),
+        tvosX64(),
+        mingwX64("mingw") {
+            compilations.forEach {
+                it.kotlinOptions.freeCompilerArgs += listOf("-linker-options", "-Lc:\\msys64\\mingw64\\lib")
             }
-        )
-    }
+        },
+        linuxX64 {
+            compilations.forEach {
+                it.kotlinOptions.freeCompilerArgs += listOf(
+                    "-linker-options",
+                    "-lsqlite3 -L/usr/lib/x86_64-linux-gnu" //just /usr/lib for arch
+                )
+            }
+        }
+    )
 
     knTargets
         .forEach { target ->
@@ -86,24 +83,24 @@ kotlin {
         }
 
 
-            val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
-                dependsOn(nativeCommonMain)
-            }
-            knTargets.forEach { target ->
-                when {
-                    target.name.startsWith("mingw") -> {
-                        target.compilations.getByName("main").source(mingwMain)
-                        target.compilations.getByName("test").source(nativeCommonTest)
-                    }
-                    target.name.startsWith("linux") -> {
-                        target.compilations.getByName("main").source(linuxMain)
-                        target.compilations.getByName("test").source(nativeCommonTest)
-                    }
-                    else -> {
-                        target.compilations.getByName("main").source(appleMain)
-                        target.compilations.getByName("test").source(nativeCommonTest)
-                    }
+        val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
+            dependsOn(nativeCommonMain)
+        }
+        knTargets.forEach { target ->
+            when {
+                target.name.startsWith("mingw") -> {
+                    target.compilations.getByName("main").source(mingwMain)
+                    target.compilations.getByName("test").source(nativeCommonTest)
                 }
+                target.name.startsWith("linux") -> {
+                    target.compilations.getByName("main").source(linuxMain)
+                    target.compilations.getByName("test").source(nativeCommonTest)
+                }
+                else -> {
+                    target.compilations.getByName("main").source(appleMain)
+                    target.compilations.getByName("test").source(nativeCommonTest)
+                }
+            }
 
         }
     }
