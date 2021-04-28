@@ -93,7 +93,7 @@ internal class File(dirPath:String? = null, name:String) {
         }
         // Reuse the original string if possible.
         return if (newLength != length) {
-            String(newPath)
+            newPath.concatToString()
         } else {
             origPath
         }
