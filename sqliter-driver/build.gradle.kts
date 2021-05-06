@@ -40,6 +40,7 @@ kotlin {
             watchosArm32(),
             watchosArm64(),
             watchosX86(),
+            watchosX64(),
             tvosArm64(),
             tvosX64()
         )
