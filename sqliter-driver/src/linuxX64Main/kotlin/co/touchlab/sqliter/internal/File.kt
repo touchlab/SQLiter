@@ -109,9 +109,7 @@ internal class File(dirPath: String? = null, name: String) {
         }
         // Reuse the original string if possible.
         return if (newLength != length) {
-            val sb = StringBuilder(newLength)
-            sb.append(newPath)
-            sb.toString()
+            newPath.concatToString()
         } else {
             origPath
         }
