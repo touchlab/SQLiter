@@ -1,4 +1,4 @@
-package = sqlite3
+package = co.touchlab.sqliter.sqlite3
 headers = sqlite3.h
 headerFilter = sqlite3*.h
 

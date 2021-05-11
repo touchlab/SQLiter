@@ -59,9 +59,7 @@ fun DatabaseConnection.stringForQuery(sql: String): String = withStatement(sql) 
  * @param cipherKey the database cipher key
  */
 fun DatabaseConnection.setCipherKey(cipherKey: String) {
-    withStatement("PRAGMA key = ?;"){
-        bindString(1, cipherKey)
-    }
+    stringForQuery("PRAGMA key = '${cipherKey.escapeSql()}';")
 }
 
 /**
@@ -74,10 +72,10 @@ fun DatabaseConnection.setCipherKey(cipherKey: String) {
 //TODO: Maybe figure out key suppress in log?
 fun DatabaseConnection.resetCipherKey(oldKey: String, newKey: String) {
     setCipherKey(oldKey)
-    withStatement("PRAGMA rekey = ?;"){
-        bindString(1, newKey)
-    }
+    stringForQuery("PRAGMA rekey = '${newKey.escapeSql()}';")
 }
+
+private fun String.escapeSql() = this.replace(oldValue = "'", newValue = "''")
 
 /**
  * Gets the database version.

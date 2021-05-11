@@ -2,7 +2,7 @@ package co.touchlab.sqliter.interop
 
 import kotlinx.cinterop.*
 import platform.posix.usleep
-import sqlite3.*
+import co.touchlab.sqliter.sqlite3.*
 
 expect inline fun bytesToString(bv:CPointer<ByteVar>):String
 
