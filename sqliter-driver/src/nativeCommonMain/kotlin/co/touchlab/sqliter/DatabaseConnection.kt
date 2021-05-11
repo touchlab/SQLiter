@@ -105,10 +105,15 @@ fun DatabaseConnection.updateJournalMode(value: JournalMode): JournalMode {
 }
 
 fun DatabaseConnection.updateForeignKeyConstraints(enabled: Boolean) {
-    val newValue = if (enabled) {
-        1
-    } else {
-        0
-    }
-    withStatement("PRAGMA foreign_keys=$newValue") { execute() }
+    withStatement("PRAGMA foreign_keys=${enabled.toInt()}") { execute() }
 }
+
+fun DatabaseConnection.updateSynchronousFlag(flag: SynchronousFlag) {
+    withStatement("PRAGMA synchronous=${flag.value}") { execute() }
+}
+
+fun DatabaseConnection.updateRecursiveTriggers(enabled: Boolean) {
+    withStatement("PRAGMA recursive_triggers=${enabled.toInt()}") { execute() }
+}
+
+private fun Boolean.toInt(): Int = if (this) 1 else 0
