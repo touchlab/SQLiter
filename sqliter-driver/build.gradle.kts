@@ -29,10 +29,7 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 }
 
 kotlin {
-    val knTargets = when {
-        HostManager.hostIsMingw -> listOf(mingwX64("mingw"))
-        HostManager.hostIsLinux -> listOf(linuxX64())
-        else -> listOf(
+    val knTargets = listOf(
             macosX64(),
             iosX64(),
             iosArm64(),
@@ -42,9 +39,10 @@ kotlin {
             watchosX86(),
             watchosX64(),
             tvosArm64(),
-            tvosX64()
+            tvosX64(),
+            mingwX64("mingw"),
+            linuxX64()
         )
-    }
 
     knTargets
         .forEach { target ->
@@ -96,6 +94,11 @@ kotlin {
 
         }
     }
+}
+
+if(!HostManager.hostIsLinux) {
+    tasks.findByName("linuxX64Test")?.enabled = false
+    tasks.findByName("linkDebugTestLinuxX64")?.enabled = false
 }
 
 apply(from = "../gradle/gradle-mvn-mpp-push.gradle")
