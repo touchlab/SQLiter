@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
     kotlin("multiplatform")
@@ -48,7 +48,7 @@ fun disableCompilation(targets: List<KotlinNativeTarget>) {
 }
 
 kotlin {
-    val knTargets = mutableListOf(
+    val knTargets = listOf(
         linuxX64(),
         mingwX64("mingw"),
         macosX64(),
