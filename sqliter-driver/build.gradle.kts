@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     kotlin("multiplatform")
@@ -10,7 +11,7 @@ val VERSION_NAME: String by project
 group = GROUP
 version = VERSION_NAME
 
-fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget) {
+fun configInterop(target: KotlinNativeTarget) {
     val main by target.compilations.getting
     val sqlite3 by main.cinterops.creating {
         includeDirs("$projectDir/src/include")
@@ -28,22 +29,55 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
     }
 }
 
+fun disableCompilation(targets: List<KotlinNativeTarget>) {
+    configure(targets) {
+        compilations.all {
+            cinterops.all { project.tasks[interopProcessingTaskName].enabled = false }
+            compileKotlinTask.enabled = false
+        }
+        binaries.all { linkTask.enabled = false }
+        mavenPublication {
+            tasks.withType(AbstractPublishToMaven::class).all {
+                onlyIf { publication != this@mavenPublication }
+            }
+            tasks.withType(GenerateModuleMetadata::class).all {
+                onlyIf { publication.get() != this@mavenPublication }
+            }
+        }
+    }
+}
+
 kotlin {
-    val knTargets = when {
-        HostManager.hostIsMingw -> listOf(mingwX64("mingw"))
-        HostManager.hostIsLinux -> listOf(linuxX64())
-        else -> listOf(
-            macosX64(),
-            iosX64(),
-            iosArm64(),
-            iosArm32(),
-            watchosArm32(),
-            watchosArm64(),
-            watchosX86(),
-            watchosX64(),
-            tvosArm64(),
-            tvosX64()
-        )
+    val knTargets = mutableListOf(
+        linuxX64(),
+        mingwX64("mingw"),
+        macosX64(),
+        iosX64(),
+        iosArm64(),
+        iosArm32(),
+        watchosArm32(),
+        watchosArm64(),
+        watchosX86(),
+        watchosX64(),
+        tvosArm64(),
+        tvosX64()
+    )
+
+    when {
+        HostManager.hostIsLinux -> {
+            disableCompilation(knTargets.filter { it != linuxX64() })
+        }
+        HostManager.hostIsMingw -> {
+            disableCompilation(knTargets.filter { it != mingwX64("mingw") })
+        }
+        else -> {
+            disableCompilation(
+                listOf(
+                    linuxX64(),
+                    mingwX64("mingw")
+                )
+            )
+        }
     }
 
     knTargets
@@ -93,7 +127,6 @@ kotlin {
                     target.compilations.getByName("test").source(nativeCommonTest)
                 }
             }
-
         }
     }
 }
