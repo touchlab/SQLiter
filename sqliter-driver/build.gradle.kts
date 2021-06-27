@@ -104,3 +104,6 @@ if(!HostManager.hostIsLinux) {
 
 apply(from = "../gradle/gradle-mvn-mpp-push.gradle")
 
+tasks.register("publishMac"){
+    setDependsOn(tasks.filter { t -> t.name.startsWith("publish") && t.name.endsWith("ToMavenRepository") && !t.name.contains("Linux") }.map { it.name })
+}
