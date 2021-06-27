@@ -99,6 +99,7 @@ kotlin {
 if(!HostManager.hostIsLinux) {
     tasks.findByName("linuxX64Test")?.enabled = false
     tasks.findByName("linkDebugTestLinuxX64")?.enabled = false
+    tasks.findByName("publishLinuxX64PublicationToMavenRepository")?.enabled = false
 }
 
 apply(from = "../gradle/gradle-mvn-mpp-push.gradle")
