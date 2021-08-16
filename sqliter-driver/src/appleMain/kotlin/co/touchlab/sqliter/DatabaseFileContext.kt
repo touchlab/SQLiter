@@ -48,7 +48,7 @@ actual object DatabaseFileContext{
         return databaseDirectory
     }
 
-    internal fun databaseFile(databaseName:String, datapathPath:String?):File = File(datapathPath?:databaseDirPath(), databaseName)
+    internal actual fun databaseFile(databaseName:String, datapathPath:String?):File = File(datapathPath?:databaseDirPath(), databaseName)
 
     internal fun deleteDatabaseFile(file:File):Boolean {
         var deleted = false

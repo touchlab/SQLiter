@@ -16,7 +16,6 @@
 
 package co.touchlab.sqliter
 
-import platform.posix.usleep
 import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.TransferMode
 import kotlin.native.concurrent.Worker

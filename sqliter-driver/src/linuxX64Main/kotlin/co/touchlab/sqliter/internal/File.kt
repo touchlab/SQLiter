@@ -19,9 +19,9 @@ package co.touchlab.sqliter.internal
 import kotlinx.cinterop.*
 import platform.posix.*
 
-internal class File(dirPath: String? = null, name: String) {
+internal actual class File(dirPath: String? = null, name: String) {
 
-    val path: String
+    actual val path: String
 
     init {
         if (dirPath == null || dirPath.isEmpty()) {

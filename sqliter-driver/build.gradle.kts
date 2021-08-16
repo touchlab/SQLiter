@@ -71,24 +71,21 @@ kotlin {
         val linuxMain = sourceSets.maybeCreate("linuxX64Main").apply {
             dependsOn(nativeCommonMain)
         }
-
-
+        
         val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
             dependsOn(nativeCommonMain)
         }
         knTargets.forEach { target ->
             when {
                 target.name.startsWith("mingw") -> {
-                    target.compilations.getByName("main").source(mingwMain)
-                    target.compilations.getByName("test").source(nativeCommonTest)
+                    target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
                 target.name.startsWith("linux") -> {
-                    target.compilations.getByName("main").source(linuxMain)
-                    target.compilations.getByName("test").source(nativeCommonTest)
+                    target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
                 else -> {
-                    target.compilations.getByName("main").source(appleMain)
-                    target.compilations.getByName("test").source(nativeCommonTest)
+                    target.compilations.getByName("main").defaultSourceSet.dependsOn(appleMain)
+                    target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
             }
 

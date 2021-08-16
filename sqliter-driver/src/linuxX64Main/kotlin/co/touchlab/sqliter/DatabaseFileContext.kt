@@ -31,7 +31,7 @@ actual object DatabaseFileContext {
 
     internal fun getHomeDirPath(): String? = getenv("HOME")?.toKString()
 
-    internal fun databaseFile(databaseName: String, datapathPath: String?): File =
+    internal actual fun databaseFile(databaseName: String, datapathPath: String?): File =
         File(datapathPath ?: databaseDirPath(), databaseName)
 
     internal fun deleteDatabaseFile(file: File): Boolean {
