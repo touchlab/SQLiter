@@ -13,7 +13,7 @@ actual object DatabaseFileContext {
         return databaseFile(databaseName, datapathPath).path
     }
 
-    internal fun databaseFile(databaseName:String, datapathPath:String?):File {
+    internal actual fun databaseFile(databaseName:String, datapathPath:String?):File {
         return File(datapathPath ?: Utils.getUserDirectory(), databaseName)
     }
 

@@ -16,7 +16,7 @@
 
 package co.touchlab.sqliter
 
-import platform.posix.usleep
+import co.touchlab.sqliter.util.usleep
 import kotlin.native.concurrent.*
 import kotlin.system.getTimeMillis
 import kotlin.test.*
@@ -269,7 +269,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                     val cursor = query()
                     cursor.next()
                     try {
-                        usleep(4_000_000)
+                        usleep(4_000_000u)
                         while (cursor.next()) {
                             println("cursor ${cursor.getLong(0)}/${cursor.getString(1)}")
                         }
@@ -284,7 +284,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
             println("FIRST RUN")
             queryBlock(it)
-            usleep(4_000_000)
+            usleep(4_000_000u)
             println("SECOND RUN")
             queryBlock(it)
         }
@@ -419,7 +419,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
             val worker = Worker.start()
             val future = worker.execute(TransferMode.SAFE, { Pair(manager, block).freeze() }) {
                 try {
-                    usleep(500_000)
+                    usleep(500_000u)
                     it.first.withConnection(it.second)
                     return@execute true
                 } catch (e: Exception) {
