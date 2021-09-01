@@ -81,6 +81,15 @@ kotlin {
         val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
             dependsOn(nativeCommonMain)
         }
+
+        val mingwX64Main = sourceSets.maybeCreate("mingwX64Main").apply {
+            dependsOn(mingwMain)
+        }
+
+        val mingwX86Main = sourceSets.maybeCreate("mingwX86Main").apply {
+            dependsOn(mingwMain)
+        }
+
         knTargets.forEach { target ->
             when {
                 target.name.startsWith("mingw") -> {
