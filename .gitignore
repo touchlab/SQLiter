@@ -55,4 +55,7 @@ backend.native/tests/teamcity-test.property
 samples/**/*.kt.bc-build
 samples/androidNativeActivity/Polyhedron
 
+# Sources copied from mingwX64
+/sqliter-driver/src/mingwX86Main/
+
 .vscode

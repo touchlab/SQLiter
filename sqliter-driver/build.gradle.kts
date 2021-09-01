@@ -44,7 +44,8 @@ kotlin {
             iosSimulatorArm64(),
             watchosSimulatorArm64(),
             tvosSimulatorArm64(),
-            mingwX64("mingw"),
+            mingwX64(),
+            mingwX86(),
             linuxX64()
         )
 
@@ -75,10 +76,13 @@ kotlin {
         val linuxMain = sourceSets.maybeCreate("linuxX64Main").apply {
             dependsOn(nativeCommonMain)
         }
-        
-        val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
+        val mingwX64Main = sourceSets.maybeCreate("mingwX64Main").apply {
             dependsOn(nativeCommonMain)
         }
+        val mingwX86Main = sourceSets.maybeCreate("mingwX86Main").apply {
+            dependsOn(nativeCommonMain)
+        }
+
         knTargets.forEach { target ->
             when {
                 target.name.startsWith("mingw") -> {
@@ -108,3 +112,12 @@ apply(from = "../gradle/gradle-mvn-mpp-push.gradle")
 tasks.register("publishMac"){
     setDependsOn(tasks.filter { t -> t.name.startsWith("publish") && t.name.endsWith("ToMavenRepository") && !t.name.contains("Linux") }.map { it.name })
 }
+
+// Copy source files from mingwX64 for mingwX86 to avoid duplicated code in repository.
+tasks.register("copyMingwSourcesForX86") {
+    val sourceDir = File("$projectDir/src/mingwX64Main")
+    val destinationDir = File("$projectDir/src/mingwX86Main")
+    sourceDir.copyRecursively(destinationDir, overwrite = true)
+}
+
+tasks.findByName("compileKotlinMingwX86")!!.dependsOn("copyMingwSourcesForX86")
