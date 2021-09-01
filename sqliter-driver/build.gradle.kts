@@ -14,6 +14,7 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
     val main by target.compilations.getting
     val sqlite3 by main.cinterops.creating {
         includeDirs("$projectDir/src/include")
+//      extraOpts = listOf("-mode", "sourcecode")
     }
 
     target.compilations.forEach { kotlinNativeCompilation ->
@@ -44,7 +45,8 @@ kotlin {
             iosSimulatorArm64(),
             watchosSimulatorArm64(),
             tvosSimulatorArm64(),
-            mingwX64("mingw"),
+            mingwX64(),
+            mingwX86(),
             linuxX64()
         )
 
@@ -82,6 +84,7 @@ kotlin {
         knTargets.forEach { target ->
             when {
                 target.name.startsWith("mingw") -> {
+                    target.compilations.getByName("main").defaultSourceSet.dependsOn(mingwMain)
                     target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
                 target.name.startsWith("linux") -> {
