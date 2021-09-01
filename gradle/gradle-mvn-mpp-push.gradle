@@ -97,7 +97,8 @@ publishing {
 }
 
 tasks.register('publishWindows') {
-  dependsOn 'publishMingwPublicationToMavenRepository'
+  dependsOn 'publishMingwX86PublicationToMavenRepository'
+  dependsOn 'publishMingwX64PublicationToMavenRepository'
 }
 
 tasks.register('publishLinux') {
