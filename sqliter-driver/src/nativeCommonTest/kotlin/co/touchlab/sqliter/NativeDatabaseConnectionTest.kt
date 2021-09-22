@@ -16,7 +16,7 @@
 
 package co.touchlab.sqliter
 
-import co.touchlab.sqliter.util.usleep
+import platform.posix.usleep
 import kotlin.native.concurrent.*
 import kotlin.system.getTimeMillis
 import kotlin.test.*

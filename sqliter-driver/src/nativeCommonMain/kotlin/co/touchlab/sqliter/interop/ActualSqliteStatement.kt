@@ -2,7 +2,7 @@ package co.touchlab.sqliter.interop
 
 import kotlinx.cinterop.*
 import co.touchlab.sqliter.sqlite3.*
-import co.touchlab.sqliter.util.usleep
+import platform.posix.usleep
 
 expect inline fun bytesToString(bv:CPointer<ByteVar>):String
 
@@ -54,7 +54,7 @@ class ActualSqliteStatement(private val db: SqliteDatabase, internal val stmtPoi
             } else if (err == SQLITE_LOCKED || err == SQLITE_BUSY) {
                 // The table is locked, retry
                 traceLogCallback("Database locked, retrying")
-                usleep(1000u);
+                usleep(1000u)
             } else {
                 throw sqlException(db.logger, db.config, "sqlite3_step failed", err)
             }
