@@ -115,6 +115,12 @@ if(!HostManager.hostIsLinux) {
     tasks.findByName("publishLinuxX64PublicationToMavenRepository")?.enabled = false
 }
 
+if(!HostManager.hostIsMingw) {
+    tasks.findByName("mingwX64Test")?.enabled = false
+    tasks.findByName("linkDebugTestMingwX64")?.enabled = false
+    tasks.findByName("publishMingwX64PublicationToMavenRepository")?.enabled = false
+}
+
 apply(from = "../gradle/gradle-mvn-mpp-push.gradle")
 
 tasks.register("publishMac"){

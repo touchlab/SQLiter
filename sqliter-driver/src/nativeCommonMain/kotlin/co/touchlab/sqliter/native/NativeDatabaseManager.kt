@@ -23,14 +23,14 @@ import co.touchlab.sqliter.concurrency.SingleThreadDatabaseConnection
 import co.touchlab.sqliter.concurrency.withLock
 import co.touchlab.sqliter.interop.OpenFlags
 import co.touchlab.sqliter.interop.dbOpen
+import co.touchlab.sqliter.util.maybeFreeze
 import kotlin.native.concurrent.AtomicInt
-import kotlin.native.concurrent.freeze
 
 class NativeDatabaseManager(private val path:String,
                             override val configuration: DatabaseConfiguration
 ): DatabaseManager {
     override fun createMultiThreadedConnection(): DatabaseConnection {
-        return ConcurrentDatabaseConnection(createConnection()).freeze()
+        return ConcurrentDatabaseConnection(createConnection()).maybeFreeze()
     }
 
     override fun createSingleThreadedConnection(): DatabaseConnection {
