@@ -22,6 +22,7 @@ import kotlin.native.concurrent.ensureNeverFrozen
 class SingleThreadDatabaseConnection(delegateConnection: DatabaseConnection):DatabaseConnection by delegateConnection
 {
     init {
-        ensureNeverFrozen()
+        if (Platform.memoryModel == MemoryModel.STRICT)
+            ensureNeverFrozen()
     }
 }

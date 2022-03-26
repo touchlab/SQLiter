@@ -20,9 +20,9 @@ import co.touchlab.sqliter.*
 import co.touchlab.sqliter.concurrency.Lock
 import co.touchlab.sqliter.concurrency.withLock
 import co.touchlab.sqliter.interop.SqliteDatabase
+import co.touchlab.sqliter.util.maybeFreeze
 import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.AtomicReference
-import kotlin.native.concurrent.freeze
 
 class NativeDatabaseConnection(
     val dbManager: NativeDatabaseManager,
@@ -36,6 +36,10 @@ class NativeDatabaseConnection(
 
     data class Transaction(val successful: Boolean)
 
+    override fun rawExecSql(sql: String) {
+        sqliteDatabase.rawExecSql(sql)
+    }
+
     override fun createStatement(sql: String): Statement {
         val statementPtr = sqliteDatabase.prepareStatement(sql)
         val statement = NativeStatement(this, statementPtr, sql)
@@ -45,12 +49,12 @@ class NativeDatabaseConnection(
 
     override fun beginTransaction() = transLock.withLock {
         withStatement("BEGIN;") { execute() }
-        transaction.value = Transaction(false).freeze()
+        transaction.value = Transaction(false).maybeFreeze()
     }
 
     override fun setTransactionSuccessful() = transLock.withLock {
         val trans = checkFailTransaction()
-        transaction.value = trans.copy(successful = true).freeze()
+        transaction.value = trans.copy(successful = true).maybeFreeze()
     }
 
     override fun endTransaction() = transLock.withLock {

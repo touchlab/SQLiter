@@ -89,7 +89,7 @@ enum class JournalMode {
 
     companion object {
         fun forString(s: String) =
-            if (s.toUpperCase().equals(WAL.name)) {
+            if (s.uppercase() == WAL.name) {
                 WAL
             } else {
                 DELETE

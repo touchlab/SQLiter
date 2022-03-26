@@ -179,7 +179,7 @@ class DatabaseManagerTest : BaseDatabaseTest(){
 
         //Upgrade to v2 fails
         assertFails { createDatabaseManager(configUpgradeFails).withConnection {  } }
-        val configUpgrade = configUpgradeFails.copy(upgrade = {conn, from, to ->
+        val configUpgrade = configUpgradeFails.copy(upgrade = {conn, _,_ ->
             conn.withStatement("CREATE TABLE test2 (num INTEGER NOT NULL, " +
                     "str TEXT NOT NULL)"){execute()}
             conn.withStatement("insert into test2(num, str)values(?,?)"){

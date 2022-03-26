@@ -171,8 +171,8 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
             conn.withStatement("insert into book(id, name, author_id)values(${bookId++}, 'Hello Book', 5)") { executeInsert() }
 
         fun makeBook(conn: DatabaseConnection) {
-            conn.withTransaction { conn ->
-                makeBookWithoutTransaction(conn)
+            conn.withTransaction { conn2 ->
+                makeBookWithoutTransaction(conn2)
             }
         }
         fun checkAB(conn:DatabaseConnection, expectBooks: Int, expectAuthors: Int){

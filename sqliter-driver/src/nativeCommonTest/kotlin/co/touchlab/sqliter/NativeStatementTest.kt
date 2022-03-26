@@ -217,5 +217,50 @@ class NativeStatementTest : BaseDatabaseTest(){
             }
         }
     }
+
+    val TWO_COL_WITH_BLOB = "CREATE TABLE test (num INTEGER NOT NULL, " +
+            "blb BLOB NOT NULL)"
+
+//    @Test
+    // Need to review what other drivers do here. It's not acting as expected
+    // https://github.com/touchlab/SQLiter/issues/62
+    fun bindEmptyBlob() {
+        basicTestDb(TWO_COL_WITH_BLOB) {
+            it.withConnection {
+                it.withStatement("insert into test(num, blb)values(?,?)") {
+                    bindLong(1, 22)
+                    bindBlob(2, ByteArray(0){it.toByte()})
+                    executeInsert()
+                }
+
+                it.withStatement("select blb from test") {
+                    val query = query()
+                    query.next()
+                    assertEquals(query.getBytes(query.columnNames["blb"]!!).size, 0)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun bindBlob() {
+        basicTestDb(TWO_COL_WITH_BLOB) {
+            it.withConnection {
+                it.withTransaction {
+                    it.withStatement("insert into test(num, blb)values(?,?)") {
+                        bindLong(1, 22)
+                        bindBlob(2, ByteArray(10){it.toByte()})
+                        executeInsert()
+                    }
+                }
+
+                it.withStatement("select blb from test") {
+                    val query = query()
+                    query.next()
+                    assertEquals(query.getBytes(query.columnNames["blb"]!!).size, 10)
+                }
+            }
+        }
+    }
 }
 

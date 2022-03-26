@@ -35,6 +35,13 @@ class SqliteDatabase(path:String, label:String, val logger: Logger, private val 
         }
     }
 
+    fun rawExecSql(sqlString: String){
+        val err = sqlite3_exec(dbPointer, sqlString, null, null, null)
+        if (err != SQLITE_OK) {
+            throw sqlException(logger, config, "error rawExecSql: $sqlString", err)
+        }
+    }
+
     fun close(){
         logger.v { "close $config" }
 
@@ -53,6 +60,7 @@ enum class OpenFlags {
     OPEN_READONLY
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun dbOpen(
     path: String,
     openFlags: List<OpenFlags>,
