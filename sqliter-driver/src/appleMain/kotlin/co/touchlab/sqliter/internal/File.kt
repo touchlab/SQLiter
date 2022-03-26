@@ -249,9 +249,7 @@ internal actual class File(dirPath:String?=null, name:String){
      * @return the number of bytes in this file.
      */
     fun length(): Long{
-        val attrMap = defaultFileManager().attributesOfItemAtPath(path, null)
-        if(attrMap == null)
-            return 0
+        val attrMap = defaultFileManager().attributesOfItemAtPath(path, null) ?: return 0
         return attrMap[NSFileSize] as Long
     }
 
@@ -266,20 +264,13 @@ internal actual class File(dirPath:String?=null, name:String){
      *
      * @return an array of strings with file names or `null`.
      */
-    fun list(): Array<String>? {
+    private fun list(): Array<String> {
         return listImpl(path)
     }
 
-    private fun listImpl(path: String): Array<String>?{
+    private fun listImpl(path: String): Array<String> {
         val pathList = defaultFileManager().contentsOfDirectoryAtPath(path, null) as List<*>
-        if(pathList == null)
-        {
-            return null
-        }
-        else {
-            val pathArray = Array<String>(pathList.size, { i -> pathList[i] as String })
-            return pathArray
-        }
+        return Array(pathList.size) { i -> pathList[i] as String }
     }
 
     /**
@@ -299,12 +290,12 @@ internal actual class File(dirPath:String?=null, name:String){
      */
     fun list(filter: FilenameFilter?): Array<String>? {
         val filenames = list()
-        if (filter == null || filenames == null) {
+        if (filter == null) {
             return filenames
         }
         val result = ArrayList<String>(filenames.size)
         for (filename in filenames) {
-            if (filter!!.accept(this, filename)) {
+            if (filter.accept(this, filename)) {
                 result.add(filename)
             }
         }
@@ -363,7 +354,7 @@ internal actual class File(dirPath:String?=null, name:String){
         }
         val result = ArrayList<File>(files.size)
         for (file in files) {
-            if (filter!!.accept(file)) {
+            if (filter.accept(file)) {
                 result.add(file)
             }
         }
@@ -381,10 +372,8 @@ internal actual class File(dirPath:String?=null, name:String){
             return null
         }
         val count = filenames.size
-        val result = arrayOfNulls<File>(count)
 
-        val files = Array<File>(count, {i -> File(this, filenames[i])})
-        return files
+        return Array(count) { i -> File(this, filenames[i]) }
     }
 
     /**
@@ -425,10 +414,6 @@ internal actual class File(dirPath:String?=null, name:String){
      * `false` on failure or if the directory already existed.
      */
     fun mkdirs(): Boolean {
-        return mkdirs(false)
-    }
-
-    private fun mkdirs(resultIfExists: Boolean): Boolean {
         /* If the terminal directory already exists, answer false */
         if (exists()) {
             return false
@@ -447,11 +432,9 @@ internal actual class File(dirPath:String?=null, name:String){
         return defaultFileManager().createFileAtPath(path, null, null)
     }
 
-    private fun getFileType(path:String):NSFileAttributeType?{
-        val attrMap = defaultFileManager().attributesOfItemAtPath(path, null)
-        if(attrMap == null)
-            return null
-        return attrMap[NSFileType] as NSFileAttributeType?
+    private fun getFileType(path:String):NSFileAttributeType{
+        val attrMap = defaultFileManager().attributesOfItemAtPath(path, null) ?: return null
+        return attrMap[NSFileType] as NSFileAttributeType
     }
 
     fun isDirectory(): Boolean{

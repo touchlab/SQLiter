@@ -140,7 +140,7 @@ class DatabaseStatementTest{
             }
         }
 
-        cursorCheck {numCol, i, c ->
+        cursorCheck {numCol, _, c ->
             assertTrue(c.isNull(numCol))
         }
     }
@@ -169,7 +169,7 @@ class DatabaseStatementTest{
     @Test
     fun testStatementMultipleBindings() {
         mDatabase.withStatement("CREATE TABLE test (num INTEGER, str TEXT);"){execute()}
-        val statement = mDatabase.withStatement("INSERT INTO test (num, str) VALUES (?, ?)"){
+        mDatabase.withStatement("INSERT INTO test (num, str) VALUES (?, ?)"){
             for (i in 0..9)
             {
                 bindLong(1, i.toLong())
@@ -197,7 +197,7 @@ class DatabaseStatementTest{
     @Test
     fun testStatementConstraint() {
         mDatabase.withStatement("CREATE TABLE test (num INTEGER NOT NULL);"){execute()}
-        val statement = mDatabase.withStatement("INSERT INTO test (num) VALUES (?)"){
+        mDatabase.withStatement("INSERT INTO test (num) VALUES (?)"){
             assertFails { executeInsert() }
             bindLong(1, 1)
             executeInsert()

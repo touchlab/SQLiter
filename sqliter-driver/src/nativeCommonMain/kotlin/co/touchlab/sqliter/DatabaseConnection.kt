@@ -99,7 +99,7 @@ val DatabaseConnection.journalMode: JournalMode
 
 fun DatabaseConnection.updateJournalMode(value: JournalMode): JournalMode {
     return if (journalMode != value) {
-        JournalMode.forString(stringForQuery("PRAGMA journal_mode=${value.name}").toUpperCase())
+        JournalMode.forString(stringForQuery("PRAGMA journal_mode=${value.name}").uppercase())
     } else {
         value
     }

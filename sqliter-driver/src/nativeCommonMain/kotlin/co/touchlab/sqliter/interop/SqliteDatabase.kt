@@ -60,6 +60,7 @@ enum class OpenFlags {
     OPEN_READONLY
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun dbOpen(
     path: String,
     openFlags: List<OpenFlags>,

@@ -28,7 +28,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         multithreadedActivity(JournalMode.WAL)
     }
 
-    @Test
+//    @Test
     fun multithreadedActivityDELETE() {
         multithreadedActivity(JournalMode.DELETE)
     }
