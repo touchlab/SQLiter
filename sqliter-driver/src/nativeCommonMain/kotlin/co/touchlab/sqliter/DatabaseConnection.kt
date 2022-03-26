@@ -17,6 +17,7 @@
 package co.touchlab.sqliter
 
 interface DatabaseConnection {
+    fun rawExecSql(sql: String)
     fun createStatement(sql: String): Statement
     fun beginTransaction()
     fun setTransactionSuccessful()

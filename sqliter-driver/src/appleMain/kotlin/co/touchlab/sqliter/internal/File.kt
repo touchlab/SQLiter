@@ -44,38 +44,15 @@ internal actual class File(dirPath:String?=null, name:String){
          * This field is initialized from the system property "file.separator".
          * Later changes to that property will have no effect on this field or this class.
          */
-        var separatorChar: Char = '/'
+        val separatorChar: Char = '/'
 
         /**
          * The system-dependent string used to separate components in filenames ('/').
          * See [.separatorChar].
          */
-        var separator: String = "/"
+        val separator: String = "/"
 
-        /**
-         * The system-dependent character used to separate components in search paths (':').
-         * This is used to split such things as the PATH environment variable and classpath
-         * system properties into lists of directories to be searched.
-         *
-         *
-         * This field is initialized from the system property "path.separator".
-         * Later changes to that property will have no effect on this field or this class.
-         */
-        var pathSeparatorChar: Char = ':'
-
-        /**
-         * The system-dependent string used to separate components in search paths (":").
-         * See [.pathSeparatorChar].
-         */
-        var pathSeparator: String = ":"
-
-        private var caseSensitive: Boolean = true
-
-//        separatorChar = System.getProperty("file.separator", "/").charAt(0);
-//        pathSeparatorChar = System.getProperty("path.separator", ":").charAt(0);
-//        separator = String.valueOf(separatorChar);
-//        pathSeparator = String.valueOf(pathSeparatorChar);
-//        caseSensitive = isCaseSensitiveImpl();
+        private val caseSensitive: Boolean = true
     }
 
     /**

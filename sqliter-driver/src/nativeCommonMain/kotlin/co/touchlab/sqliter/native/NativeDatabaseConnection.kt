@@ -36,6 +36,10 @@ class NativeDatabaseConnection(
 
     data class Transaction(val successful: Boolean)
 
+    override fun rawExecSql(sql: String) {
+        sqliteDatabase.rawExecSql(sql)
+    }
+
     override fun createStatement(sql: String): Statement {
         val statementPtr = sqliteDatabase.prepareStatement(sql)
         val statement = NativeStatement(this, statementPtr, sql)

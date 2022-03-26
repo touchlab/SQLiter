@@ -24,6 +24,8 @@ import co.touchlab.sqliter.Statement
 class ConcurrentDatabaseConnection(private val delegateConnection:DatabaseConnection):DatabaseConnection{
     private val accessLock = Lock()
 
+    override fun rawExecSql(sql: String) = accessLock.withLock { delegateConnection.rawExecSql(sql) }
+
     override fun createStatement(sql: String): Statement = accessLock.withLock { ConcurrentStatement(delegateConnection.createStatement(sql)) }
 
     override fun beginTransaction() = accessLock.withLock { delegateConnection.beginTransaction() }

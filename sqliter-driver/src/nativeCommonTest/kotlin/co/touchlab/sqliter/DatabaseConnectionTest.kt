@@ -351,6 +351,16 @@ class DatabaseConnectionTest {
         }
     }
 
+    @Test
+    fun rawSqlInsert() {
+        basicTestDb(TWO_COL) { databaseManager ->
+            databaseManager.withConnection {
+                it.rawExecSql("INSERT INTO test(num, str)values(3,'abc')")
+                assertEquals(1, it.longForQuery("select count(*) from test"))
+            }
+        }
+    }
+
     private fun checkDbIsFile(memoryName: String?, mem:Boolean): Boolean {
         var dbFileExists = false
         val checkName = memoryName ?: ":memory:"
