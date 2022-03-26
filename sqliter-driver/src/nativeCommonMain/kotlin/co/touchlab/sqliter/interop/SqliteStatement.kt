@@ -1,6 +1,6 @@
 package co.touchlab.sqliter.interop
 
-interface SqliteStatement {
+internal interface SqliteStatement {
     //Cursor methods
     fun isNull(index: Int): Boolean
     fun columnGetLong(columnIndex: Int): Long

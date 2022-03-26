@@ -1,8 +1,8 @@
 package co.touchlab.sqliter.interop
 
-open class SQLiteException(message: String, private val config: SqliteDatabaseConfig) : Exception(message)
+open class SQLiteException internal constructor(message: String, private val config: SqliteDatabaseConfig) : Exception(message)
 
-class SQLiteExceptionErrorCode(message: String, config: SqliteDatabaseConfig, private val errorCode: Int) : SQLiteException(message, config) {
+class SQLiteExceptionErrorCode internal constructor(message: String, config: SqliteDatabaseConfig, private val errorCode: Int) : SQLiteException(message, config) {
     val errorType: SqliteErrorType by lazy {
         val checkErrorCode = errorCode and 0xff
         SqliteErrorType.values().find { it.code == checkErrorCode }

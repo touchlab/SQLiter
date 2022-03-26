@@ -18,7 +18,6 @@ package co.touchlab.sqliter
 
 import co.touchlab.sqliter.interop.Logger
 
-
 data class DatabaseConfiguration(
     val name: String?,
     val version: Int,

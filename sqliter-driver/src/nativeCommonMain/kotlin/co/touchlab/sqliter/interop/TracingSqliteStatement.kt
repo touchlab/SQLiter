@@ -1,6 +1,6 @@
 package co.touchlab.sqliter.interop
 
-class TracingSqliteStatement(private val logger: Logger, private val delegate:SqliteStatement):SqliteStatement {
+internal class TracingSqliteStatement(private val logger: Logger, private val delegate:SqliteStatement):SqliteStatement {
     private fun <T> logWrapper(name:String, params: List<Any?>, block:()->T):T{
         val result = block()
         logger.vWrite("statement.$name" + params.joinToString(separator = ", ", prefix = "(", postfix = ")") + "->" + result)
