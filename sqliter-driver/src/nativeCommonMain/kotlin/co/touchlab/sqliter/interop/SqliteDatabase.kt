@@ -5,7 +5,7 @@ import cnames.structs.sqlite3_stmt
 import kotlinx.cinterop.*
 import co.touchlab.sqliter.sqlite3.*
 
-class SqliteDatabase(path:String, label:String, val logger: Logger, private val verboseDataCalls: Boolean, val dbPointer:SqliteDatabasePointer) {
+internal class SqliteDatabase(path:String, label:String, val logger: Logger, private val verboseDataCalls: Boolean, val dbPointer:SqliteDatabasePointer) {
     val config = SqliteDatabaseConfig(path, label)
 
     fun prepareStatement(sqlString: String): SqliteStatement {
@@ -53,15 +53,15 @@ class SqliteDatabase(path:String, label:String, val logger: Logger, private val 
     }
 }
 
-data class SqliteDatabaseConfig(val path:String, val label:String)
+internal data class SqliteDatabaseConfig(val path:String, val label:String)
 
-enum class OpenFlags {
+internal enum class OpenFlags {
     CREATE_IF_NECESSARY,
     OPEN_READONLY
 }
 
 @Suppress("UNUSED_PARAMETER")
-fun dbOpen(
+internal fun dbOpen(
     path: String,
     openFlags: List<OpenFlags>,
     label: String,

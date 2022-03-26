@@ -6,7 +6,7 @@ import co.touchlab.sqliter.util.usleep
 
 expect inline fun bytesToString(bv:CPointer<ByteVar>):String
 
-class ActualSqliteStatement(private val db: SqliteDatabase, internal val stmtPointer: SqliteStatementPointer) :
+internal class ActualSqliteStatement(private val db: SqliteDatabase, private val stmtPointer: SqliteStatementPointer) :
     SqliteStatement {
 
     //Cursor methods

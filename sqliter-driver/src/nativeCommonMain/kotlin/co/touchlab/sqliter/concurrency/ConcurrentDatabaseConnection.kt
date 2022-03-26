@@ -21,12 +21,13 @@ import co.touchlab.sqliter.DatabaseConnection
 import co.touchlab.sqliter.FieldType
 import co.touchlab.sqliter.Statement
 
-class ConcurrentDatabaseConnection(private val delegateConnection:DatabaseConnection):DatabaseConnection{
+internal class ConcurrentDatabaseConnection(private val delegateConnection: DatabaseConnection) : DatabaseConnection {
     private val accessLock = Lock()
 
     override fun rawExecSql(sql: String) = accessLock.withLock { delegateConnection.rawExecSql(sql) }
 
-    override fun createStatement(sql: String): Statement = accessLock.withLock { ConcurrentStatement(delegateConnection.createStatement(sql)) }
+    override fun createStatement(sql: String): Statement =
+        accessLock.withLock { ConcurrentStatement(delegateConnection.createStatement(sql)) }
 
     override fun beginTransaction() = accessLock.withLock { delegateConnection.beginTransaction() }
 
@@ -39,7 +40,7 @@ class ConcurrentDatabaseConnection(private val delegateConnection:DatabaseConnec
     override val closed: Boolean
         get() = delegateConnection.closed
 
-    inner class ConcurrentCursor(private val delegateCursor: Cursor):Cursor{
+    inner class ConcurrentCursor(private val delegateCursor: Cursor) : Cursor {
         override fun next(): Boolean = accessLock.withLock { delegateCursor.next() }
 
         override fun isNull(index: Int): Boolean = accessLock.withLock { delegateCursor.isNull(index) }
@@ -66,7 +67,7 @@ class ConcurrentDatabaseConnection(private val delegateConnection:DatabaseConnec
 
     }
 
-    inner class ConcurrentStatement(internal val delegateStatement:Statement):Statement{
+    inner class ConcurrentStatement(internal val delegateStatement: Statement) : Statement {
         override fun execute() = accessLock.withLock { delegateStatement.execute() }
 
         override fun executeInsert(): Long = accessLock.withLock { delegateStatement.executeInsert() }
@@ -83,14 +84,19 @@ class ConcurrentDatabaseConnection(private val delegateConnection:DatabaseConnec
 
         override fun bindNull(index: Int) = accessLock.withLock { delegateStatement.bindNull(index) }
 
-        override fun bindLong(index: Int, value: Long) = accessLock.withLock { delegateStatement.bindLong(index, value) }
+        override fun bindLong(index: Int, value: Long) =
+            accessLock.withLock { delegateStatement.bindLong(index, value) }
 
-        override fun bindDouble(index: Int, value: Double) = accessLock.withLock { delegateStatement.bindDouble(index, value) }
+        override fun bindDouble(index: Int, value: Double) =
+            accessLock.withLock { delegateStatement.bindDouble(index, value) }
 
-        override fun bindString(index: Int, value: String) = accessLock.withLock { delegateStatement.bindString(index, value) }
+        override fun bindString(index: Int, value: String) =
+            accessLock.withLock { delegateStatement.bindString(index, value) }
 
-        override fun bindBlob(index: Int, value: ByteArray) = accessLock.withLock { delegateStatement.bindBlob(index, value) }
+        override fun bindBlob(index: Int, value: ByteArray) =
+            accessLock.withLock { delegateStatement.bindBlob(index, value) }
 
-        override fun bindParameterIndex(paramName: String): Int = accessLock.withLock { delegateStatement.bindParameterIndex(paramName) }
+        override fun bindParameterIndex(paramName: String): Int =
+            accessLock.withLock { delegateStatement.bindParameterIndex(paramName) }
     }
 }

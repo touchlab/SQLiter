@@ -10,7 +10,7 @@ import platform.posix.*
  * A simple lock.
  * Implementations of this class should be re-entrant.
  */
-actual class Lock actual constructor() {
+internal actual class Lock actual constructor() {
     private val arena = Arena()
     private val attr = arena.alloc<pthread_mutexattr_t>()
     private val mutex = arena.alloc<pthread_mutex_t>()
@@ -39,6 +39,6 @@ actual class Lock actual constructor() {
     }
 }
 
-actual inline fun Lock.close() {
+internal actual inline fun Lock.close() {
     internalClose()
 }

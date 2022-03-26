@@ -24,14 +24,14 @@ import co.touchlab.sqliter.util.maybeFreeze
 import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.AtomicReference
 
-class NativeDatabaseConnection(
+class NativeDatabaseConnection internal constructor(
     val dbManager: NativeDatabaseManager,
-    val sqliteDatabase: SqliteDatabase
+    private val sqliteDatabase: SqliteDatabase
 ) : DatabaseConnection {
 
     private val transLock = Lock()
 
-    internal val transaction = AtomicReference<Transaction?>(null)
+    private val transaction = AtomicReference<Transaction?>(null)
     private val closedFlag = AtomicInt(0)
 
     data class Transaction(val successful: Boolean)

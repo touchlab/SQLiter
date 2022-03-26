@@ -1,7 +1,5 @@
 package co.touchlab.sqliter.interop
 
-internal const val LOG_TRACE = true
-
 interface Logger {
     fun trace(message: String)
     val vActive:Boolean

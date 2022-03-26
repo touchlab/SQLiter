@@ -20,7 +20,7 @@ import co.touchlab.sqliter.Cursor
 import co.touchlab.sqliter.Statement
 import co.touchlab.sqliter.interop.*
 
-class NativeStatement(
+class NativeStatement internal constructor(
     internal val connection: NativeDatabaseConnection,
     internal val sqliteStatement: SqliteStatement,
     sql: String

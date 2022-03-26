@@ -19,7 +19,7 @@ package co.touchlab.sqliter.concurrency
 import co.touchlab.sqliter.DatabaseConnection
 import kotlin.native.concurrent.ensureNeverFrozen
 
-class SingleThreadDatabaseConnection(delegateConnection: DatabaseConnection):DatabaseConnection by delegateConnection
+internal class SingleThreadDatabaseConnection(delegateConnection: DatabaseConnection):DatabaseConnection by delegateConnection
 {
     init {
         if (Platform.memoryModel == MemoryModel.STRICT)
