@@ -71,8 +71,12 @@ class ConcurrentDatabaseConnectionTest {
 
     @Test
     fun singleThreadedConnectionFreezeFails() {
+        // Skip if not strict
+        if (Platform.memoryModel != MemoryModel.STRICT) {
+            return
+        }
         basicTestDb(TWO_COL) {
-            var conn = it.createSingleThreadedConnection()
+            val conn = it.createSingleThreadedConnection()
             try {
                 assertFails { conn.freeze() }
             } catch (assertion: AssertionError) {
