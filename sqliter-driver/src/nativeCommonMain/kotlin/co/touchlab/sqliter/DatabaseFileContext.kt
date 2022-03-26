@@ -18,14 +18,16 @@ package co.touchlab.sqliter
 
 import co.touchlab.sqliter.internal.File
 
-expect object DatabaseFileContext{
-    fun deleteDatabase(name: String, basePath:String? = null)
-    fun databasePath(databaseName:String, datapathPath:String?):String
-    internal fun databaseFile(databaseName:String, datapathPath:String?): File
+expect object DatabaseFileContext {
+    fun deleteDatabase(name: String, basePath: String? = null)
+    fun databasePath(databaseName: String, datapathPath: String?): String
+    internal fun databaseFile(databaseName: String, datapathPath: String?): File
 }
 
 
-fun DatabaseFileContext.deleteDatabase(configuration: DatabaseConfiguration){
-    if(configuration.name != null)
+fun DatabaseFileContext.deleteDatabase(configuration: DatabaseConfiguration) {
+    if (configuration.name != null)
         deleteDatabase(configuration.name, configuration.extendedConfig.basePath)
 }
+
+fun DatabaseFileContext.databaseFileExists(name: String, basePath: String? = null): Boolean =  databaseFile(name, basePath).exists

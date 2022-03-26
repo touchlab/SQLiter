@@ -23,6 +23,9 @@ internal actual class File(dirPath:String?=null, name:String){
 
     actual val path:String
 
+    actual val exists: Boolean
+        get() = exists()
+
     init {
         if (dirPath == null || dirPath.isEmpty()) {
             this.path = fixSlashes(name)
