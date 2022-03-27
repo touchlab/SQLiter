@@ -24,8 +24,11 @@ import co.touchlab.sqliter.interop.Logger
  * to an encrypted db.
  *
  * Using this value is a bit of a hack. The next major version will likely include a refactor of config.
+ *
+ * User version is usually positive, but there are no enforced restrictions from the sqlite side. Using an "uncommon"
+ * negative number in case somebody uses negatives for some reason.
  */
-const val NO_VERSION_CHECK = -1
+const val NO_VERSION_CHECK = -50_001
 
 data class DatabaseConfiguration(
     val name: String?,
