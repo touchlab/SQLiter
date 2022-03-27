@@ -87,7 +87,9 @@ class NativeDatabaseManager(private val path:String,
                 conn.updateJournalMode(configuration.journalMode)
 
                 try {
-                    conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.version)
+                    val version = configuration.version
+                    if(version != NO_VERSION_CHECK)
+                        conn.migrateIfNeeded(configuration.create, configuration.upgrade, version)
                 } catch (e: Exception) {
 
                     // If this failed, we have to close the connection or we will end up leaking it.

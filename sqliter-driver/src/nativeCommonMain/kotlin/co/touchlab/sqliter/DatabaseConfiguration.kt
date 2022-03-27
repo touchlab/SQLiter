@@ -18,6 +18,18 @@ package co.touchlab.sqliter
 
 import co.touchlab.sqliter.interop.Logger
 
+/**
+ * The database manager will skip version checks, create, and update when this is set. This is useful if you
+ * need to do some kind of operation on a db without initializing it. For example, converting a clear text db
+ * to an encrypted db.
+ *
+ * Using this value is a bit of a hack. The next major version will likely include a refactor of config.
+ *
+ * User version is usually positive, but there are no enforced restrictions from the sqlite side. Using an "uncommon"
+ * negative number in case somebody uses negatives for some reason.
+ */
+const val NO_VERSION_CHECK = -50_001
+
 data class DatabaseConfiguration(
     val name: String?,
     val version: Int,
