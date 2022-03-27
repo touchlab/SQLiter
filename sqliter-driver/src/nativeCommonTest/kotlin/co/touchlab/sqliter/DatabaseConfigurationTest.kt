@@ -165,6 +165,18 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         runFkTest("fkon", true)
     }
 
+    @Test
+    fun noVersionTest(){
+        val conf = DatabaseConfiguration(
+            name = TEST_DB_NAME,
+            inMemory = true,
+            version = NO_VERSION_CHECK,
+            create = { throw IllegalStateException("Shouldn't be here") })
+        val manager = createDatabaseManager(conf)
+        val conn = manager.createMultiThreadedConnection()
+        assertEquals(conn.getVersion(), 0)
+    }
+
     private fun runFkTest(dbname: String, enableFK: Boolean){
         var bookId = 1
         fun makeBookWithoutTransaction(conn: DatabaseConnection) =
