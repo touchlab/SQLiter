@@ -1,2 +1,0 @@
-export GIT_USER=kpgalligan
-export GIT_PASS=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
