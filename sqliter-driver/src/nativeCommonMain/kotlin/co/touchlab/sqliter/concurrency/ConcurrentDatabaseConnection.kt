@@ -20,6 +20,7 @@ import co.touchlab.sqliter.Cursor
 import co.touchlab.sqliter.DatabaseConnection
 import co.touchlab.sqliter.FieldType
 import co.touchlab.sqliter.Statement
+import co.touchlab.sqliter.interop.SqliteDatabasePointer
 
 internal class ConcurrentDatabaseConnection(private val delegateConnection: DatabaseConnection) : DatabaseConnection {
     private val accessLock = Lock()
@@ -39,6 +40,8 @@ internal class ConcurrentDatabaseConnection(private val delegateConnection: Data
 
     override val closed: Boolean
         get() = delegateConnection.closed
+
+    override fun getDbPointer(): SqliteDatabasePointer = delegateConnection.getDbPointer()
 
     inner class ConcurrentCursor(private val delegateCursor: Cursor) : Cursor {
         override fun next(): Boolean = accessLock.withLock { delegateCursor.next() }

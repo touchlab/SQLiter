@@ -20,6 +20,7 @@ import co.touchlab.sqliter.*
 import co.touchlab.sqliter.concurrency.Lock
 import co.touchlab.sqliter.concurrency.withLock
 import co.touchlab.sqliter.interop.SqliteDatabase
+import co.touchlab.sqliter.interop.SqliteDatabasePointer
 import co.touchlab.sqliter.util.maybeFreeze
 import kotlin.native.concurrent.AtomicInt
 import kotlin.native.concurrent.AtomicReference
@@ -85,6 +86,8 @@ class NativeDatabaseConnection internal constructor(
 
     override val closed: Boolean
         get() = closedFlag.value != 0
+
+    override fun getDbPointer(): SqliteDatabasePointer = sqliteDatabase.dbPointer
 
     fun migrateIfNeeded(
         create: (DatabaseConnection) -> Unit,

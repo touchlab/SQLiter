@@ -16,6 +16,8 @@
 
 package co.touchlab.sqliter
 
+import co.touchlab.sqliter.interop.SqliteDatabasePointer
+
 interface DatabaseConnection {
     fun rawExecSql(sql: String)
     fun createStatement(sql: String): Statement
@@ -24,6 +26,7 @@ interface DatabaseConnection {
     fun endTransaction()
     fun close()
     val closed:Boolean
+    fun getDbPointer(): SqliteDatabasePointer
 }
 
 fun <R> DatabaseConnection.withStatement(sql: String, proc: Statement.() -> R): R {
