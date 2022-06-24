@@ -26,6 +26,11 @@ interface DatabaseConnection {
     fun endTransaction()
     fun close()
     val closed:Boolean
+
+    // Added here: https://github.com/touchlab/SQLiter/pull/73
+    // I refactored a lot of the API to be internal but some clients need access to the underlying pointer.
+    // This call may get moved in the future, or changed in some way, but some calling clients do need access to the
+    // sqlite structures, or (possibly) some way to accomplish what the direct access is doing.
     fun getDbPointer(): SqliteDatabasePointer
 }
 
