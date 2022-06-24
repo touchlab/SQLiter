@@ -48,7 +48,9 @@ data class DatabaseConfiguration(
         val pageSize: Int? = null,
         val basePath: String? = null,
         val synchronousFlag: SynchronousFlag? = null,
-        val recursiveTriggers: Boolean = false
+        val recursiveTriggers: Boolean = false,
+        val lookasideSlotSize: Int = -1,
+        val lookasideSlotCount: Int = -1,
     )
     data class Logging(
         val logger: Logger = WarningLogger,
