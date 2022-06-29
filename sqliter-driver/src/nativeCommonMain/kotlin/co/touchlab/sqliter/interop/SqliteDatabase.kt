@@ -19,7 +19,9 @@ internal class SqliteDatabase(path: String, label: String, val logger: Logger, p
             )
 
             if (err != SQLITE_OK) {
-                throw sqlException(logger, config, "error while compiling: $sqlString", err)
+                val error = sqlite3_errmsg(dbPointer)?.toKString()
+
+                throw sqlException(logger, config, "error while compiling: $sqlString\n$error", err)
             }
 
             statementPtr.value!!
