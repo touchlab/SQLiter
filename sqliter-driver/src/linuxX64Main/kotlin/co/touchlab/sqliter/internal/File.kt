@@ -330,7 +330,7 @@ internal actual class File(dirPath: String? = null, name: String) {
         }
         val result = ArrayList<String>(filenames.size)
         for (filename in filenames) {
-            if (filter!!.accept(this, filename)) {
+            if (filter.accept(this, filename)) {
                 result.add(filename)
             }
         }
@@ -389,7 +389,7 @@ internal actual class File(dirPath: String? = null, name: String) {
         }
         val result = ArrayList<File>(files.size)
         for (file in files) {
-            if (filter!!.accept(file)) {
+            if (filter.accept(file)) {
                 result.add(file)
             }
         }
@@ -407,10 +407,8 @@ internal actual class File(dirPath: String? = null, name: String) {
             return null
         }
         val count = filenames.size
-        val result = arrayOfNulls<File>(count)
 
-        val files = Array<File>(count, { i -> File(this, filenames[i]) })
-        return files
+        return Array(count) { i -> File(this, filenames[i]) }
     }
 
     /**
@@ -454,6 +452,7 @@ internal actual class File(dirPath: String? = null, name: String) {
         return mkdirs(false)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun mkdirs(resultIfExists: Boolean): Boolean {
         /* If the terminal directory already exists, answer false */
         if (exists()) {
