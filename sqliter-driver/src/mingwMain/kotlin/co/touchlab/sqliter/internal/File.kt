@@ -78,7 +78,9 @@ internal actual class File(dirPath:String? = null, name:String) {
         val newPath:CharArray = origPath.toCharArray()
         val length = newPath.size
         var newLength = 0
-        for (ch in newPath) {
+        val initialIndex = if (origPath.startsWith("file://", true)) 7 else 0
+        for (i in initialIndex until length) {
+            val ch = newPath[i]
             if (ch == separatorChar) {
                 if (!lastWasSlash) {
                     newPath[newLength++] = separatorChar
@@ -94,12 +96,12 @@ internal actual class File(dirPath:String? = null, name:String) {
         if (lastWasSlash && newLength > 1) {
             newLength--
         }
+
         // Reuse the original string if possible.
-        return if (newLength != length) {
-            newPath.concatToString()
-        } else {
-            origPath
-        }
+        return if (newLength != length) buildString(newLength) {
+            append(newPath)
+            setLength(newLength)
+        } else origPath
     }
 
     /**
