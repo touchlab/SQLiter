@@ -1,0 +1,17 @@
+---
+slug: /usage/profile
+sidebar_position: 4
+title: "Profiling and Tracing"
+---
+import versions from '@site/versions';
+import CodeBlock from '@theme/CodeBlock';
+
+# SQLiter
+
+## Profiling and tracing
+
+Both are possible on the low-level sqlite side, but are not currently enabled in sqliter.  This may change in a
+later version of the driver, submit or upvote an issue if this is a feature that you need.
+
+Within SQLiter you can enable verbose data logging using the `verboseDataCalls` configuration flag; as SQL statements
+are executed, the results will be logged to the supplied _verbose_ logger.
