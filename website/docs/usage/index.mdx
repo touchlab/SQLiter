@@ -28,9 +28,8 @@ connection.close()
 
 :::info Why do in-memory databases need names?
 
-Sqlite lets you create an in memory db with multiple connections using a shared memory cache with the supplied
-name, that needs to be managed and deleted like any other database.  If you pass a value of `null` then a name of
-`:memory:` is auto assigned by SQLiter.
+If you pass in a name you need to manage the connections, just like any other database, but if you pass a value of `null`
+then SQLiter will auto-assign the name `:memory:` and the connection should auto-close when you disconnect.
 
 :::
 
