@@ -129,7 +129,8 @@ internal class ActualSqliteStatement(private val db: SqliteDatabase, private val
     private inline fun opResult(db: SqliteDatabase, block: () -> Int) {
         val err = block()
         if (err != SQLITE_OK) {
-            throw sqlException(db.logger, db.config, "Sqlite operation failure", err)
+            val error = sqlite3_errmsg(db.dbPointer)?.toKString()
+            throw sqlException(db.logger, db.config, "Sqlite operation failure ${error?:""}", err)
         }
     }
 
