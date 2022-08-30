@@ -23,7 +23,7 @@ import kotlin.test.*
 
 class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
-    @Test
+//    @Test
     fun multithreadedActivityWAL() {
         multithreadedActivity(JournalMode.WAL)
     }
