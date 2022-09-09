@@ -17,7 +17,7 @@
 package co.touchlab.sqliter.concurrency
 
 import co.touchlab.sqliter.*
-import kotlin.native.concurrent.freeze
+import co.touchlab.sqliter.util.maybeFreeze
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -78,7 +78,7 @@ class ConcurrentDatabaseConnectionTest {
         basicTestDb(TWO_COL) {
             val conn = it.createSingleThreadedConnection()
             try {
-                assertFails { conn.freeze() }
+                assertFails { conn.maybeFreeze() }
             } catch (assertion: AssertionError) {
                 throw assertion
             } finally {

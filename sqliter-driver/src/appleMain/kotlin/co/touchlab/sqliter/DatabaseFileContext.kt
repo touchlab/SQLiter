@@ -18,6 +18,7 @@ package co.touchlab.sqliter
 
 import co.touchlab.sqliter.internal.File
 import co.touchlab.sqliter.internal.FileFilter
+import kotlinx.cinterop.UnsafeNumber
 import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
@@ -34,6 +35,7 @@ actual object DatabaseFileContext{
 
     internal fun databaseDirPath():String = iosDirPath("databases")
 
+    @OptIn(UnsafeNumber::class)
     internal fun iosDirPath(folder:String):String{
         val paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true);
         val documentsDirectory = paths[0] as String;

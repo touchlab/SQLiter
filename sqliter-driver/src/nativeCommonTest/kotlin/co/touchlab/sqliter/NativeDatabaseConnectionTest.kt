@@ -16,6 +16,7 @@
 
 package co.touchlab.sqliter
 
+import co.touchlab.sqliter.util.maybeFreeze
 import platform.posix.usleep
 import kotlin.native.concurrent.*
 import kotlin.system.getTimeMillis
@@ -77,7 +78,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         val workers = Array(10) { Worker.start() }
         val futures = mutableListOf<Future<Unit>>()
         workers.forEach {
-            futures.add(it.execute(TransferMode.SAFE, { ManagerOps(manager, biginsert, bigselect).freeze() }) {
+            futures.add(it.execute(TransferMode.SAFE, { ManagerOps(manager, biginsert, bigselect).maybeFreeze() }) {
                 val conn = it.manager.surpriseMeConnection()
                 try {
                     for (i in 0 until 10) {
@@ -402,7 +403,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
         val workers = (0 until 20).map { Worker.start(errorReporting = true, name = "Test Worker $it") }
         val futures = workers.map { worker ->
-            worker.execute(TransferMode.SAFE, { config2.freeze() }) {
+            worker.execute(TransferMode.SAFE, { config2.maybeFreeze() }) {
                 val managerInner = createDatabaseManager(it)
                 val conn = managerInner.createMultiThreadedConnection()
                 conn.close()
@@ -419,7 +420,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
     private fun threadWait(time: Int, manager: DatabaseManager, block: (DatabaseConnection) -> Unit): Boolean {
         return manager.withConnection {
             val worker = Worker.start()
-            val future = worker.execute(TransferMode.SAFE, { Pair(manager, block).freeze() }) {
+            val future = worker.execute(TransferMode.SAFE, { Pair(manager, block).maybeFreeze() }) {
                 try {
                     usleep(500_000u)
                     it.first.withConnection(it.second)

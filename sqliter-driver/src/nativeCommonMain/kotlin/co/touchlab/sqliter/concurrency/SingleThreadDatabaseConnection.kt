@@ -17,12 +17,11 @@
 package co.touchlab.sqliter.concurrency
 
 import co.touchlab.sqliter.DatabaseConnection
-import kotlin.native.concurrent.ensureNeverFrozen
+import co.touchlab.sqliter.util.ensureNeverFrozenIfStrictMM
 
 internal class SingleThreadDatabaseConnection(delegateConnection: DatabaseConnection):DatabaseConnection by delegateConnection
 {
     init {
-        if (Platform.memoryModel == MemoryModel.STRICT)
-            ensureNeverFrozen()
+        ensureNeverFrozenIfStrictMM()
     }
 }

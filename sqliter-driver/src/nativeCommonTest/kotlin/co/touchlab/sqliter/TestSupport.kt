@@ -16,16 +16,16 @@
 
 package co.touchlab.sqliter
 
+import co.touchlab.sqliter.util.maybeFreeze
 import kotlin.native.concurrent.Future
 import kotlin.native.concurrent.TransferMode
 import kotlin.native.concurrent.Worker
-import kotlin.native.concurrent.freeze
 import kotlin.system.getTimeMillis
 
 class MPWorker(){
     val worker = Worker.start()
     fun <T> runBackground(backJob: () -> T): MPFuture<T> {
-        return MPFuture(worker.execute(TransferMode.SAFE, {backJob.freeze()}){
+        return MPFuture(worker.execute(TransferMode.SAFE, {backJob.maybeFreeze()}){
             it()
         })
     }
@@ -61,7 +61,7 @@ class ThreadOps<C>(val producer:()->C){
             tests.shuffle()
         }
 
-        exes.freeze()
+        exes.maybeFreeze()
 
         val start = currentTimeMillis()
 

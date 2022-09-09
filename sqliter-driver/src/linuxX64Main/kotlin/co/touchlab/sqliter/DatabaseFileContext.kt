@@ -46,8 +46,8 @@ actual object DatabaseFileContext {
         if (dir != null) {
             val prefix = file.getName() + "-mj"
             val files = dir.listFiles(object : FileFilter {
-                override fun accept(candidate: File): Boolean {
-                    return candidate.getName().startsWith(prefix)
+                override fun accept(pathname: File): Boolean {
+                    return pathname.getName().startsWith(prefix)
                 }
             })
             if (files != null) {
