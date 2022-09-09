@@ -361,6 +361,20 @@ class DatabaseConnectionTest {
         }
     }
 
+    @Test
+    fun rawSqlFails() {
+        basicTestDb(TWO_COL) { databaseManager ->
+            databaseManager.withConnection {
+                try {
+                    it.rawExecSql("INSERT INTO notthere(num, str)values(3,'abc')")
+                    fail("Should have thrown")
+                } catch (e: Exception) {
+                    assertTrue(e.message?.contains("no such table: notthere") ?: false)
+                }
+            }
+        }
+    }
+
     private fun checkDbIsFile(memoryName: String?, mem:Boolean): Boolean {
         var dbFileExists = false
         val checkName = memoryName ?: ":memory:"

@@ -40,7 +40,8 @@ internal class SqliteDatabase(path: String, label: String, val logger: Logger, p
     fun rawExecSql(sqlString: String){
         val err = sqlite3_exec(dbPointer, sqlString, null, null, null)
         if (err != SQLITE_OK) {
-            throw sqlException(logger, config, "error rawExecSql: $sqlString", err)
+            val error = sqlite3_errmsg(dbPointer)?.toKString()
+            throw sqlException(logger, config, "error rawExecSql: $sqlString, ${error?:""}", err)
         }
     }
 
@@ -97,8 +98,9 @@ internal fun dbOpen(
     if (lookasideSlotSize >= 0 && lookasideSlotCount >= 0) {
         val err = sqlite3_db_config(db, SQLITE_DBCONFIG_LOOKASIDE, null, lookasideSlotSize, lookasideSlotCount);
         if (err != SQLITE_OK) {
+            val error = sqlite3_errmsg(db)?.toKString()
             sqlite3_close(db)
-            throw sqlException(logging, SqliteDatabaseConfig(path, label), "Cannot set lookaside : sqlite3_db_config(..., ${lookasideSlotSize}, %${lookasideSlotCount}) failed", err)
+            throw sqlException(logging, SqliteDatabaseConfig(path, label), "Cannot set lookaside : sqlite3_db_config(..., ${lookasideSlotSize}, %${lookasideSlotCount}) failed, ${error?:""}", err)
         }
     }
 

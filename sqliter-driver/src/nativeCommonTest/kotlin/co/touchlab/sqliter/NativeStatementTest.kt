@@ -262,5 +262,25 @@ class NativeStatementTest : BaseDatabaseTest(){
             }
         }
     }
+
+    @Test
+    fun failBindExtendedMessage() {
+        basicTestDb(TWO_COL) {
+            val errorMessage = try {
+                it.withConnection {
+                    it.withStatement("insert into test(num, str)values(?,?)") {
+                        bindLong(1, 21)
+                        bindString(3, "asdf")
+                        executeInsert()
+                    }
+                }
+                ""
+            } catch (e: Exception) {
+                e.message ?: ""
+            }
+
+            assertTrue(errorMessage.contains("column index out of range"))
+        }
+    }
 }
 
