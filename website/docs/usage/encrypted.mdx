@@ -1,0 +1,24 @@
+---
+slug: /usage/encrypted
+sidebar_position: 3
+title: "Encrypted Databases"
+---
+import versions from '@site/versions';
+import CodeBlock from '@theme/CodeBlock';
+
+# SQLiter
+
+## Encrypted Databases
+
+We recommend using [SQLCipher](https://www.zetetic.net/sqlcipher/) for building encrypted databases.  Be aware that
+Apple (depending on OS version) may, or may not, also be building against the
+[SEE](https://www.sqlite.org/see/doc/release/www/readme.wiki) (SQLite Encryption Extension).  Take a look at the
+[Touchlab blog post](https://dev.to/touchlab/multiplatform-encryption-with-sqldelight-and-sqlcipher-5do4) written by
+Sam Hill that goes into a lot more details.  The [follow-up post](https://medium.com/@kpgalligan/sqlcipher-and-kmm-58d96ea8095d)
+by Kevin Galligan clarifies a couple more details.
+
+See:
+* https://www.zetetic.net/sqlcipher/
+* https://dev.to/touchlab/multiplatform-encryption-with-sqldelight-and-sqlcipher-5do4
+* https://medium.com/@kpgalligan/sqlcipher-and-kmm-58d96ea8095d
+

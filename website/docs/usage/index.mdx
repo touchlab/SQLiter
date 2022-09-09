@@ -1,0 +1,87 @@
+---
+slug: /usage
+sidebar_position: 2
+title: "Usage"
+---
+import versions from '@site/versions';
+import CodeBlock from '@theme/CodeBlock';
+
+# SQLiter
+
+## Usage
+
+### Open a connection (file based DB)
+
+```kotlin
+// open a very basic connection
+val config = DatabaseConfiguration("my-database.db", 1, { db -> ... })
+val manager = createDatabaseManager(config)
+val connection = manager.createMultiThreadedConnection()
+
+// execute sql queries
+
+// don't forget to close the connection
+connection.close()
+```
+
+### Open a connection (in-memory DB)
+
+:::info Why do in-memory databases need names?
+
+If you pass in a name you need to manage the connections, just like any other database, but if you pass a value of `null`
+then SQLiter will auto-assign the name `:memory:` and the connection should auto-close when you disconnect.
+
+:::
+
+```kotlin
+// open a very basic connection
+val config = DatabaseConfiguration(
+    name = null,
+    inMemory = true,
+    version = 1,
+    create = { db -> ... }
+)
+val manager = createDatabaseManager(config)
+val connection = manager.createMultiThreadedConnection()
+
+// execute sql queries
+
+// don't forget to close the connection
+connection.close()
+```
+
+### Execute a query
+
+```kotlin title="Insert data"
+connection.withStatement("insert into test(num, str) values (?,?)") {
+    bindLong(1, id)
+    bindString(2, str)
+    executeInsert()
+}
+```
+
+```kotlin title="Query data"
+connection.withStatement("select * from test where num = ?") {
+    bindLong(1, id)
+    query().iterator().next().let {
+        val dbVal = it.values.get(1).second as String
+
+        ...
+    }
+}
+```
+
+```kotlin title="Delete data"
+val statement = connection.createStatement("DELETE FROM test")
+statement.execute()
+
+// Verify that the deletion processed
+assertEquals(0, connection.longForQuery("select count(*) from test"))
+statement.finalizeStatement()
+```
+
+
+
+
+
+

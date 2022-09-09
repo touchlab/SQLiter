@@ -1,0 +1,31 @@
+---
+slug: /usage/migrations
+sidebar_position: 2
+title: "Database Migrations"
+---
+import versions from '@site/versions';
+import CodeBlock from '@theme/CodeBlock';
+
+# SQLiter
+
+## Database version migrations
+
+Sqliter will check the version of the database that you open, and trigger a call to either the _create_ or the _upgrade_ lambdas
+depending on what is read from the database.
+
+It is the responsibility of the consumer to determine and execute the upgrade strategy given the connection and old/new version numbers,
+and the responsibility of SQLiter to provide the trigger that a _create_ or _upgrade_ should occur.
+
+**Note:** the _Lifecycle_ `onCloseConnection` callback will be called **AFTER** the sqlite connection is closed, and the
+corresponding `onCreateConnection` will be called as soon as the connection is made, but **BEFORE** any migrations have
+happened.  These are called regardless of the version checking that happens.
+
+:::info Opening a database with no version check
+
+The database manager will skip version checks, create, and update when the requested version is set to
+`NO_VERSION_CHECK`. This is useful if you need to do some kind of operation on a database without initializing it.
+For example, converting from clear text to an encrypted database.  Using this value is a bit of a hack. The next
+major version will likely include a refactor of config to provide a cleaner mechanism to skip version checking.
+
+:::
+

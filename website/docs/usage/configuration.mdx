@@ -1,0 +1,68 @@
+---
+slug: /usage/configuration
+sidebar_position: 1
+title: "Connection Configuration"
+---
+import versions from '@site/versions';
+import CodeBlock from '@theme/CodeBlock';
+
+# SQLiter
+
+## Connection Configuration
+
+The database configuration used to open a connection supplies a number of generally _sane_ defaults, but there are a
+quite a number of properties that could be overridden.
+
+## Required parameters
+
+ Name | Type | Description
+-- | --| --
+**name** | String? | The database filename to open, or the name to assign to an in-memory database
+**version** | Int | The expected database schema version
+**create** | (DatabaseConnection) -> Unit | Lambda to call if the database schema needs to be created
+
+## Optional parameters
+
+ Name | Type | Description
+-- | --| --
+**upgrade** | (DatabaseConnection, Int, Int) -> Unit | Defaults to doing nothing when versions of the database don’t match.  Supply your own upgrade lambda for other migration strategies.
+**inMemory** | Boolean | Defaults to `false`.  Set to `true` if you need an in-memory database
+**journalMode** | JournalMode | Defaults to `JournalMode.WAL`
+**extendedConfig** | Extended | See below
+**loggingConfig** | Logging | See below
+**lifecycleConfig** | Lifecycle | See below
+**encryptionConfig** | Encryption | See below
+
+### Extended configuration
+
+ Name | Type | Description
+-- | --| --
+**foreignKeyConstraints** | Boolean| Defaults to `false`
+**busyTimeout** | Int | Defaults to 5000
+**pageSize** | Int? | Defaults to `null`
+**basePath** | String? | Defaults to `null`
+**synchronousFlag** | SynchronousFlag? | Defaults to `null`
+**recursiveTriggers** | Boolean | Defaults to `false`
+**lookasideSlotSize** | Int | Defaults to -1
+**lookasideSlotCount** | Int | Defaults to -1
+
+### Logging
+
+Name | Type | Description
+-- | --| --
+**logger** | Logger | Defaults to `WarningLogger` (errors are enabled, verbose logging not)
+**verboseDataCalls** | Boolean | Defaults to `false`. SQLiter will verbose log execution of calls in the sqlite statement if this is enabled.
+
+### Lifecycle
+
+Name | Type | Description
+-- | --| --
+**onCreateConnection** | (DatabaseConnection) -> Unit | Called when the connection is opened, but **before** version/migration checking
+**onCloseConnection** | (DatabaseConnection) -> Unit | Called **after** the sqlite connection is closed
+
+### Encryption
+
+Name | Type | Description
+-- | --| --
+**key** | String? | Used for creating encrypted databases or accessing an existing encrypted database.
+**rekey** | String? | Used to encrypt an existing unencrypted database, change the encryption key of an existing encrypted database or remove encryption from an existing encrypted database.
