@@ -4,9 +4,10 @@ Minimal sqlite for Kotlin multiplatform
 
 ![example workflow name](https://github.com/touchlab/SQLiter/workflows/build/badge.svg)
 
-> ## Touchlab's Hiring!
+> ## Subscribe!
 >
-> We're looking for a Mobile Developer, with Android/Kotlin experience, who is eager to dive into Kotlin Multiplatform Mobile (KMM) development. Come join the remote-first team putting KMM in production. [More info here](https://go.touchlab.co/careers-gh).
+> We build solutions that get teams started smoothly with Kotlin Multiplatform Mobile and ensure their success in production. Join our community to learn how your peers are adopting KMM.
+ [Sign up here](https://go.touchlab.co/newsletter-gh)!
 
 SQLiter is a SQLite driver for Kotlin Native, currently Apple and Windows variants. SQLiter powers the SQLDelight library
 on native clients.
