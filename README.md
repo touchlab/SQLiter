@@ -15,6 +15,13 @@ on native clients.
 
 SQLiter is designed to serve as a driver to power user-friendly libraries rather than something to use directly but if you ever need it, you can find it on mavenCentral:
 
+## Getting Help
+
+SQLiter support can be found in the Kotlin Community Slack, [request access here](http://slack.kotlinlang.org/). Post in the "[#touchlab-tools](https://kotlinlang.slack.com/archives/CTJB58X7X)" channel.
+
+For direct assistance, please [contact Touchlab](https://go.touchlab.co/contactus-gh) to discuss support options.
+
+
 ```
 dependencies {
   implementation("co.touchlab:sqliter-driver:$version")
