@@ -27,6 +27,24 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     }
 
     @Test
+    fun databasePathRemovesExtraSlashes() {
+        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "//tmp//")
+        assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+    }
+
+    @Test
+    fun databasePathRemovesFileUrlPrefix() {
+        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "file:///tmp/")
+        assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+    }
+
+    @Test
+    fun databasePathRemovesFileUrlPrefixInCaps() {
+        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "FILE:///tmp/")
+        assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+    }
+
+    @Test
     fun memoryOnlyTest(){
         val conf = DatabaseConfiguration(
             name = null,
