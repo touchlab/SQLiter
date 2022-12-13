@@ -37,7 +37,18 @@ class NativeCursor(override val statement: NativeStatement) : Cursor {
     override val columnNames: Map<String, Int> by lazy {
         val map = HashMap<String, Int>(this.columnCount)
         for (i in 0 until columnCount) {
-            map.put(columnName(i), i)
+            val key = columnName(i)
+            if (map.containsKey(key)) {
+                var index = 1
+                val basicKey = "$key&JOIN"
+                var finalKey = basicKey + index
+                while (map.containsKey(finalKey)) {
+                    finalKey = basicKey + ++index
+                }
+                map[finalKey] = i
+            } else {
+                map[key] = i
+            }
         }
         map
     }
