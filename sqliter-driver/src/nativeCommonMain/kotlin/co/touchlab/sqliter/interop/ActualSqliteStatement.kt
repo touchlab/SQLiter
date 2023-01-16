@@ -25,10 +25,10 @@ internal class ActualSqliteStatement(private val db: SqliteDatabase, private val
 
     override fun columnGetBlob(columnIndex: Int): ByteArray {
         val blobSize = sqlite3_column_bytes(stmtPointer, columnIndex)
-        val blob = sqlite3_column_blob(stmtPointer, columnIndex)
+        if (blobSize == 0) return byteArrayOf()
 
-        if (blobSize < 0 || blob == null)
-            throw sqlException(db.logger, db.config, "Byte array size/type issue col $columnIndex")
+        val blob = sqlite3_column_blob(stmtPointer, columnIndex)
+            ?: throw sqlException(db.logger, db.config, "Byte array size/type issue col $columnIndex")
 
         return blob.readBytes(blobSize)
     }
@@ -123,7 +123,8 @@ internal class ActualSqliteStatement(private val db: SqliteDatabase, private val
     }
 
     override fun bindBlob(index: Int, value: ByteArray) = opResult(db) {
-        sqlite3_bind_blob(stmtPointer, index, value.refTo(0), value.size, SQLITE_TRANSIENT)
+        if (value.isNotEmpty()) sqlite3_bind_blob(stmtPointer, index, value.refTo(0), value.size, SQLITE_TRANSIENT)
+        else sqlite3_bind_zeroblob(stmtPointer, index, 0)
     }
 
     private inline fun opResult(db: SqliteDatabase, block: () -> Int) {
