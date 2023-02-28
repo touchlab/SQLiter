@@ -35,20 +35,21 @@ kotlin {
             iosX64(),
             iosArm64(),
             iosArm32(),
-            watchosArm32(),
-            watchosArm64(),
-            watchosX86(),
-            watchosX64(),
-            tvosArm64(),
-            tvosX64(),
-            macosArm64(),
-            iosSimulatorArm64(),
-            watchosSimulatorArm64(),
-            tvosSimulatorArm64(),
-            mingwX64(),
-            mingwX86(),
-            linuxX64()
-        )
+        watchosArm32(),
+        watchosArm64(),
+        watchosX86(),
+        watchosX64(),
+        tvosArm64(),
+        tvosX64(),
+        macosArm64(),
+        iosSimulatorArm64(),
+        watchosSimulatorArm64(),
+        tvosSimulatorArm64(),
+        watchosDeviceArm64(),
+        mingwX64(),
+        mingwX86(),
+        linuxX64()
+    )
 
     knTargets
         .forEach { target ->
