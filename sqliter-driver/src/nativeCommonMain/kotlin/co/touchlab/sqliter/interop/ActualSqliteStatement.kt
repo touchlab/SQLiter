@@ -10,6 +10,7 @@ private const val EMPTY_STRING = ""
 
 internal class ActualSqliteStatement(private val db: SqliteDatabase, private val stmtPointer: SqliteStatementPointer) :
     SqliteStatement {
+    private val emptyBytes = ByteArray(0)
 
     //Cursor methods
     override fun isNull(index: Int): Boolean =
@@ -29,8 +30,12 @@ internal class ActualSqliteStatement(private val db: SqliteDatabase, private val
         val blobSize = sqlite3_column_bytes(stmtPointer, columnIndex)
         val blob = sqlite3_column_blob(stmtPointer, columnIndex)
 
-        if (blobSize < 0 || blob == null)
+        if (blobSize < 0 || blob == null) {
+            if (blobSize == 0 && !isNull(columnIndex)) {
+                return emptyBytes
+            }
             throw sqlException(db.logger, db.config, "Byte array size/type issue col $columnIndex")
+        }
 
         return blob.readBytes(blobSize)
     }
@@ -125,7 +130,11 @@ internal class ActualSqliteStatement(private val db: SqliteDatabase, private val
     }
 
     override fun bindBlob(index: Int, value: ByteArray) = opResult(db) {
-        sqlite3_bind_blob(stmtPointer, index, value.refTo(0), value.size, SQLITE_TRANSIENT)
+        if (value.isEmpty()) {
+            sqlite3_bind_zeroblob(stmtPointer, index, 0)
+        } else {
+            sqlite3_bind_blob(stmtPointer, index, value.refTo(0), value.size, SQLITE_TRANSIENT)
+        }
     }
 
     private inline fun opResult(db: SqliteDatabase, block: () -> Int) {
