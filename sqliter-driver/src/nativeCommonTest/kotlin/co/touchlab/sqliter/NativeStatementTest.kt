@@ -221,9 +221,7 @@ class NativeStatementTest : BaseDatabaseTest(){
     val TWO_COL_WITH_BLOB = "CREATE TABLE test (num INTEGER NOT NULL, " +
             "blb BLOB NOT NULL)"
 
-//    @Test
-    // Need to review what other drivers do here. It's not acting as expected
-    // https://github.com/touchlab/SQLiter/issues/62
+    @Test
     fun bindEmptyBlob() {
         basicTestDb(TWO_COL_WITH_BLOB) {
             it.withConnection {
