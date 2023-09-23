@@ -98,7 +98,7 @@ class NativeDatabaseManager(private val path:String,
                     throw e
                 }
 
-                // Temporary, or purely in-memory databases live only as long
+                // "Temporary" and "purely in-memory" databases live only as long
                 // as the connection. Subsequent connections (even if open at
                 // the same time) are completely separate databases.
                 //
