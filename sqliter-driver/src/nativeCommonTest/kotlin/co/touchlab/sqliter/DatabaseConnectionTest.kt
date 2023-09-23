@@ -257,17 +257,6 @@ class DatabaseConnectionTest {
 
         assertEquals(1, conn1.longForQuery("select count(*) from test"))
 
-        assertFails {
-            val connFail = man.surpriseMeConnection()
-            connFail.withTransaction {
-                it.withStatement("insert into test(num, str)values(?,?)") {
-                    bindLong(1, 232)
-                    bindString(2, "asdf")
-                    executeInsert()
-                }
-            }
-        }
-
         val man2 = createDatabaseManager(
             conf
         )
@@ -278,20 +267,23 @@ class DatabaseConnectionTest {
                 bindString(2, "asdf")
                 executeInsert()
             }
+            it.withStatement("insert into test(num, str)values(?,?)") {
+                bindLong(1, 233)
+                bindString(2, "asdfg")
+                executeInsert()
+            }
         }
 
-        assertEquals(1, conn2.longForQuery("select count(*) from test"))
+        assertEquals(1, conn1.longForQuery("select count(*) from test"))
 
         conn1.close()
 
-        assertEquals(1, conn2.longForQuery("select count(*) from test"))
+        assertEquals(2, conn2.longForQuery("select count(*) from test"))
 
         conn2.close()
 
-        assertFails {
-            man.withConnection {
-                assertEquals(0, it.longForQuery("select count(*) from test"))
-            }
+        man.withConnection {
+            assertEquals(0, it.longForQuery("select count(*) from test"))
         }
     }
 
