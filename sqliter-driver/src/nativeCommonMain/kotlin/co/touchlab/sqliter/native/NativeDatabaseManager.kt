@@ -103,7 +103,7 @@ class NativeDatabaseManager(private val path:String,
                 // the same time) are completely separate databases.
                 //
                 // If this is the case, do not increment newConnection so that
-                // this if block executes on every new connection (i.e. ever new
+                // this if block executes on every new connection (i.e. every new
                 // ephemeral database).
                 when (path) {
                     "", ":memory:" -> {}
