@@ -122,7 +122,7 @@ class DatabaseManagerTest : BaseDatabaseTest(){
 
         val conf = DatabaseConfiguration(
             name = "",
-            inMemory = true,
+            inMemory = false,
             version = 1,
             create = { db ->
                 creationCount++
