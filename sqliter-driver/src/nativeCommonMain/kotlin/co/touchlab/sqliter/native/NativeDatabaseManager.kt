@@ -24,7 +24,7 @@ import co.touchlab.sqliter.concurrency.withLock
 import co.touchlab.sqliter.interop.OpenFlags
 import co.touchlab.sqliter.interop.dbOpen
 import co.touchlab.sqliter.util.maybeFreeze
-import kotlin.native.concurrent.AtomicInt
+import kotlin.concurrent.AtomicInt
 
 class NativeDatabaseManager(private val path:String,
                             override val configuration: DatabaseConfiguration
@@ -118,4 +118,8 @@ class NativeDatabaseManager(private val path:String,
     internal fun closeConnection(connection:DatabaseConnection){
         configuration.lifecycleConfig.onCloseConnection(connection)
     }
+}
+
+fun AtomicInt.increment() {
+    incrementAndGet()
 }

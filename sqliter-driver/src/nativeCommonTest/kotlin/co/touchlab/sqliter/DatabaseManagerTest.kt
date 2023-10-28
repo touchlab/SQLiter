@@ -17,7 +17,8 @@
 package co.touchlab.sqliter
 
 import co.touchlab.sqliter.DatabaseFileContext.deleteDatabase
-import kotlin.native.concurrent.AtomicInt
+import co.touchlab.sqliter.native.increment
+import kotlin.concurrent.AtomicInt
 import kotlin.test.*
 
 class DatabaseManagerTest : BaseDatabaseTest(){
@@ -256,4 +257,8 @@ class DatabaseManagerTest : BaseDatabaseTest(){
             assertEquals(1, it.longForQuery("select count(*) from test2"))
         }
     }
+}
+
+private fun AtomicInt.decrement() {
+    decrementAndGet()
 }
