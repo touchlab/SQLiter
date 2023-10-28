@@ -26,18 +26,22 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
             HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
             else -> listOf("-linker-options", "-lsqlite3")
         }
+        kotlinNativeCompilation.kotlinOptions.freeCompilerArgs += listOf(
+            "-opt-in=kotlin.experimental.ExperimentalNativeApi",
+            "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
+            "-opt-in=kotlinx.cinterop.BetaInteropApi",
+            "-Xexpect-actual-classes",
+        )
     }
 }
 
 kotlin {
     val knTargets = listOf(
-            macosX64(),
-            iosX64(),
-            iosArm64(),
-            iosArm32(),
+        macosX64(),
+        iosX64(),
+        iosArm64(),
         watchosArm32(),
         watchosArm64(),
-        watchosX86(),
         watchosX64(),
         tvosArm64(),
         tvosX64(),
@@ -47,8 +51,7 @@ kotlin {
         tvosSimulatorArm64(),
         watchosDeviceArm64(),
         mingwX64(),
-        mingwX86(),
-        linuxX64()
+        linuxX64(),
     )
 
     knTargets
@@ -84,10 +87,6 @@ kotlin {
         }
 
         val mingwX64Main = sourceSets.maybeCreate("mingwX64Main").apply {
-            dependsOn(mingwMain)
-        }
-
-        val mingwX86Main = sourceSets.maybeCreate("mingwX86Main").apply {
             dependsOn(mingwMain)
         }
 

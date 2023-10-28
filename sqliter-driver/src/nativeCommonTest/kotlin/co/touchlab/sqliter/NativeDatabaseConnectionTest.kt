@@ -18,7 +18,11 @@ package co.touchlab.sqliter
 
 import co.touchlab.sqliter.util.maybeFreeze
 import platform.posix.usleep
-import kotlin.native.concurrent.*
+import kotlin.concurrent.AtomicInt
+import kotlin.native.concurrent.Future
+import kotlin.native.concurrent.FutureState
+import kotlin.native.concurrent.TransferMode
+import kotlin.native.concurrent.Worker
 import kotlin.system.getTimeMillis
 import kotlin.test.*
 
