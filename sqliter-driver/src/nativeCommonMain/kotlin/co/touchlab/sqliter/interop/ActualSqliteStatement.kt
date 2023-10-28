@@ -6,6 +6,8 @@ import platform.posix.usleep
 
 expect inline fun bytesToString(bv:CPointer<ByteVar>):String
 
+private const val EMPTY_STRING = ""
+
 internal class ActualSqliteStatement(private val db: SqliteDatabase, private val stmtPointer: SqliteStatementPointer) :
     SqliteStatement {
     private val emptyBytes = ByteArray(0)
@@ -22,7 +24,7 @@ internal class ActualSqliteStatement(private val db: SqliteDatabase, private val
 
     override fun columnGetString(columnIndex: Int): String =
         sqlite3_column_text(stmtPointer, columnIndex)?.reinterpret<ByteVar>()?.let { bytesToString(it) }
-            ?: ""
+            ?: EMPTY_STRING
 
     override fun columnGetBlob(columnIndex: Int): ByteArray {
         val blobSize = sqlite3_column_bytes(stmtPointer, columnIndex)
