@@ -26,12 +26,6 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
             HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
             else -> listOf("-linker-options", "-lsqlite3")
         }
-        kotlinNativeCompilation.kotlinOptions.freeCompilerArgs += listOf(
-            "-opt-in=kotlin.experimental.ExperimentalNativeApi",
-            "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
-            "-opt-in=kotlinx.cinterop.BetaInteropApi",
-            "-Xexpect-actual-classes",
-        )
     }
 }
 
@@ -60,6 +54,13 @@ kotlin {
         }
 
     sourceSets {
+        all {
+            languageSettings.apply {
+                optIn("kotlin.experimental.ExperimentalNativeApi")
+                optIn("kotlinx.cinterop.ExperimentalForeignApi")
+                optIn("kotlinx.cinterop.BetaInteropApi")
+            }
+        }
         commonMain {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
@@ -104,9 +105,12 @@ kotlin {
                     target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
             }
-
         }
     }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
 }
 
 if(!HostManager.hostIsLinux) {
