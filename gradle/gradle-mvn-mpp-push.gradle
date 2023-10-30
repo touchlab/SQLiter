@@ -27,10 +27,10 @@ def getRepositoryPassword() {
 }
 
 task emptySourcesJar(type: Jar) {
-  classifier = 'sources'
+  archiveClassifier = 'sources'
 }
 task emptyJavadocJar(type: Jar) {
-  classifier = 'javadoc'
+  archiveClassifier = 'javadoc'
 }
 
 def getGpgKey() {
