@@ -431,7 +431,7 @@ internal actual class File(dirPath: String? = null, name: String) {
     }
 
     private fun mkdirImpl(filePath: String): Boolean {
-        return mkdir(filePath, S_IRWXU) == F_OK
+        return mkdir(filePath, S_IRWXU.toUInt()) == F_OK
     }
 
     /**
