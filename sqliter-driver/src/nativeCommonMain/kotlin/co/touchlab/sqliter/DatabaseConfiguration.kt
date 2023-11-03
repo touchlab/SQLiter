@@ -69,6 +69,18 @@ data class DatabaseConfiguration(
     }
 }
 
+internal object NoneLogger : Logger {
+    override fun trace(message: String) = Unit
+
+    override val vActive: Boolean = false
+
+    override fun vWrite(message: String) = Unit
+
+    override val eActive: Boolean = false
+
+    override fun eWrite(message: String, exception: Throwable?) = Unit
+}
+
 internal object WarningLogger : Logger {
     override fun trace(message: String) {
         println(message)

@@ -33,7 +33,8 @@ class DatabaseStatementTest{
         mDatabase = createDatabaseManager(DatabaseConfiguration(
             name = DATABASE_NAME,
             version = CURRENT_DATABASE_VERSION,
-            create = {}
+            create = {},
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )).surpriseMeConnection()
     }
 
