@@ -8,12 +8,17 @@ class DbPerformanceTest:BaseDatabaseTest() {
     @Test
     fun bigInsertTest() {
         val manager = createDatabaseManager(
-            DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
-            create = { db ->
-                db.withStatement(TWO_COL) {
-                    execute()
-                }
-            }, journalMode = JournalMode.WAL)
+            DatabaseConfiguration(
+                name = TEST_DB_NAME,
+                version = 1,
+                create = { db ->
+                    db.withStatement(TWO_COL) {
+                        execute()
+                    }
+                },
+                journalMode = JournalMode.WAL,
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
+            ),
         )
 
         val insertList = (0..50_000).map { i ->

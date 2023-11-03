@@ -40,10 +40,11 @@ fun createTestDb(
         extended = extended.copy(busyTimeout = timeout)
 
     return createDatabaseManager(DatabaseConfiguration(
-        name,
-        version,
-        create,
-        update,
+        name = name,
+        version = version,
+        create = create,
+        upgrade = update,
+        loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         lifecycleConfig = DatabaseConfiguration.Lifecycle(
             onCreateConnection = onCreateConnection,
             onCloseConnection = onCloseConnection
