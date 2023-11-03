@@ -114,7 +114,7 @@ kotlin {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
     kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
 }
 
