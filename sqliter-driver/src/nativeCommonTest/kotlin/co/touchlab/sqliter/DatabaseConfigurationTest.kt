@@ -49,7 +49,9 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         val conf = DatabaseConfiguration(
             name = null,
             inMemory = true,
-            version = 1, create = { db ->
+            version = 1,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
+            create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
             }
@@ -76,7 +78,9 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         val conf = DatabaseConfiguration(
             name = TEST_DB_NAME,
             inMemory = true,
-            version = 1, create = { db ->
+            version = 1,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
+            create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
             }
@@ -90,7 +94,9 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         val config = DatabaseConfiguration(
             name = name,
             extendedConfig = DatabaseConfiguration.Extended(basePath = path),
-            version = 1, create = { db ->
+            version = 1,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
+            create = { db ->
             db.withStatement(TWO_COL) {
                 execute()
             }
@@ -102,7 +108,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
 
             conn = manager.createMultiThreadedConnection()
 
-            assertTrue(expectedPath.exists())
+            assertTrue(expectedPath.exists)
         } finally {
             conn?.close()
             DatabaseFileContext.deleteDatabase(config)
@@ -129,7 +135,8 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     /*@Test
     fun configConnection(){
         var called = false
-        val config = DatabaseConfiguration(name = "configConnection", version = 1, create = { _ -> },
+        val config = DatabaseConfiguration(
+    loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),name = "configConnection", version = 1, create = { _ -> },
             lifecycleConfig = DatabaseConfiguration.Lifecycle(
                 onCreateConnection = {conn ->
                     assertNotNull(conn)
@@ -153,8 +160,11 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     @Test
     fun journalModeSetting()
     {
-        val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
+        val manager = createDatabaseManager(DatabaseConfiguration(
+            name = TEST_DB_NAME,
+            version = 1,
             journalMode = JournalMode.WAL,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
@@ -180,7 +190,10 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
 
         conn.close()
 
-        val manager2 = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
+        val manager2 = createDatabaseManager(DatabaseConfiguration(
+            name = TEST_DB_NAME,
+            version = 1,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             journalMode = JournalMode.WAL, create = {
                 fail("Same version shouldn't run")
             }))
@@ -202,6 +215,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
             name = TEST_DB_NAME,
             inMemory = true,
             version = NO_VERSION_CHECK,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             create = { throw IllegalStateException("Shouldn't be here") })
         val manager = createDatabaseManager(conf)
         val conn = manager.createMultiThreadedConnection()
@@ -231,6 +245,7 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
             version = 1,
             journalMode = JournalMode.WAL,
             extendedConfig = DatabaseConfiguration.Extended(foreignKeyConstraints = enableFK),
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             create = { db ->
                 db.withStatement(AUTHOR) {
                     execute()

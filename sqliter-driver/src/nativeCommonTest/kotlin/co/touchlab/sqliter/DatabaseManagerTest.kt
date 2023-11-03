@@ -59,7 +59,8 @@ class DatabaseManagerTest : BaseDatabaseTest(){
             upgrade = { _, _, _ ->
                 updateCalled.increment()
                 println("updateCalled $updateCalled")
-            }
+            },
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )
 
         val config2 = config1.copy(version = 2)
@@ -160,7 +161,8 @@ class DatabaseManagerTest : BaseDatabaseTest(){
             },
             upgrade = { _, _, _ ->
                 upgradeCalled.increment()
-            }
+            },
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )
 
         createDatabaseManager(config1).withConnection {  }
@@ -186,7 +188,8 @@ class DatabaseManagerTest : BaseDatabaseTest(){
                     execute()
                     throw Exception("rollback")
                 }
-            }
+            },
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )
 
         var createCalled = false
@@ -198,7 +201,8 @@ class DatabaseManagerTest : BaseDatabaseTest(){
                     execute()
                     createCalled = true
                 }
-            }
+            },
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )
 
         var conn: DatabaseConnection? = null
@@ -230,7 +234,8 @@ class DatabaseManagerTest : BaseDatabaseTest(){
                     executeInsert()
                 }
                 throw Exception("nah")
-            }
+            },
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )
 
         //Create db

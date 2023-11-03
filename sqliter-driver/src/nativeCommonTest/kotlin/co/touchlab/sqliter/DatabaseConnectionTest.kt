@@ -209,7 +209,8 @@ class DatabaseConnectionTest {
                 name = secondDbName,
                 version = 1,
                 create = {},
-                journalMode = JournalMode.DELETE
+                journalMode = JournalMode.DELETE,
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             )
         )
 
@@ -237,7 +238,8 @@ class DatabaseConnectionTest {
                     execute()
                 }
             },
-            inMemory = true
+            inMemory = true,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )
         val man = createDatabaseManager(
             conf
@@ -297,7 +299,8 @@ class DatabaseConnectionTest {
                         execute()
                     }
                 },
-                inMemory = true
+                inMemory = true,
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             )
         )
 
@@ -380,7 +383,8 @@ class DatabaseConnectionTest {
                             execute()
                         }
                     },
-                    inMemory = mem
+                    inMemory = mem,
+                    loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
                 )
             )
 
@@ -393,7 +397,7 @@ class DatabaseConnectionTest {
                     }
                 }
 
-                dbFileExists = DatabaseFileContext.databaseFile(checkName, null).exists()
+                dbFileExists = DatabaseFileContext.databaseFile(checkName, null).exists
             }
         } finally {
             if (!mem) {
