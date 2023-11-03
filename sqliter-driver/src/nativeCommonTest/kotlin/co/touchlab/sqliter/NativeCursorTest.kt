@@ -51,15 +51,16 @@ class NativeCursorTest : BaseDatabaseTest(){
     private fun createDb() =
         createDatabaseManager(
             DatabaseConfiguration(
-                name = TEST_DB_NAME, version = 1,
+                name = TEST_DB_NAME,
+                version = 1,
                 create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
                     }
-
                 },
                 journalMode = JournalMode.WAL,
-                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000)
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000),
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             )
         )
 

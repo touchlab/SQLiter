@@ -22,8 +22,11 @@ import kotlin.test.assertEquals
 class CursorTest:BaseDatabaseTest(){
     @Test
     fun iterator(){
-        val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
+        val manager = createDatabaseManager(DatabaseConfiguration(
+            name = TEST_DB_NAME,
+            version = 1,
             journalMode = JournalMode.WAL,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
@@ -79,8 +82,11 @@ class CursorTest:BaseDatabaseTest(){
             }
         }
 
-        val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1,
+        val manager = createDatabaseManager(DatabaseConfiguration(
+            name = TEST_DB_NAME,
+            version = 1,
             journalMode = JournalMode.WAL,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             create = { db ->
                 db.withStatement(TWO_COL) {
                     execute()
