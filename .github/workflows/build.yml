@@ -12,12 +12,14 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ macOS-latest, ubuntu-18.04 ]
+        os: [ macOS-latest ]
+#        os: [ macOS-latest, ubuntu-18.04 ] GitHub actions removed ubuntu-18.04
 #        os: [ macOS-latest, windows-latest, ubuntu-18.04 ]
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
+
       - name: Install msys2
         if: matrix.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
@@ -25,8 +27,10 @@ jobs:
           msystem: MINGW64
           update: true
           install: git mingw-w64-x86_64-toolchain libsqlite
+
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
+
       - name: Cache gradle
         uses: actions/cache@v2
         with:
@@ -34,6 +38,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+
       - name: Cache konan
         uses: actions/cache@v2
         with:
@@ -41,10 +46,13 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+
       - name: Update Environment Variables
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           echo "c:\msys64\mingw64\bin" >> $GITHUB_PATH
+
       - name: Build
         run: ./gradlew build --no-daemon --stacktrace
 
