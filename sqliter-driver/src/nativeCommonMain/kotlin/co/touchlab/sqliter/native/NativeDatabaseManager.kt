@@ -97,7 +97,18 @@ class NativeDatabaseManager(private val path:String,
                     conn.close()
                     throw e
                 }
-                newConnection.increment()
+
+                // "Temporary" and "purely in-memory" databases live only as long
+                // as the connection. Subsequent connections (even if open at
+                // the same time) are completely separate databases.
+                //
+                // If this is the case, do not increment newConnection so that
+                // this if block executes on every new connection (i.e. every new
+                // ephemeral database).
+                when (path) {
+                    "", ":memory:" -> {}
+                    else -> newConnection.increment()
+                }
             }
 
             conn

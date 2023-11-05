@@ -61,6 +61,19 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     }
 
     @Test
+    fun temporaryOnlyTest(){
+        val conf = DatabaseConfiguration(
+            name = "",
+            inMemory = false,
+            version = 1,
+            create = {},
+            extendedConfig = DatabaseConfiguration.Extended(basePath = ""),
+        )
+        val dbPathString = diskOrMemoryPath(conf)
+        assertEquals("", dbPathString)
+    }
+
+    @Test
     fun memoryPathTest(){
         val conf = DatabaseConfiguration(
             name = TEST_DB_NAME,

@@ -89,6 +89,66 @@ class DatabaseManagerTest : BaseDatabaseTest(){
     }
 
     @Test
+    fun createCalledEachNewConnectionWhenInMemory() {
+        var creationCount = 0
+
+        val conf = DatabaseConfiguration(
+            name = null,
+            inMemory = true,
+            version = 1, create = { db ->
+                creationCount++
+                db.withStatement(TWO_COL) {
+                    execute()
+                }
+            },
+        )
+
+        val mgr = createDatabaseManager(conf)
+        mgr.withConnection {
+            it.rawExecSql("INSERT INTO test(num, str)values(3,'abc')")
+            assertEquals(1, it.longForQuery("select count(*) from test"))
+
+            mgr.withConnection {
+                assertEquals(0, it.longForQuery("select count(*) from test"))
+            }
+        }
+
+        assertEquals(2, creationCount)
+    }
+
+    @Test
+    fun createCalledEachNewConnectionWhenTemporary() {
+        var creationCount = 0
+
+        val conf = DatabaseConfiguration(
+            name = "",
+            inMemory = false,
+            version = 1,
+            create = { db ->
+                creationCount++
+                db.withStatement(TWO_COL) {
+                    execute()
+                }
+            },
+            extendedConfig = DatabaseConfiguration.Extended(
+                basePath = ""
+            ),
+        )
+
+        val mgr = createDatabaseManager(conf)
+        mgr.withConnection { conn1 ->
+            conn1.rawExecSql("INSERT INTO test(num, str)values(3,'abc')")
+            assertEquals(1, conn1.longForQuery("select count(*) from test"))
+
+            mgr.withConnection { conn2 ->
+                assertEquals(0, conn2.longForQuery("select count(*) from test"))
+            }
+        }
+
+        assertEquals(2, creationCount)
+    }
+
+    @Test
     fun downgradeNotAllowed(){
         val upgradeCalled = AtomicInt(0)
         val config1 = DatabaseConfiguration(
