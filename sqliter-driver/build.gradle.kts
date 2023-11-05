@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
     kotlin("multiplatform")
+    id("com.vanniktech.maven.publish") version "0.25.3"
 }
 
 val GROUP: String by project
@@ -129,5 +130,3 @@ listOf(
     "mingwX64Test",
     "linkDebugTestMingwX64",
 ).forEach { tasks.findByName(it)?.enabled = false }
-
-apply(from = "../gradle/gradle-mvn-mpp-push.gradle")
