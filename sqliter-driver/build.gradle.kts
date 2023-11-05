@@ -26,6 +26,12 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
             HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
             else -> listOf("-linker-options", "-lsqlite3")
         }
+        kotlinNativeCompilation.kotlinOptions.freeCompilerArgs += listOf(
+            "-opt-in=kotlin.experimental.ExperimentalNativeApi",
+            "-opt-in=kotlinx.cinterop.ExperimentalForeignApi",
+            "-opt-in=kotlinx.cinterop.BetaInteropApi",
+            "-Xexpect-actual-classes",
+        )
     }
 }
 
