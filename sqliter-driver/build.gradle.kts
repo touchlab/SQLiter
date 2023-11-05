@@ -46,6 +46,7 @@ kotlin {
         watchosDeviceArm64(),
         mingwX64(),
         linuxX64(),
+        linuxArm64(),
     )
 
     knTargets
@@ -63,7 +64,6 @@ kotlin {
         }
         commonMain {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
             }
         }
         commonTest {
@@ -78,10 +78,16 @@ kotlin {
         val appleMain = sourceSets.maybeCreate("appleMain").apply {
             dependsOn(nativeCommonMain)
         }
-        val linuxMain = sourceSets.maybeCreate("linuxX64Main").apply {
+        val linuxMain = sourceSets.maybeCreate("linuxMain").apply {
             dependsOn(nativeCommonMain)
         }
-        
+        val linuxX64Main = sourceSets.maybeCreate("linuxX64Main").apply {
+            dependsOn(linuxMain)
+        }
+        val linuxArm64Main = sourceSets.maybeCreate("linuxArm64Main").apply {
+            dependsOn(linuxMain)
+        }
+
         val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
             dependsOn(nativeCommonMain)
         }
@@ -114,8 +120,11 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
 
 if(!HostManager.hostIsLinux) {
     tasks.findByName("linuxX64Test")?.enabled = false
+    tasks.findByName("linuxArm64Test")?.enabled = false
     tasks.findByName("linkDebugTestLinuxX64")?.enabled = false
+    tasks.findByName("linkDebugTestLinuxArm64")?.enabled = false
     tasks.findByName("publishLinuxX64PublicationToMavenRepository")?.enabled = false
+    tasks.findByName("publishLinuxArm64PublicationToMavenRepository")?.enabled = false
 }
 
 if(!HostManager.hostIsMingw) {
