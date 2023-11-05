@@ -31,13 +31,11 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 
 kotlin {
     val knTargets = listOf(
-            macosX64(),
-            iosX64(),
-            iosArm64(),
-            iosArm32(),
+        macosX64(),
+        iosX64(),
+        iosArm64(),
         watchosArm32(),
         watchosArm64(),
-        watchosX86(),
         watchosX64(),
         tvosArm64(),
         tvosX64(),
@@ -47,8 +45,7 @@ kotlin {
         tvosSimulatorArm64(),
         watchosDeviceArm64(),
         mingwX64(),
-        mingwX86(),
-        linuxX64()
+        linuxX64(),
     )
 
     knTargets
@@ -57,6 +54,13 @@ kotlin {
         }
 
     sourceSets {
+        all {
+            languageSettings.apply {
+                optIn("kotlin.experimental.ExperimentalNativeApi")
+                optIn("kotlinx.cinterop.ExperimentalForeignApi")
+                optIn("kotlinx.cinterop.BetaInteropApi")
+            }
+        }
         commonMain {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
@@ -64,8 +68,7 @@ kotlin {
         }
         commonTest {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test-common")
-                implementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
+                implementation(kotlin("test"))
             }
         }
 
@@ -87,10 +90,6 @@ kotlin {
             dependsOn(mingwMain)
         }
 
-        val mingwX86Main = sourceSets.maybeCreate("mingwX86Main").apply {
-            dependsOn(mingwMain)
-        }
-
         knTargets.forEach { target ->
             when {
                 target.name.startsWith("mingw") -> {
@@ -105,9 +104,12 @@ kotlin {
                     target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
             }
-
         }
     }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
+    kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
 }
 
 if(!HostManager.hostIsLinux) {

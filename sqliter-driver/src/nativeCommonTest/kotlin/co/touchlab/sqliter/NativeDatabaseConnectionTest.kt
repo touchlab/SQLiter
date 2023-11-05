@@ -18,7 +18,11 @@ package co.touchlab.sqliter
 
 import co.touchlab.sqliter.util.maybeFreeze
 import platform.posix.usleep
-import kotlin.native.concurrent.*
+import kotlin.concurrent.AtomicInt
+import kotlin.native.concurrent.Future
+import kotlin.native.concurrent.FutureState
+import kotlin.native.concurrent.TransferMode
+import kotlin.native.concurrent.Worker
 import kotlin.system.getTimeMillis
 import kotlin.test.*
 
@@ -45,7 +49,8 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                         execute()
                     }
                 },
-                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000)
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000),
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             )
         )
 
@@ -135,7 +140,8 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
                     }
                 },
-                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000)
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000),
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             )
         )
 
@@ -192,11 +198,11 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                         bindLong(1, 545)
                         bindString(2, "qasdfwerqwer")
                         executeInsert()
-
                     }
                 },
                 journalMode = JournalMode.DELETE,
-                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 1500)
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 1500),
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             )
         )
 
@@ -241,11 +247,11 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
     fun testReadWhileWriting() {
         val manager = createDatabaseManager(
             DatabaseConfiguration(
-                name = TEST_DB_NAME, version = 1,
+                name = TEST_DB_NAME,
+                version = 1,
                 create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
-
                     }
                     db.withStatement("insert into test(num, str)values(?,?)") {
                         bindLong(1, 555)
@@ -255,11 +261,11 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                         bindLong(1, 545)
                         bindString(2, "qasdfwerqwer")
                         executeInsert()
-
                     }
                 },
                 journalMode = JournalMode.DELETE,
-                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000)
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000),
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             )
         )
 
@@ -293,11 +299,16 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
 //    @Test
     fun testTimeout() {
-        val manager = createDatabaseManager(DatabaseConfiguration(name = TEST_DB_NAME, version = 1, create = { db ->
-            db.withStatement(TWO_COL) {
-                execute()
-            }
-        }, extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 4000)))
+        val manager = createDatabaseManager(DatabaseConfiguration(
+            name = TEST_DB_NAME,
+            version = 1,
+            create = { db ->
+                db.withStatement(TWO_COL) {
+                    execute()
+                }
+            },
+            extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 4000),
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger)))
 
         val block: (DatabaseConnection) -> Unit = {
             it.withTransaction {
@@ -364,7 +375,8 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                     execute()
                 }
             },
-            extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 15000)
+            extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 15000),
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )
     )
 
@@ -384,7 +396,8 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
             upgrade = {_,_,_ ->
                 throw IllegalStateException("This shouldn't happen")
             },
-            extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000)
+            extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000),
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )
 
         val manager = createDatabaseManager(config1)
@@ -456,16 +469,16 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
     private fun createDb() =
         createDatabaseManager(
             DatabaseConfiguration(
-                name = TEST_DB_NAME, version = 1,
+                name = TEST_DB_NAME,
+                version = 1,
                 create = { db ->
                     db.withStatement(TWO_COL) {
                         execute()
-
                     }
-
                 },
                 journalMode = JournalMode.WAL,
-                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000)
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 30000),
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
             )
         )
 }

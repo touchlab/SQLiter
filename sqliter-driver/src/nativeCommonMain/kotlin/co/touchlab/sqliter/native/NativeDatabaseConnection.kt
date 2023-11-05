@@ -22,8 +22,8 @@ import co.touchlab.sqliter.concurrency.withLock
 import co.touchlab.sqliter.interop.SqliteDatabase
 import co.touchlab.sqliter.interop.SqliteDatabasePointer
 import co.touchlab.sqliter.util.maybeFreeze
-import kotlin.native.concurrent.AtomicInt
-import kotlin.native.concurrent.AtomicReference
+import kotlin.concurrent.AtomicInt
+import kotlin.concurrent.AtomicReference
 
 class NativeDatabaseConnection internal constructor(
     val dbManager: NativeDatabaseManager,

@@ -16,7 +16,8 @@
 
 package co.touchlab.sqliter
 
-import kotlin.native.concurrent.AtomicInt
+import co.touchlab.sqliter.native.increment
+import kotlin.concurrent.AtomicInt
 import kotlin.native.concurrent.TransferMode
 import kotlin.native.concurrent.Worker
 import kotlin.native.concurrent.freeze
