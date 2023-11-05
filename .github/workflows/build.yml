@@ -55,8 +55,5 @@ jobs:
 
       - name: Build
         run: ./gradlew build --no-daemon --stacktrace
-
-      - name: Build Old Memory Model
-        run: ./gradlew build --no-daemon --stacktrace -Pkotlin.native.binary.memoryModel=experimental
 env:
   GRADLE_OPTS: -Dorg.gradle.configureondemand=true -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"

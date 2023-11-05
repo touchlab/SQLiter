@@ -23,6 +23,7 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
                 "-linker-options",
                 "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib"
             )
+
             HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
             else -> listOf("-linker-options", "-lsqlite3")
         }
@@ -102,9 +103,11 @@ kotlin {
                     target.compilations.getByName("main").defaultSourceSet.dependsOn(mingwMain)
                     target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
+
                 target.name.startsWith("linux") -> {
                     target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
+
                 else -> {
                     target.compilations.getByName("main").defaultSourceSet.dependsOn(appleMain)
                     target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
@@ -118,23 +121,13 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
     kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
 }
 
-if(!HostManager.hostIsLinux) {
-    tasks.findByName("linuxX64Test")?.enabled = false
-    tasks.findByName("linuxArm64Test")?.enabled = false
-    tasks.findByName("linkDebugTestLinuxX64")?.enabled = false
-    tasks.findByName("linkDebugTestLinuxArm64")?.enabled = false
-    tasks.findByName("publishLinuxX64PublicationToMavenRepository")?.enabled = false
-    tasks.findByName("publishLinuxArm64PublicationToMavenRepository")?.enabled = false
-}
-
-if(!HostManager.hostIsMingw) {
-    tasks.findByName("mingwX64Test")?.enabled = false
-    tasks.findByName("linkDebugTestMingwX64")?.enabled = false
-    tasks.findByName("publishMingwX64PublicationToMavenRepository")?.enabled = false
-}
+listOf(
+    "linuxX64Test",
+    "linuxArm64Test",
+    "linkDebugTestLinuxX64",
+    "linkDebugTestLinuxArm64",
+    "mingwX64Test",
+    "linkDebugTestMingwX64",
+).forEach { tasks.findByName(it)?.enabled = false }
 
 apply(from = "../gradle/gradle-mvn-mpp-push.gradle")
-
-tasks.register("publishMac"){
-    setDependsOn(tasks.filter { t -> t.name.startsWith("publish") && t.name.endsWith("ToMavenRepository") && !t.name.contains("Linux") }.map { it.name })
-}
