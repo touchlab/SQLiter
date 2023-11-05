@@ -23,6 +23,7 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
                 "-linker-options",
                 "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib"
             )
+
             HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
             else -> listOf("-linker-options", "-lsqlite3")
         }
@@ -46,6 +47,7 @@ kotlin {
         watchosDeviceArm64(),
         mingwX64(),
         linuxX64(),
+        linuxArm64(),
     )
 
     knTargets
@@ -63,7 +65,6 @@ kotlin {
         }
         commonMain {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
             }
         }
         commonTest {
@@ -78,10 +79,16 @@ kotlin {
         val appleMain = sourceSets.maybeCreate("appleMain").apply {
             dependsOn(nativeCommonMain)
         }
-        val linuxMain = sourceSets.maybeCreate("linuxX64Main").apply {
+        val linuxMain = sourceSets.maybeCreate("linuxMain").apply {
             dependsOn(nativeCommonMain)
         }
-        
+        val linuxX64Main = sourceSets.maybeCreate("linuxX64Main").apply {
+            dependsOn(linuxMain)
+        }
+        val linuxArm64Main = sourceSets.maybeCreate("linuxArm64Main").apply {
+            dependsOn(linuxMain)
+        }
+
         val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
             dependsOn(nativeCommonMain)
         }
@@ -96,9 +103,11 @@ kotlin {
                     target.compilations.getByName("main").defaultSourceSet.dependsOn(mingwMain)
                     target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
+
                 target.name.startsWith("linux") -> {
                     target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
                 }
+
                 else -> {
                     target.compilations.getByName("main").defaultSourceSet.dependsOn(appleMain)
                     target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
@@ -112,20 +121,13 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
     kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
 }
 
-if(!HostManager.hostIsLinux) {
-    tasks.findByName("linuxX64Test")?.enabled = false
-    tasks.findByName("linkDebugTestLinuxX64")?.enabled = false
-    tasks.findByName("publishLinuxX64PublicationToMavenRepository")?.enabled = false
-}
-
-if(!HostManager.hostIsMingw) {
-    tasks.findByName("mingwX64Test")?.enabled = false
-    tasks.findByName("linkDebugTestMingwX64")?.enabled = false
-    tasks.findByName("publishMingwX64PublicationToMavenRepository")?.enabled = false
-}
+listOf(
+    "linuxX64Test",
+    "linuxArm64Test",
+    "linkDebugTestLinuxX64",
+    "linkDebugTestLinuxArm64",
+    "mingwX64Test",
+    "linkDebugTestMingwX64",
+).forEach { tasks.findByName(it)?.enabled = false }
 
 apply(from = "../gradle/gradle-mvn-mpp-push.gradle")
-
-tasks.register("publishMac"){
-    setDependsOn(tasks.filter { t -> t.name.startsWith("publish") && t.name.endsWith("ToMavenRepository") && !t.name.contains("Linux") }.map { it.name })
-}
