@@ -32,6 +32,10 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 }
 
 kotlin {
+    jvmToolchain(11)
+}
+
+kotlin {
     val knTargets = listOf(
         macosX64(),
         iosX64(),
