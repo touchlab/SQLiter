@@ -20,9 +20,8 @@ jobs:
       - name: Run script file
         run: |
           ls -l /usr/lib/x86_64-linux-gnu/libsqlite3*
-          sudo apt install glibc-source -y
           sudo apt install libsqlite3-dev -y
-          sqlite3 --version
+          sqlite3 --version || echo "not found"
         shell: bash
 
       - name: Checkout the repo
