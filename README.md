@@ -17,7 +17,7 @@ SQLiter is designed to serve as a driver to power user-friendly libraries rather
 
 ```
 dependencies {
-  implementation("co.touchlab:sqliter:$version")
+  implementation("co.touchlab:sqliter-driver:$version")
 }
 ```
 
