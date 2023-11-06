@@ -22,7 +22,7 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
         kotlinNativeCompilation.kotlinOptions.freeCompilerArgs += when {
             HostManager.hostIsLinux -> listOf(
                 "-linker-options",
-                "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib"
+                "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib --allow-shlib-undefined"
             )
 
             HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
