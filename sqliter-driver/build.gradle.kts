@@ -18,15 +18,11 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
 //      extraOpts = listOf("-mode", "sourcecode")
     }
 
-    target.compilations.forEach { kotlinNativeCompilation ->
-        kotlinNativeCompilation.kotlinOptions.freeCompilerArgs += when {
-            HostManager.hostIsLinux -> listOf(
-                "-linker-options",
-                "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib -undefined dynamic_lookup"
-            )
-
-            HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
-            else -> listOf("-linker-options", "-lsqlite3")
+    target.binaries.all {
+        linkerOpts += when {
+            HostManager.hostIsLinux -> listOf("-lsqlite3", "-L$rootDir/libs/linux", "-L/usr/lib/x86_64-linux-gnu", "-L/usr/lib", "-L/usr/lib64")
+            HostManager.hostIsMingw -> listOf("-Lc:\\msys64\\mingw64\\lib", "-L$rootDir\\libs\\windows", "-lsqlite3")
+            else -> listOf("-lsqlite3")
         }
     }
 }
