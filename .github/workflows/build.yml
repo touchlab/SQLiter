@@ -15,6 +15,14 @@ jobs:
         os: [ macOS-latest, windows-latest, ubuntu-22.04 ]
     runs-on: ${{matrix.os}}
     steps:
+      - name: Run script file
+        run: |
+          ls -l /usr/lib/x86_64-linux-gnu/libsqlite3*
+          sqlite3 --version
+          sudo apt install glibc-source -y
+          sudo apt install libsqlite3-dev -y
+        shell: bash
+
       - name: Checkout the repo
         uses: actions/checkout@v2
 
