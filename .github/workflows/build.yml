@@ -12,7 +12,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ macOS-latest, windows-latest, ubuntu-22.04 ]
+        os: [ ubuntu-22.04 ]
+#        os: [ macOS-latest, windows-latest, ubuntu-22.04 ]
     runs-on: ${{matrix.os}}
     steps:
       - name: Run script file
