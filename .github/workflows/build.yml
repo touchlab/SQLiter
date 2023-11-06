@@ -15,6 +15,7 @@ jobs:
         os: [ ubuntu-22.04 ]
 #        os: [ macOS-latest, windows-latest, ubuntu-22.04 ]
     runs-on: ${{matrix.os}}
+    container: ubuntu:trusty
     steps:
       - name: Run script file
         run: |
