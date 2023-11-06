@@ -124,11 +124,3 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
     kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
 }
 
-listOf(
-    "linuxX64Test",
-    "linuxArm64Test",
-    "linkDebugTestLinuxX64",
-    "linkDebugTestLinuxArm64",
-    "mingwX64Test",
-    "linkDebugTestMingwX64",
-).forEach { tasks.findByName(it)?.enabled = false }
