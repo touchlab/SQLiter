@@ -6,7 +6,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: touchlab/read-property@0.1
         id: version-name
@@ -24,7 +24,7 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
       - name: Cache gradle
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
@@ -32,7 +32,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Cache konan
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
@@ -56,4 +56,4 @@ jobs:
           tag: ${{ steps.version-name.outputs.propVal }}
 
 env:
-  GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
+  GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx4g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"

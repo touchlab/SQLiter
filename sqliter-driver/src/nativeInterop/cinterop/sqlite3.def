@@ -6,3 +6,14 @@ linkerOpts.linux_x64 = -lpthread -ldl
 linkerOpts.macos_x64 = -lpthread -ldl
 
 noStringConversion = sqlite3_prepare_v2 sqlite3_prepare_v3
+
+# These functions aren't guaranteed to be callable and we don't use them. The functions listed here
+# come from:
+#  - mutex_held / mutex_notheld: Debug only, https://sqlite.org/c3ref/mutex_held.html
+#  - column database / table / origin name: Opt-in, https://sqlite.org/c3ref/column_database_name.html
+#  - sqlite3_normalized_sql: Opt-in, https://sqlite.org/c3ref/expanded_sql.html
+#  - Snapshots: Opt-in, https://sqlite.org/compile.html#enable_snapshot
+#  - Scanstatus: Opt-in, https://sqlite.org/c3ref/stmt_scanstatus.html
+#  - sqlite3_unlock_notify: Opt-in, https://sqlite.org/unlock_notify.html
+#  - win32: Platform-specific, not used here, https://sqlite.org/c3ref/win32_set_directory.html
+excludedFunctions = sqlite3_mutex_held sqlite3_mutex_notheld sqlite3_column_database_name sqlite3_column_database_name16 sqlite3_column_table_name sqlite3_column_table_name16 sqlite3_column_origin_name sqlite3_column_origin_name16 sqlite3_normalized_sql sqlite3_snapshot_get sqlite3_snapshot_free sqlite3_snapshot_open sqlite3_snapshot_cmp sqlite3_snapshot_recover sqlite3_stmt_scanstatus sqlite3_stmt_scanstatus_reset sqlite3_unlock_notify sqlite3_win32_set_directory sqlite3_win32_set_directory8 sqlite3_win32_set_directory16
