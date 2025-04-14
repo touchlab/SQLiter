@@ -5,6 +5,20 @@ headerFilter = sqlite3*.h
 linkerOpts.linux_x64 = -lpthread -ldl
 linkerOpts.macos_x64 = -lpthread -ldl
 
+compilerOpts.ios_arm64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.ios_x64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.ios_simulator_arm64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.watchos_arm32 = -Xclang --linker-option=-lsqlite3
+compilerOpts.watchos_arm64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.watchos_x64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.watchos_simulator_arm64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.watchos_device_arm64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.tvos_arm64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.tvos_x64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.tvos_simulator_arm64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.macos_x64 = -Xclang --linker-option=-lsqlite3
+compilerOpts.macos_arm64 = -Xclang --linker-option=-lsqlite3
+
 noStringConversion = sqlite3_prepare_v2 sqlite3_prepare_v3
 
 # These functions aren't guaranteed to be callable and we don't use them. The functions listed here

@@ -1,4 +1,7 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.konan.target.HostManager
+import java.io.ByteArrayOutputStream
 
 plugins {
     kotlin("multiplatform")
@@ -26,7 +29,7 @@ fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTar
             )
 
             HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
-            else -> listOf("-linker-options", "-lsqlite3")
+            else -> emptyList()
         }
     }
 }
@@ -54,6 +57,18 @@ kotlin {
         linuxX64(),
         linuxArm64(),
     )
+
+    if (HostManager.hostIsMac) {
+        val externalLinkageTask = tasks.register("testExternalLinkage")
+        tasks.named("allTests").configure {
+            dependsOn(externalLinkageTask)
+        }
+        testExternalLinkage(macosArm64(), "arm64-apple-macosx", "macosx", externalLinkageTask)
+        testExternalLinkage(macosX64(), "x86_64-apple-macosx", "macosx", externalLinkageTask)
+        testExternalLinkage(iosArm64(), "arm64-apple-ios", "iphoneos", externalLinkageTask)
+        testExternalLinkage(iosSimulatorArm64(), "arm64-apple-ios-simulator", "iphonesimulator", externalLinkageTask)
+        testExternalLinkage(iosX64(), "x86_64-apple-ios-simulator", "iphonesimulator", externalLinkageTask)
+    }
 
     knTargets
         .forEach { target ->
@@ -134,3 +149,46 @@ listOf(
     "mingwX64Test",
     "linkDebugTestMingwX64",
 ).forEach { tasks.findByName(it)?.enabled = false }
+
+fun testExternalLinkage(
+    target: KotlinNativeTarget,
+    clangTriple: String,
+    sdkName: String,
+    aggregateTask: TaskProvider<*>,
+) {
+    target.binaries.framework(buildTypes = listOf(NativeBuildType.DEBUG)) {
+        val framework = this
+        baseName = "sqliteDriver"
+        isStatic = true
+
+        val testTask = tasks.register("testExternalLinkage${target.name}") {
+            val sourceFilesDirectory = layout.projectDirectory.dir("externalLinkageSources")
+            inputs.files(framework.linkTask, sourceFilesDirectory)
+            val output = layout.buildDirectory.file("testExternalLinkage/${target.name}")
+            outputs.dir(output)
+            doLast {
+                val sysrootPath: String = ByteArrayOutputStream().use { outputStream ->
+                    project.exec {
+                        commandLine("xcrun", "-sdk", sdkName, "--show-sdk-path")
+                        standardOutput = outputStream
+                    }
+                    outputStream.toString().dropLast(1)
+                }
+
+                exec {
+                    commandLine(
+                        "clang", "-target", clangTriple, "-fmodules", "-ObjC",
+                        "-isysroot", sysrootPath,
+                        "-F", framework.linkTask.outputFile.get().parentFile,
+                        sourceFilesDirectory.file("lib.m"),
+                        "-dynamiclib", "-o", output.get().asFile.resolve("output.dylib")
+                    )
+                }
+            }
+        }
+
+        aggregateTask.configure {
+            dependsOn(testTask)
+        }
+    }
+}
