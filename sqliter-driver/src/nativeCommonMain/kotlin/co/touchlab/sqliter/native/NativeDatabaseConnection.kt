@@ -92,6 +92,7 @@ class NativeDatabaseConnection internal constructor(
     fun migrateIfNeeded(
         create: (DatabaseConnection) -> Unit,
         upgrade: (DatabaseConnection, Int, Int) -> Unit,
+        downgrade: (DatabaseConnection, Int, Int) -> Unit,
         version: Int
     ) {
         this.withTransaction {
@@ -100,10 +101,11 @@ class NativeDatabaseConnection internal constructor(
                 create(this)
                 setVersion(version)
             } else if (initialVersion != version) {
-                if (initialVersion > version)
-                    throw IllegalStateException("Database version $initialVersion newer than config version $version")
-
-                upgrade(this, initialVersion, version)
+                if (initialVersion > version) {
+                    downgrade(this, initialVersion, version)
+                } else {
+                    upgrade(this, initialVersion, version)
+                }
                 setVersion(version)
             }
         }

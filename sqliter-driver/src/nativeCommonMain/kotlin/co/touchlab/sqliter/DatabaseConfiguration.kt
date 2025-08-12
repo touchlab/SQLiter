@@ -35,6 +35,9 @@ data class DatabaseConfiguration(
     val version: Int,
     val create: (DatabaseConnection) -> Unit,
     val upgrade: (DatabaseConnection, Int, Int) -> Unit = { _, _, _ -> },
+    val downgrade: (DatabaseConnection, Int, Int) -> Unit = { _, initialVersion, version ->
+        error("Database version $initialVersion newer than config version $version")
+    },
     val inMemory: Boolean = false,
     val journalMode: JournalMode = JournalMode.WAL,
     val extendedConfig:Extended = Extended(),
