@@ -89,7 +89,7 @@ class NativeDatabaseManager(private val path:String,
                 try {
                     val version = configuration.version
                     if(version != NO_VERSION_CHECK)
-                        conn.migrateIfNeeded(configuration.create, configuration.upgrade, version)
+                        conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.downgrade, version)
                 } catch (e: Exception) {
 
                     // If this failed, we have to close the connection or we will end up leaking it.

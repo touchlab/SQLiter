@@ -149,8 +149,33 @@ class DatabaseManagerTest : BaseDatabaseTest(){
     }
 
     @Test
-    fun downgradeNotAllowed(){
+    fun downgradeNotAllowedByDefault() {
+        val config1 = DatabaseConfiguration(
+            name = TEST_DB_NAME,
+            version = 1,
+            create = { db ->
+                db.withStatement(TWO_COL) {
+                    execute()
+                }
+            },
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
+        )
+
+        createDatabaseManager(config1).withConnection { }
+        createDatabaseManager(config1.copy(version = 2)).withConnection { }
+
+        var conn: DatabaseConnection? = null
+        assertFails {
+            conn = createDatabaseManager(config1.copy(version = 1)).createSingleThreadedConnection()
+        }
+
+        conn?.close()
+    }
+
+    @Test
+    fun downgradeCalled() {
         val upgradeCalled = AtomicInt(0)
+        val downgradeCalled = AtomicInt(0)
         val config1 = DatabaseConfiguration(
             name = TEST_DB_NAME,
             version = 1,
@@ -162,20 +187,23 @@ class DatabaseManagerTest : BaseDatabaseTest(){
             upgrade = { _, _, _ ->
                 upgradeCalled.increment()
             },
+            downgrade = { _, _, _ ->
+                downgradeCalled.increment()
+            },
             loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
         )
 
-        createDatabaseManager(config1).withConnection {  }
+        createDatabaseManager(config1).withConnection { }
         assertEquals(0, upgradeCalled.value)
-        createDatabaseManager(config1.copy(version = 2)).withConnection {  }
+        assertEquals(0, downgradeCalled.value)
+
+        createDatabaseManager(config1.copy(version = 2)).withConnection { }
         assertEquals(1, upgradeCalled.value)
+        assertEquals(0, downgradeCalled.value)
 
-        var conn: DatabaseConnection? = null
-        assertFails {
-            conn = createDatabaseManager(config1.copy(version = 1)).createSingleThreadedConnection()
-        }
-
-        conn?.close()
+        createDatabaseManager(config1.copy(version = 1)).withConnection { }
+        assertEquals(1, upgradeCalled.value)
+        assertEquals(1, downgradeCalled.value)
     }
 
     @Test
