@@ -16,30 +16,29 @@
 
 package co.touchlab.sqliter
 
-import co.touchlab.sqliter.util.maybeFreeze
 import platform.posix.usleep
 import kotlin.concurrent.AtomicInt
 import kotlin.native.concurrent.Future
 import kotlin.native.concurrent.FutureState
 import kotlin.native.concurrent.TransferMode
 import kotlin.native.concurrent.Worker
-import kotlin.system.getTimeMillis
 import kotlin.test.*
+import kotlin.time.TimeSource
 
-class NativeDatabaseConnectionTest : BaseDatabaseTest(){
+class NativeDatabaseConnectionTest : BaseDatabaseTest() {
 
-//    @Test
+    //    @Test
     fun multithreadedActivityWAL() {
         multithreadedActivity(JournalMode.WAL)
     }
 
-//    @Test
+    //    @Test
     fun multithreadedActivityDELETE() {
         multithreadedActivity(JournalMode.DELETE)
     }
 
     fun multithreadedActivity(mode: JournalMode) {
-        val start = getTimeMillis()
+        val start = TimeSource.Monotonic.markNow()
         val manager = createDatabaseManager(
             DatabaseConfiguration(
                 name = TEST_DB_NAME, version = 1,
@@ -83,7 +82,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         val workers = Array(10) { Worker.start() }
         val futures = mutableListOf<Future<Unit>>()
         workers.forEach {
-            futures.add(it.execute(TransferMode.SAFE, { ManagerOps(manager, biginsert, bigselect).maybeFreeze() }) {
+            futures.add(it.execute(TransferMode.SAFE, { ManagerOps(manager, biginsert, bigselect) }) {
                 val conn = it.manager.surpriseMeConnection()
                 try {
                     for (i in 0 until 10) {
@@ -107,7 +106,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         workers.forEach { it.requestTermination() }
 
         assertEquals(2_550_000, mainConn.longForQuery("select count(*) from test"))
-        println("time ${mode.name} ${getTimeMillis() - start}")
+        println("time ${mode.name} ${start.elapsedNow().inWholeMilliseconds}")
         mainConn.close()
     }
 
@@ -153,7 +152,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         reader.withStatement("select num, str from test limit 20") {
             val cursor = query()
             cursor.next()
-            val start = getTimeMillis()
+            val start = TimeSource.Monotonic.markNow()
 
             writer.withStatement("insert into test(num, str)values(?,?)") {
                 bindLong(1, 1)
@@ -165,7 +164,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                 executeInsert()
             }
 
-            val time = getTimeMillis() - start
+            val time = start.elapsedNow().inWholeMilliseconds
             //Verify probably worked without delay
             assertTrue(time < 100)
 
@@ -215,7 +214,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
             reader.withStatement("select num, str from test limit 20") {
                 val cursor = query()
                 cursor.next()
-                val start = getTimeMillis()
+                val start = TimeSource.Monotonic.markNow()
 
                 assertFails {
                     writer.withStatement("insert into test(num, str)values(?,?)") {
@@ -229,7 +228,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                     }
                 }
 
-                val time = getTimeMillis() - start
+                val time = start.elapsedNow().inWholeMilliseconds
                 //Verify timeout on writer
                 assertTrue(time > 1300)
 
@@ -272,7 +271,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         threadWait(3000, manager) {
             val queryBlock: (DatabaseConnection) -> Unit = {
                 it.withStatement("select num, str from test limit 20") {
-                    val start = getTimeMillis()
+                    val start = TimeSource.Monotonic.markNow()
                     val cursor = query()
                     cursor.next()
                     try {
@@ -281,7 +280,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                             println("cursor ${cursor.getLong(0)}/${cursor.getString(1)}")
                         }
 
-                        println("Run time ${getTimeMillis() - start}")
+                        println("Run time ${start.elapsedNow().inWholeMilliseconds}")
                     } finally {
                         cursor.statement.resetStatement()
                     }
@@ -297,18 +296,21 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
         }
     }
 
-//    @Test
+    //    @Test
     fun testTimeout() {
-        val manager = createDatabaseManager(DatabaseConfiguration(
-            name = TEST_DB_NAME,
-            version = 1,
-            create = { db ->
-                db.withStatement(TWO_COL) {
-                    execute()
-                }
-            },
-            extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 4000),
-            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger)))
+        val manager = createDatabaseManager(
+            DatabaseConfiguration(
+                name = TEST_DB_NAME,
+                version = 1,
+                create = { db ->
+                    db.withStatement(TWO_COL) {
+                        execute()
+                    }
+                },
+                extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 4000),
+                loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger)
+            )
+        )
 
         val block: (DatabaseConnection) -> Unit = {
             it.withTransaction {
@@ -341,7 +343,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
     }*/
 
     @Test
-    fun testFailedCloseRecall(){
+    fun testFailedCloseRecall() {
         val manager = basicDb()
 
         val conn = manager.createMultiThreadedConnection()
@@ -355,7 +357,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
     }
 
     @Test
-    fun lateQueryCloseSucceeds(){
+    fun lateQueryCloseSucceeds() {
         val manager = basicDb()
 
         val conn = manager.createMultiThreadedConnection()
@@ -393,7 +395,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
                     execute()
                 }
             },
-            upgrade = {_,_,_ ->
+            upgrade = { _, _, _ ->
                 throw IllegalStateException("This shouldn't happen")
             },
             extendedConfig = DatabaseConfiguration.Extended(busyTimeout = 3000),
@@ -408,15 +410,15 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
             create = {
                 throw IllegalStateException("This shouldn't happen")
             },
-            upgrade = {_,_,_ ->
-                if(!upgradeCalled.compareAndSet(0, 1))
+            upgrade = { _, _, _ ->
+                if (!upgradeCalled.compareAndSet(0, 1))
                     throw IllegalStateException("Multiple upgrade calls")
             }
         )
 
         val workers = (0 until 20).map { Worker.start(errorReporting = true, name = "Test Worker $it") }
         val futures = workers.map { worker ->
-            worker.execute(TransferMode.SAFE, { config2.maybeFreeze() }) {
+            worker.execute(TransferMode.SAFE, { config2 }) {
                 val managerInner = createDatabaseManager(it)
                 val conn = managerInner.createMultiThreadedConnection()
                 conn.close()
@@ -425,7 +427,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
 
         futures.forEach {
             it.result
-            if(it.state == FutureState.THROWN)
+            if (it.state == FutureState.THROWN)
                 throw IllegalStateException("db failed")
         }
     }
@@ -433,7 +435,7 @@ class NativeDatabaseConnectionTest : BaseDatabaseTest(){
     private fun threadWait(time: Int, manager: DatabaseManager, block: (DatabaseConnection) -> Unit): Boolean {
         return manager.withConnection {
             val worker = Worker.start()
-            val future = worker.execute(TransferMode.SAFE, { Pair(manager, block).maybeFreeze() }) {
+            val future = worker.execute(TransferMode.SAFE, { Pair(manager, block) }) {
                 try {
                     usleep(500_000u)
                     it.first.withConnection(it.second)

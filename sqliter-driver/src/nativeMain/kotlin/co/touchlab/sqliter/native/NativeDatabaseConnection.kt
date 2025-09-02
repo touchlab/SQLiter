@@ -21,7 +21,6 @@ import co.touchlab.sqliter.concurrency.Lock
 import co.touchlab.sqliter.concurrency.withLock
 import co.touchlab.sqliter.interop.SqliteDatabase
 import co.touchlab.sqliter.interop.SqliteDatabasePointer
-import co.touchlab.sqliter.util.maybeFreeze
 import kotlin.concurrent.AtomicInt
 import kotlin.concurrent.AtomicReference
 
@@ -50,12 +49,12 @@ class NativeDatabaseConnection internal constructor(
 
     override fun beginTransaction() = transLock.withLock {
         withStatement("BEGIN;") { execute() }
-        transaction.value = Transaction(false).maybeFreeze()
+        transaction.value = Transaction(false)
     }
 
     override fun setTransactionSuccessful() = transLock.withLock {
         val trans = checkFailTransaction()
-        transaction.value = trans.copy(successful = true).maybeFreeze()
+        transaction.value = trans.copy(successful = true)
     }
 
     override fun endTransaction() = transLock.withLock {

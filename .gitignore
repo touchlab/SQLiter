@@ -56,3 +56,4 @@ samples/**/*.kt.bc-build
 samples/androidNativeActivity/Polyhedron
 
 .vscode
+.kotlin/

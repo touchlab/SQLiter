@@ -16,10 +16,10 @@
 
 package co.touchlab.sqliter
 
-import kotlin.system.getTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.TimeSource
 
 class BasicTest{
 
@@ -27,7 +27,7 @@ class BasicTest{
     fun createTable(){
         basicTestDb {manager ->
             val connection = manager.createSingleThreadedConnection()
-            val start = getTimeMillis()
+            val start = TimeSource.Monotonic.markNow()
             connection.withTransaction {
                 val statement = it.createStatement("INSERT INTO test VALUES (?, ?, ?, ?)")
                 for(i in 0 until 100_000) {
@@ -50,13 +50,13 @@ class BasicTest{
                 println("Query timeBlocking: $timeBlocking")
             }
 
-            println("Full run time ${getTimeMillis() - start}")
+            println("Full run time ${start.elapsedNow().inWholeMilliseconds}")
             connection.close()
         }
     }
 
     inline fun timeCursorBlocking(cursor:Cursor,  proc:(Cursor)->Boolean):Long{
-        val start = getTimeMillis()
+        val start = TimeSource.Monotonic.markNow()
         var rowCount = 0
         while (proc(cursor)) {
             rowCount++
@@ -69,6 +69,6 @@ class BasicTest{
         val names = cursor.columnNames
         assertEquals(4, names.size)
 
-        return getTimeMillis() - start
+        return start.elapsedNow().inWholeMilliseconds
     }
 }

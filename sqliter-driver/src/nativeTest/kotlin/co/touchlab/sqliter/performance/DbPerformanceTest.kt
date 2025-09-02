@@ -3,8 +3,9 @@ package co.touchlab.sqliter.performance
 import co.touchlab.sqliter.*
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import kotlin.time.TimeSource
 
-class DbPerformanceTest:BaseDatabaseTest() {
+class DbPerformanceTest : BaseDatabaseTest() {
     @Test
     fun bigInsertTest() {
         val manager = createDatabaseManager(
@@ -27,8 +28,8 @@ class DbPerformanceTest:BaseDatabaseTest() {
 
         val connection = manager.surpriseMeConnection()
 
-        val start = currentTimeMillis()
-        connection.withStatement("insert into test(num, str)values(?,?)"){
+        val start = TimeSource.Monotonic.markNow()
+        connection.withStatement("insert into test(num, str)values(?,?)") {
             insertList.forEach {
                 bindLong(1, it.first)
                 bindString(2, it.second)
@@ -36,7 +37,7 @@ class DbPerformanceTest:BaseDatabaseTest() {
             }
         }
 
-        val time = currentTimeMillis() - start
+        val time = start.elapsedNow().inWholeMilliseconds
         println("Insert took time $time")
         //Failing on CI. Need another approach for performance
 //        assertTrue("Insert took time ${time}") {time < 6000}
