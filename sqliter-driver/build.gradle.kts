@@ -82,3 +82,12 @@ mavenPublishing {
     configureBasedOnAppliedPlugins(true, true)
     publishToMavenCentral(automaticRelease = true)
 }
+
+listOf(
+    "linuxX64Test",
+    "linuxArm64Test",
+    "linkDebugTestLinuxX64",
+    "linkDebugTestLinuxArm64",
+    "mingwX64Test",
+    "linkDebugTestMingwX64",
+).forEach { tasks.findByName(it)?.enabled = false }
