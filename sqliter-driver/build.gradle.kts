@@ -77,11 +77,8 @@ kotlin {
     }
 }
 
-//listOf(
-//    "linuxX64Test",
-//    "linuxArm64Test",
-//    "linkDebugTestLinuxX64",
-//    "linkDebugTestLinuxArm64",
-//    "mingwX64Test",
-//    "linkDebugTestMingwX64",
-//).forEach { tasks.findByName(it)?.enabled = false }
+mavenPublishing {
+    // Signing and POM are automatically handled by the plugin + gradle.properties
+    configureBasedOnAppliedPlugins(true, true)
+    publishToMavenCentral(automaticRelease = true)
+}
