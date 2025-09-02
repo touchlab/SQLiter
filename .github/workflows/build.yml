@@ -12,9 +12,9 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ macOS-latest ]
+#        os: [ macOS-latest ]
 #        os: [ macOS-latest, ubuntu-18.04 ] GitHub actions removed ubuntu-18.04
-#        os: [ macOS-latest, windows-latest, ubuntu-18.04 ]
+        os: [ macOS-latest, windows-latest, ubuntu-latest ]
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout the repo
@@ -54,6 +54,6 @@ jobs:
           echo "c:\msys64\mingw64\bin" >> $GITHUB_PATH
 
       - name: Build
-        run: ./gradlew build --no-daemon --stacktrace
+        run: ./gradlew build allTests --no-daemon --stacktrace
 env:
   GRADLE_OPTS: -Dorg.gradle.configureondemand=true -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx4g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
