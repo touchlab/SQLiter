@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
     kotlin("multiplatform")
-    id("com.vanniktech.maven.publish") version "0.27.0"
+    id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
 val GROUP: String by project
@@ -11,31 +11,13 @@ val VERSION_NAME: String by project
 group = GROUP
 version = VERSION_NAME
 
-fun configInterop(target: org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget) {
-    val main by target.compilations.getting
-    val sqlite3 by main.cinterops.creating {
-        includeDirs("$projectDir/src/include")
-//      extraOpts = listOf("-mode", "sourcecode")
-    }
-
-    target.compilations.forEach { kotlinNativeCompilation ->
-        kotlinNativeCompilation.kotlinOptions.freeCompilerArgs += when {
-            HostManager.hostIsLinux -> listOf(
-                "-linker-options",
-                "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib"
-            )
-
-            HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
-            else -> listOf("-linker-options", "-lsqlite3")
-        }
-    }
+kotlin {
+    jvmToolchain(17)
 }
 
 kotlin {
-    jvmToolchain(11)
-}
+    applyDefaultHierarchyTemplate()
 
-kotlin {
     val knTargets = listOf(
         macosX64(),
         iosX64(),
@@ -55,75 +37,50 @@ kotlin {
         linuxArm64(),
     )
 
-    knTargets
-        .forEach { target ->
-            configInterop(target)
+    knTargets.forEach { target ->
+        target.compilations["main"].cinterops.create("sqlite3").apply {
+            includeDirs("$projectDir/src/include")
+//            extraOpts = listOf("-mode", "sourcecode")
         }
+
+        target.compilerOptions {
+            freeCompilerArgs.addAll(
+                when {
+                    HostManager.hostIsLinux -> listOf(
+                        "-linker-options",
+                        "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib"
+                    )
+
+                    HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
+                    else -> listOf("-linker-options", "-lsqlite3")
+                }
+            )
+        }
+    }
 
     sourceSets {
         all {
-            languageSettings.apply {
+            languageSettings {
                 optIn("kotlin.experimental.ExperimentalNativeApi")
                 optIn("kotlinx.cinterop.ExperimentalForeignApi")
                 optIn("kotlinx.cinterop.BetaInteropApi")
-            }
-        }
-        commonMain {
-            dependencies {
-            }
-        }
-        commonTest {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
 
-        val nativeCommonMain = sourceSets.maybeCreate("nativeCommonMain")
-        val nativeCommonTest = sourceSets.maybeCreate("nativeCommonTest")
-
-        val appleMain = sourceSets.maybeCreate("appleMain").apply {
-            dependsOn(nativeCommonMain)
-        }
-        val linuxMain = sourceSets.maybeCreate("linuxMain").apply {
-            dependsOn(nativeCommonMain)
-        }
-        val linuxX64Main = sourceSets.maybeCreate("linuxX64Main").apply {
-            dependsOn(linuxMain)
-        }
-        val linuxArm64Main = sourceSets.maybeCreate("linuxArm64Main").apply {
-            dependsOn(linuxMain)
-        }
-
-        val mingwMain = sourceSets.maybeCreate("mingwMain").apply {
-            dependsOn(nativeCommonMain)
-        }
-
-        val mingwX64Main = sourceSets.maybeCreate("mingwX64Main").apply {
-            dependsOn(mingwMain)
-        }
-
-        knTargets.forEach { target ->
-            when {
-                target.name.startsWith("mingw") -> {
-                    target.compilations.getByName("main").defaultSourceSet.dependsOn(mingwMain)
-                    target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
-                }
-
-                target.name.startsWith("linux") -> {
-                    target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
-                }
-
-                else -> {
-                    target.compilations.getByName("main").defaultSourceSet.dependsOn(appleMain)
-                    target.compilations.getByName("test").defaultSourceSet.dependsOn(nativeCommonTest)
+                compilerOptions {
+                    freeCompilerArgs.add("-Xexpect-actual-classes")
                 }
             }
+        }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
-    kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
+mavenPublishing {
+    // Signing and POM are automatically handled by the plugin + gradle.properties
+    configureBasedOnAppliedPlugins(true, true)
+    publishToMavenCentral(automaticRelease = true)
 }
 
 listOf(

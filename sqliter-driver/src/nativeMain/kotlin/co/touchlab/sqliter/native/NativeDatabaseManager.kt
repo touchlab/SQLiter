@@ -16,25 +16,33 @@
 
 package co.touchlab.sqliter.native
 
-import co.touchlab.sqliter.*
+import co.touchlab.sqliter.DatabaseConfiguration
+import co.touchlab.sqliter.DatabaseConnection
+import co.touchlab.sqliter.DatabaseManager
+import co.touchlab.sqliter.NO_VERSION_CHECK
 import co.touchlab.sqliter.concurrency.ConcurrentDatabaseConnection
 import co.touchlab.sqliter.concurrency.Lock
-import co.touchlab.sqliter.concurrency.SingleThreadDatabaseConnection
 import co.touchlab.sqliter.concurrency.withLock
 import co.touchlab.sqliter.interop.OpenFlags
 import co.touchlab.sqliter.interop.dbOpen
-import co.touchlab.sqliter.util.maybeFreeze
+import co.touchlab.sqliter.resetCipherKey
+import co.touchlab.sqliter.setCipherKey
+import co.touchlab.sqliter.updateForeignKeyConstraints
+import co.touchlab.sqliter.updateJournalMode
+import co.touchlab.sqliter.updateRecursiveTriggers
+import co.touchlab.sqliter.updateSynchronousFlag
 import kotlin.concurrent.AtomicInt
 
-class NativeDatabaseManager(private val path:String,
-                            override val configuration: DatabaseConfiguration
-): DatabaseManager {
+class NativeDatabaseManager(
+    private val path: String,
+    override val configuration: DatabaseConfiguration
+) : DatabaseManager {
     override fun createMultiThreadedConnection(): DatabaseConnection {
-        return ConcurrentDatabaseConnection(createConnection()).maybeFreeze()
+        return ConcurrentDatabaseConnection(createConnection())
     }
 
     override fun createSingleThreadedConnection(): DatabaseConnection {
-        return SingleThreadDatabaseConnection(createConnection())
+        return createConnection()
     }
 
     private val lock = Lock()
@@ -83,13 +91,18 @@ class NativeDatabaseManager(private val path:String,
             conn.updateRecursiveTriggers(configuration.extendedConfig.recursiveTriggers)
 
 
-            if(newConnection.value == 0){
+            if (newConnection.value == 0) {
                 conn.updateJournalMode(configuration.journalMode)
 
                 try {
                     val version = configuration.version
-                    if(version != NO_VERSION_CHECK)
-                        conn.migrateIfNeeded(configuration.create, configuration.upgrade, configuration.downgrade, version)
+                    if (version != NO_VERSION_CHECK)
+                        conn.migrateIfNeeded(
+                            configuration.create,
+                            configuration.upgrade,
+                            configuration.downgrade,
+                            version
+                        )
                 } catch (e: Exception) {
 
                     // If this failed, we have to close the connection or we will end up leaking it.
@@ -115,7 +128,7 @@ class NativeDatabaseManager(private val path:String,
         }
     }
 
-    internal fun closeConnection(connection:DatabaseConnection){
+    internal fun closeConnection(connection: DatabaseConnection) {
         configuration.lifecycleConfig.onCloseConnection(connection)
     }
 }

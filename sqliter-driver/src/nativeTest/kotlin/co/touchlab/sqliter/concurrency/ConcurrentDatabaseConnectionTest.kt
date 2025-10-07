@@ -17,10 +17,9 @@
 package co.touchlab.sqliter.concurrency
 
 import co.touchlab.sqliter.*
-import co.touchlab.sqliter.util.maybeFreeze
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
+import kotlin.time.TimeSource
 
 class ConcurrentDatabaseConnectionTest {
 
@@ -41,7 +40,7 @@ class ConcurrentDatabaseConnectionTest {
             } else {
                 it.createMultiThreadedConnection()
             }
-            val start = currentTimeMillis()
+            val start = TimeSource.Monotonic.markNow()
 
             val statement = conn.createStatement("insert into test(num, str)values(?,?)")
 
@@ -59,32 +58,13 @@ class ConcurrentDatabaseConnectionTest {
                 statement.finalizeStatement()
             }
 
-            totalTime = currentTimeMillis() - start
+            totalTime = start.elapsedNow().inWholeMilliseconds
 
             assertEquals((INSERT_COUNT * INSERT_LOOP_COUNT).toLong(), conn.longForQuery("select count(*) from test"))
             conn.close()
         }
 
         return totalTime
-    }
-
-
-    @Test
-    fun singleThreadedConnectionFreezeFails() {
-        // Skip if not strict
-        if (Platform.memoryModel != MemoryModel.STRICT) {
-            return
-        }
-        basicTestDb(TWO_COL) {
-            val conn = it.createSingleThreadedConnection()
-            try {
-                assertFails { conn.maybeFreeze() }
-            } catch (assertion: AssertionError) {
-                throw assertion
-            } finally {
-                conn.close()
-            }
-        }
     }
 
     @Test
