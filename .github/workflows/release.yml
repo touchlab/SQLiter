@@ -50,7 +50,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
 
       - name: Create Release
-        if: ${{ contains(steps.version-match.outputs.group1, 'SNAPSHOT') == false }}
+        if: ${{ contains(steps.version-name.outputs.propVal, 'SNAPSHOT') == false }}
         uses: touchlab/release-action@v1.10.0
         with:
           tag: ${{ steps.version-name.outputs.propVal }}
