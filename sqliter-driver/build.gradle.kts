@@ -18,6 +18,10 @@ kotlin {
 kotlin {
     applyDefaultHierarchyTemplate()
 
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     val knTargets = listOf(
         macosX64(),
         iosX64(),
@@ -64,10 +68,6 @@ kotlin {
                 optIn("kotlin.experimental.ExperimentalNativeApi")
                 optIn("kotlinx.cinterop.ExperimentalForeignApi")
                 optIn("kotlinx.cinterop.BetaInteropApi")
-
-                compilerOptions {
-                    freeCompilerArgs.add("-Xexpect-actual-classes")
-                }
             }
         }
 
