@@ -23,6 +23,7 @@ import kotlin.native.concurrent.Worker
 import kotlin.native.concurrent.freeze
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.TimeSource
 
 class MultithreadedTest {
     /*@Test
@@ -48,12 +49,12 @@ class MultithreadedTest {
         }
     }
 */
-    inline fun timer(block:()->Unit){
-        val start = currentTimeMillis()
+    inline fun timer(block: () -> Unit) {
+        val start = TimeSource.Monotonic.markNow()
         try {
             block()
-        }finally {
-            println("Total time ${currentTimeMillis() - start}")
+        } finally {
+            println("Total time ${start.elapsedNow().inWholeMilliseconds}")
         }
     }
 

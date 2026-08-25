@@ -1,10 +1,19 @@
 package co.touchlab.sqliter.concurrency
 
-import co.touchlab.sqliter.util.maybeFreeze
 import kotlinx.cinterop.Arena
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.ptr
-import platform.posix.*
+import platform.posix.PTHREAD_MUTEX_RECURSIVE
+import platform.posix.pthread_mutex_destroy
+import platform.posix.pthread_mutex_init
+import platform.posix.pthread_mutex_lock
+import platform.posix.pthread_mutex_t
+import platform.posix.pthread_mutex_trylock
+import platform.posix.pthread_mutex_unlock
+import platform.posix.pthread_mutexattr_destroy
+import platform.posix.pthread_mutexattr_init
+import platform.posix.pthread_mutexattr_settype
+import platform.posix.pthread_mutexattr_t
 
 /**
  * A simple lock.
@@ -19,7 +28,6 @@ internal actual class Lock actual constructor() {
         pthread_mutexattr_init(attr.ptr)
         pthread_mutexattr_settype(attr.ptr, PTHREAD_MUTEX_RECURSIVE.toInt())
         pthread_mutex_init(mutex.ptr, attr.ptr)
-        maybeFreeze()
     }
 
     actual fun lock() {

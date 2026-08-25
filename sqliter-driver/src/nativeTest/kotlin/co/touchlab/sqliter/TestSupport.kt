@@ -16,16 +16,15 @@
 
 package co.touchlab.sqliter
 
-import co.touchlab.sqliter.util.maybeFreeze
 import kotlin.native.concurrent.Future
 import kotlin.native.concurrent.TransferMode
 import kotlin.native.concurrent.Worker
-import kotlin.system.getTimeMillis
+import kotlin.time.TimeSource
 
-class MPWorker(){
+class MPWorker() {
     val worker = Worker.start()
     fun <T> runBackground(backJob: () -> T): MPFuture<T> {
-        return MPFuture(worker.execute(TransferMode.SAFE, {backJob.maybeFreeze()}){
+        return MPFuture(worker.execute(TransferMode.SAFE, { backJob }) {
             it()
         })
     }
@@ -36,37 +35,35 @@ class MPWorker(){
 }
 
 class MPFuture<T>(private val future: Future<T>) {
-    fun consume():T = future.result
+    fun consume(): T = future.result
 }
 
-fun createWorker():MPWorker = MPWorker()
+fun createWorker(): MPWorker = MPWorker()
 
-class ThreadOps<C>(val producer:()->C){
-    private val exes = mutableListOf<(C)->Unit>()
-    private val tests = mutableListOf<(C)->Unit>()
+class ThreadOps<C>(val producer: () -> C) {
+    private val exes = mutableListOf<(C) -> Unit>()
+    private val tests = mutableListOf<(C) -> Unit>()
     var lastRunTime = 0L
 
-    fun exe(proc:(C)->Unit){
+    fun exe(proc: (C) -> Unit) {
         exes.add(proc)
     }
 
-    fun test(proc:(C)->Unit){
+    fun test(proc: (C) -> Unit) {
         tests.add(proc)
     }
 
-    fun run(threads:Int, collection:C = producer(), randomize:Boolean = false):C{
+    fun run(threads: Int, collection: C = producer(), randomize: Boolean = false): C {
 
-        if(randomize){
+        if (randomize) {
             exes.shuffle()
             tests.shuffle()
         }
 
-        exes.maybeFreeze()
+        val start = TimeSource.Monotonic.markNow()
 
-        val start = currentTimeMillis()
-
-        val workers= Array(threads){MPWorker()}
-        for(i in 0 until exes.size){
+        val workers = Array(threads) { MPWorker() }
+        for (i in 0 until exes.size) {
             val ex = exes[i]
             workers[i % workers.size]
                 .runBackground { ex(collection) }
@@ -75,10 +72,8 @@ class ThreadOps<C>(val producer:()->C){
 
         tests.forEach { it(collection) }
 
-        lastRunTime = currentTimeMillis() - start
+        lastRunTime = start.elapsedNow().inWholeMilliseconds
 
         return collection
     }
 }
-
-fun currentTimeMillis(): Long = getTimeMillis()

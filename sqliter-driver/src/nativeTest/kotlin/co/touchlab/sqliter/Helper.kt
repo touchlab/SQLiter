@@ -19,45 +19,47 @@ package co.touchlab.sqliter
 import co.touchlab.sqliter.DatabaseFileContext.deleteDatabase
 import kotlin.native.concurrent.Future
 import kotlin.native.concurrent.waitForMultipleFutures
+import kotlin.random.Random
 
 val TEST_DB_NAME = "testdb"
 
 fun createTestDb(
-    name:String = TEST_DB_NAME,
-    version:Int = 1,
-    timeout:Int? = null,
-    update:(DatabaseConnection, Int, Int)->Unit = {_,_,_->},
+    name: String = TEST_DB_NAME,
+    version: Int = 1,
+    timeout: Int? = null,
+    update: (DatabaseConnection, Int, Int) -> Unit = { _, _, _ -> },
     onCreateConnection: (DatabaseConnection) -> Unit = { _ -> },
     onCloseConnection: (DatabaseConnection) -> Unit = { _ -> },
-    create:(DatabaseConnection)->Unit
-    ):DatabaseManager{
+    create: (DatabaseConnection) -> Unit
+): DatabaseManager {
     try {
         deleteDatabase(name)
     } catch (e: Exception) {
     }
     var extended = DatabaseConfiguration.Extended()
-    if(timeout != null)
+    if (timeout != null)
         extended = extended.copy(busyTimeout = timeout)
 
-    return createDatabaseManager(DatabaseConfiguration(
-        name = name,
-        version = version,
-        create = create,
-        upgrade = update,
-        loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
-        lifecycleConfig = DatabaseConfiguration.Lifecycle(
-            onCreateConnection = onCreateConnection,
-            onCloseConnection = onCloseConnection
-        ),
-        extendedConfig = extended
-    ))
+    return createDatabaseManager(
+        DatabaseConfiguration(
+            name = name,
+            version = version,
+            create = create,
+            upgrade = update,
+            loggingConfig = DatabaseConfiguration.Logging(logger = NoneLogger),
+            lifecycleConfig = DatabaseConfiguration.Lifecycle(
+                onCreateConnection = onCreateConnection,
+                onCloseConnection = onCloseConnection
+            ),
+            extendedConfig = extended
+        )
+    )
 }
 
-inline fun deleteAfter(name: String, manager: DatabaseManager, block:(DatabaseManager)->Unit){
+inline fun deleteAfter(name: String, manager: DatabaseManager, block: (DatabaseManager) -> Unit) {
     try {
         block(manager)
-    }
-    finally {
+    } finally {
         deleteDatabase(name)
     }
 }
@@ -101,13 +103,11 @@ fun <T> Collection<Future<T>>.waitForAllFutures() {
     }
 }
 
-/**
- * For connections where we don't care about threading, randomize(ish)
- */
-fun DatabaseManager.surpriseMeConnection():DatabaseConnection {
-    return if(currentTimeMillis() %2 == 0L){
+/** For connections where we don't care about threading, randomize(ish) */
+fun DatabaseManager.surpriseMeConnection(): DatabaseConnection {
+    return if (Random.nextBoolean()) {
         createMultiThreadedConnection()
-    }else{
+    } else {
         createSingleThreadedConnection()
     }
 }
