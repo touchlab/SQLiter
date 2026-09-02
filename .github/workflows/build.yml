@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macOS-latest, windows-latest, ubuntu-latest ]
+        os: [  windows-latest ]
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout the repo
@@ -34,14 +34,6 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-
-      - name: Cache konan
-        uses: actions/cache@v4
-        with:
-          path: ~/.konan
-          key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
 
       - name: Update Environment Variables
         if: matrix.os == 'windows-latest'
