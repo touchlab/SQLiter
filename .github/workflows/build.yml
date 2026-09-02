@@ -30,6 +30,7 @@ jobs:
           msystem: MINGW64
           update: true
           install: git mingw-w64-x86_64-toolchain mingw-w64-x86_64-sqlite3
+          release: false
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
