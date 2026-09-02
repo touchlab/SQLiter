@@ -16,9 +16,14 @@
 
 package co.touchlab.sqliter
 
+import kotlin.native.OsFamily
+import kotlin.native.Platform
 import kotlin.test.*
 
 class DatabaseConfigurationTest : BaseDatabaseTest(){
+
+    // Paths are normalized to the host's separator, which is a back slash on Windows.
+    private val sep = if (Platform.osFamily == OsFamily.WINDOWS) "\\" else "/"
 
     @Test
     fun pathTest(){
@@ -29,19 +34,19 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
     @Test
     fun databasePathRemovesExtraSlashes() {
         val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "//tmp//")
-        assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+        assertEquals("${sep}tmp$sep$TEST_DB_NAME", dbPathString)
     }
 
     @Test
     fun databasePathRemovesFileUrlPrefix() {
         val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "file:///tmp/")
-        assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+        assertEquals("${sep}tmp$sep$TEST_DB_NAME", dbPathString)
     }
 
     @Test
     fun databasePathRemovesFileUrlPrefixInCaps() {
         val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "FILE:///tmp/")
-        assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+        assertEquals("${sep}tmp$sep$TEST_DB_NAME", dbPathString)
     }
 
     @Test
