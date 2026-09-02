@@ -83,11 +83,14 @@ mavenPublishing {
     publishToMavenCentral(automaticRelease = true)
 }
 
-listOf(
-    "linuxX64Test",
-    "linuxArm64Test",
-    "linkDebugTestLinuxX64",
-    "linkDebugTestLinuxArm64",
-    "mingwX64Test",
-    "linkDebugTestMingwX64",
-).forEach { tasks.findByName(it)?.enabled = false }
+val disabledTestLinks = mutableListOf("linkDebugTestLinuxArm64")
+
+if (!HostManager.hostIsLinux) {
+    disabledTestLinks += "linkDebugTestLinuxX64"
+}
+
+if (!HostManager.hostIsMingw) {
+    disabledTestLinks += "linkDebugTestMingwX64"
+}
+
+disabledTestLinks.forEach { tasks.findByName(it)?.enabled = false }
