@@ -16,31 +16,24 @@ jobs:
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
         with:
           distribution: "temurin"
           java-version: "17"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
       - name: Install msys2
         if: matrix.os == 'windows-latest'
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           msystem: MINGW64
           update: true
-          install: git mingw-w64-x86_64-toolchain libsqlite
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Cache konan
-        uses: actions/cache@v4
-        with:
-          path: ~/.konan
-          key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          install: mingw-w64-x86_64-sqlite3
+          release: false
 
       - name: Update Environment Variables
         if: matrix.os == 'windows-latest'
@@ -48,12 +41,7 @@ jobs:
         run: |
           echo "c:\msys64\mingw64\bin" >> $GITHUB_PATH
 
-      - name: Build
-        if: matrix.os != 'macOS-latest'
+      - name: Build and test
         run: ./gradlew build --no-daemon --stacktrace
-
-      - name: Build and Test
-        if: matrix.os == 'macOS-latest'
-        run: ./gradlew build allTests --no-daemon --stacktrace
 env:
   GRADLE_OPTS: -Dorg.gradle.configureondemand=true -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx4g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
