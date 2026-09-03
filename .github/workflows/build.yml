@@ -32,7 +32,8 @@ jobs:
         with:
           msystem: MINGW64
           update: true
-          install: git mingw-w64-x86_64-toolchain libsqlite
+          install: mingw-w64-x86_64-sqlite3
+          release: false
 
       - name: Update Environment Variables
         if: matrix.os == 'windows-latest'
