@@ -71,8 +71,7 @@ internal actual class File(dirPath:String? = null, name:String) {
      */
     constructor(dir: File, name: String) : this(dir.path, name)
 
-    // Removes duplicate adjacent separators and any trailing separator. Windows accepts either
-    // slash direction, so both count as separators and are normalized to [separatorChar].
+    // Removes duplicate adjacent back slashes and any trailing back slashes.
     private fun fixSlashes(origPath: String): String {
         // Remove duplicate adjacent slashes.
         var lastWasSlash = false
@@ -82,7 +81,7 @@ internal actual class File(dirPath:String? = null, name:String) {
         val initialIndex = if (origPath.startsWith("file://", true)) 7 else 0
         for (i in initialIndex until length) {
             val ch = newPath[i]
-            if (isSeparator(ch)) {
+            if (ch == separatorChar) {
                 if (!lastWasSlash) {
                     newPath[newLength++] = separatorChar
                     lastWasSlash = true
@@ -98,24 +97,21 @@ internal actual class File(dirPath:String? = null, name:String) {
             newLength--
         }
 
-        // Always rebuild. An unchanged length doesn't mean an unchanged string here, as forward
-        // slashes are rewritten in place without shortening the path.
-        return buildString(newLength) {
+        // Reuse the original string if possible.
+        return if (newLength != length) buildString(newLength) {
             append(newPath)
             setLength(newLength)
-        }
+        } else origPath
     }
-
-    private fun isSeparator(ch: Char): Boolean = ch == '/' || ch == '\\'
 
     /**
      * Returns the combination of the prefix and suffix with a back slash added if necessary.
      */
     private fun join(prefix: String, suffix: String): String {
         val prefixLength = prefix.length
-        var haveSlash = prefixLength > 0 && isSeparator(prefix[prefixLength - 1])
+        var haveSlash = prefixLength > 0 && prefix[prefixLength - 1] == separatorChar
         if (!haveSlash) {
-            haveSlash = suffix.isNotEmpty() && isSeparator(suffix[0])
+            haveSlash = suffix.isNotEmpty() && suffix[0] == separatorChar
         }
         return if (haveSlash) prefix + suffix else prefix + separatorChar + suffix
     }
