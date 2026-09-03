@@ -26,27 +26,37 @@ class DatabaseConfigurationTest : BaseDatabaseTest(){
         assertTrue(dbPathString.endsWith(TEST_DB_NAME))
     }
 
-    // The three tests below fail on Windows. See https://github.com/touchlab/SQLiter/issues/140
-
-    @Ignore // Wrong on Windows: produces "//tmp//\testdb" there, not "/tmp/testdb".
     @Test
     fun databasePathRemovesExtraSlashes() {
-        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "//tmp//")
-        assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+        if (Platform.osFamily != OsFamily.WINDOWS) {
+            val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "//tmp//")
+            assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+        } else {
+            // On Windows: produces "//tmp//\testdb" there, not "/tmp/testdb".
+            println("Skipped for windows see issue #140")
+        }
     }
 
-    @Ignore // Wrong on Windows: produces "/tmp/\testdb" there, not "/tmp/testdb".
     @Test
     fun databasePathRemovesFileUrlPrefix() {
-        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "file:///tmp/")
-        assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+        if (Platform.osFamily != OsFamily.WINDOWS) {
+            val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "file:///tmp/")
+            assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+        } else {
+            // On Windows: produces "/tmp/\testdb" there, not "/tmp/testdb".
+            println("Skipped for windows see issue #140")
+        }
     }
 
-    @Ignore // Wrong on Windows: produces "/tmp/\testdb" there, not "/tmp/testdb".
     @Test
     fun databasePathRemovesFileUrlPrefixInCaps() {
-        val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "FILE:///tmp/")
-        assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+        if (Platform.osFamily != OsFamily.WINDOWS) {
+            val dbPathString = DatabaseFileContext.databasePath(TEST_DB_NAME, "FILE:///tmp/")
+            assertEquals("/tmp/$TEST_DB_NAME", dbPathString)
+        } else {
+            // On Windows: produces "/tmp/\testdb" there, not "/tmp/testdb".
+            println("Skipped for windows see issue #140")
+        }
     }
 
     @Test
