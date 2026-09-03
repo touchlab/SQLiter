@@ -50,9 +50,11 @@ kotlin {
         target.compilerOptions {
             freeCompilerArgs.addAll(
                 when {
+                    // lld's default --no-allow-shlib-undefined fails the link with K/N's glibc. The symbols are
+                    // only referenced by libsqlite3 itself and the system loader resolves them at runtime.
                     HostManager.hostIsLinux -> listOf(
                         "-linker-options",
-                        "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib"
+                        "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib --allow-shlib-undefined"
                     )
 
                     HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
