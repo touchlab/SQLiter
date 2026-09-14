@@ -50,9 +50,11 @@ kotlin {
         target.compilerOptions {
             freeCompilerArgs.addAll(
                 when {
+                    // lld's default --no-allow-shlib-undefined fails the link with K/N's glibc. The symbols are
+                    // only referenced by libsqlite3 itself and the system loader resolves them at runtime.
                     HostManager.hostIsLinux -> listOf(
                         "-linker-options",
-                        "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib"
+                        "-lsqlite3 -L/usr/lib/x86_64-linux-gnu -L/usr/lib --allow-shlib-undefined"
                     )
 
                     HostManager.hostIsMingw -> listOf("-linker-options", "-lsqlite3 -Lc:\\msys64\\mingw64\\lib")
@@ -83,11 +85,14 @@ mavenPublishing {
     publishToMavenCentral(automaticRelease = true)
 }
 
-listOf(
-    "linuxX64Test",
-    "linuxArm64Test",
-    "linkDebugTestLinuxX64",
-    "linkDebugTestLinuxArm64",
-    "mingwX64Test",
-    "linkDebugTestMingwX64",
-).forEach { tasks.findByName(it)?.enabled = false }
+val disabledTestLinks = mutableListOf("linkDebugTestLinuxArm64")
+
+if (!HostManager.hostIsLinux) {
+    disabledTestLinks += "linkDebugTestLinuxX64"
+}
+
+if (!HostManager.hostIsMingw) {
+    disabledTestLinks += "linkDebugTestMingwX64"
+}
+
+disabledTestLinks.forEach { tasks.findByName(it)?.enabled = false }
